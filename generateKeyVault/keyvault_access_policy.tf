@@ -1,5 +1,4 @@
 resource "azurerm_key_vault_access_policy" "keyvault_access" {
-  count = var.tenant_id == "50f6071f-bbfe-401a-8803-673748e629e2" ? 1 : 0 ##### CONDITIONAL - only create on NHS Tenant #####
 
   key_vault_id = azurerm_key_vault.keyvault.id
   tenant_id    = var.tenant_id
