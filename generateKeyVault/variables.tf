@@ -53,3 +53,11 @@ variable "kv_spnsecret" {
 variable "kv_sqlusername" {
   type = string
 }
+
+variable "kv_sgsql" {
+  type = string
+}
+
+variable "kv_adminsdl" {
+  type = string
+}

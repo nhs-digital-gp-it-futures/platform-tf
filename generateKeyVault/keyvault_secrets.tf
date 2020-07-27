@@ -79,9 +79,9 @@ resource "azurerm_key_vault_secret" "kv-sg-sql" {
   name         = "${var.project}-SG-SQLAdmins"
   value        = var.kv_sgsql
   content_type = "GRP-${var.project}-BC-SQL-Admins-DL"
-  key_vault_id = "${azurerm_key_vault.keyvault.id}"
+  key_vault_id = azurerm_key_vault.keyvault.id
   tags = {
-    environment = "${var.environment}"
+    environment = var.environment
   }
 }
 
