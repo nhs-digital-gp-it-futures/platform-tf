@@ -6,3 +6,10 @@ resource "azurerm_resource_group" "vnet" {
   }
 }
 
+resource "azurerm_resource_group" "aks" {
+  name                            = "${var.project}-${var.environment}-rg-aks"
+  location                        = var.region
+  tags = {
+    environment                   = var.environment
+  }
+}

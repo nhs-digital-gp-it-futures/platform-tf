@@ -62,6 +62,10 @@ variable "kv_adminsdl" {
   type = string
 }
 
-variable "kv_vnetaddsp" {
+variable "kv_addrprefix" {
+  type = string
+}
+
+variable "kv_aksversion" {
   type = string
 }
