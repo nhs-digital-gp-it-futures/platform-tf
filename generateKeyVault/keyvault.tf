@@ -1,6 +1,6 @@
 resource "azurerm_key_vault" "keyvault" {
   name                            = var.keyvault
-  resource_group_name             = var.keyvaultrg
+  resource_group_name             = azurerm_resource_group.keyvault_rg.name
   location                        = var.region
   tenant_id                       = var.tenant_id
   enabled_for_disk_encryption     = "true"

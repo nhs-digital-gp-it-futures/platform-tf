@@ -61,3 +61,7 @@ variable "kv_sgsql" {
 variable "kv_adminsdl" {
   type = string
 }
+
+variable "kv_vnetaddsp" {
+  type = string
+}

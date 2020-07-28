@@ -1,5 +1,0 @@
-output secrets_output {
-    foreach var.key_vault_secrets
-    
-    value = each.value["environment"]
-}

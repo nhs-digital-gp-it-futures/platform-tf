@@ -56,5 +56,9 @@ resource "azurerm_key_vault_access_policy" "keyvault_access" {
     "update"
 
   ]
+
+  depends_on = [
+    azurerm_key_vault.keyvault,
+  ]
 }
 

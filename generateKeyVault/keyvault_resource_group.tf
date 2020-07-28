@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "keyvault_rg" {
-  name     = var.keyvaultrg
+  name     = "${var.project}-${var.keyvaultrg}"
   location = var.region
   tags = {
     environment = var.environment

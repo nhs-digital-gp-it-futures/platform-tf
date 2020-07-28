@@ -3,6 +3,11 @@ resource "azurerm_key_vault_secret" "kv-tenant" {
   value        = var.tenant_id
   content_type = "${var.project} Tenant ID"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
@@ -13,6 +18,11 @@ resource "azurerm_key_vault_secret" "kv-subscription" {
   value        = var.subscription_id
   content_type = "${var.project} Subscription ID"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
@@ -23,6 +33,11 @@ resource "azurerm_key_vault_secret" "kv-spn" {
   value        = var.kv_spn
   content_type = "${var.project} Service Principal"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
@@ -33,6 +48,11 @@ resource "azurerm_key_vault_secret" "kv-appid" {
   value        = var.kv_appid
   content_type = "${var.project} Application ID"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
@@ -43,6 +63,11 @@ resource "azurerm_key_vault_secret" "kv-spnsecret" {
   value        = var.kv_spnsecret
   content_type = "${var.project} Service Prinicpal Secret"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
@@ -53,6 +78,11 @@ resource "azurerm_key_vault_secret" "kv-sqluser" {
   value        = var.kv_sqlusername
   content_type = "${var.project} Azure SQL username"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
@@ -70,6 +100,11 @@ resource "azurerm_key_vault_secret" "kv-sqlpass" {
   value        = random_password.password1.result
   content_type = "${var.project} Azure SQL password"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
@@ -80,10 +115,31 @@ resource "azurerm_key_vault_secret" "kv-sg-sql" {
   value        = var.kv_sgsql
   content_type = "GRP-${var.project}-BC-SQL-Admins-DL"
   key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
   tags = {
     environment = var.environment
   }
 }
+
+resource "azurerm_key_vault_secret" "kv_vnetaddsp" {
+  name         = "${var.project}-vnetaddsp"
+  value        = var.kv_vnetaddsp
+  content_type = "${var.project}-VNET-Address-space"
+  key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
+  tags = {
+    environment = var.environment
+  }
+}
+
 
 ##### Redundant?
 
@@ -92,6 +148,11 @@ resource "azurerm_key_vault_secret" "kv-sg-sql" {
 #  value        = var.kv_adminsdl
 #  content_type = "GRP-AzureGPITFutures-BC-NonProd-Subscription-Admins-DL"
 #  key_vault_id = "${azurerm_key_vault.keyvault.id}"
+#  
+#  depends_on = [
+#    azurerm_key_vault_access_policy.keyvault_access,
+#  ]
+#  
 #  tags = {
 #    environment = "${var.environment}"
 #  }
@@ -103,6 +164,11 @@ resource "azurerm_key_vault_secret" "kv-sg-sql" {
 #  value        = var.keyvault_access_grp
 #  content_type = "GRP-AzureGPITFutures-BC-KeyVault-Admins-DL"
 #  key_vault_id = "${azurerm_key_vault.keyvault.id}"
+#  
+#  depends_on = [
+#    azurerm_key_vault_access_policy.keyvault_access,
+#  ]
+#  
 #  tags = {
 #    environment = "${var.environment}"
 #  }
