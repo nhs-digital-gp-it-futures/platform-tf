@@ -4,11 +4,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version              = data.azurerm_key_vault_secret.aksversion.value
   location                        = var.region
   dns_prefix                      = "${var.project}${var.environment}aksdns"
-  node_resource_group             = azurerm_resource_group.aks.name
+  node_resource_group             = "${var.project}-${var.environment}-rg-aks-nodes"
 
   default_node_pool {
-    name                          = "nodepool-${var.environment}"
-    vm_size                       = var.vm_size
+    name                          = "nodepool"
+    vm_size                       = data.azurerm_key_vault_secret.aksvmsize.value
     vnet_subnet_id                = azurerm_subnet.aks.id
     type                          = "VirtualMachineScaleSets"
     enable_auto_scaling           = "true"
@@ -16,6 +16,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     max_count                     = 2
     min_count                     = 1
     node_count                    = 1
+    tags = {
+      environment                 = var.environment
+    }
   }
 
   service_principal {
@@ -28,7 +31,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin                = "azure"
     network_policy                = "azure"
     service_cidr                  = "${data.azurerm_key_vault_secret.addrprefix.value}.128.0/24"
-    docker_bridge_cidr            = "${data.azurerm_key_vault_secret.addrprefix.value}.129.0/24"
+    docker_bridge_cidr            = "${data.azurerm_key_vault_secret.addrprefix.value}.129.1/24"
     dns_service_ip                = "${data.azurerm_key_vault_secret.addrprefix.value}.128.111"
   }
 

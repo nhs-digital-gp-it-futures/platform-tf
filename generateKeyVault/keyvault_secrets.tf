@@ -155,6 +155,21 @@ resource "azurerm_key_vault_secret" "kv_aksversion" {
   }
 }
 
+resource "azurerm_key_vault_secret" "kv_aksvmsize" {
+  name         = "${var.pjtcode}-aksvmsize"
+  value        = var.kv_aksvmsize
+  content_type = "${var.project}-AKS-VM-size"
+  key_vault_id = azurerm_key_vault.keyvault.id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_access,
+  ]
+  
+  tags = {
+    environment = var.environment
+  }
+}
+
 
 ##### Redundant?
 

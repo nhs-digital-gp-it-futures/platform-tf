@@ -22,3 +22,8 @@ data "azurerm_key_vault_secret" "aksversion" {
   name         = "${var.pjtcode}-aksversion"
   key_vault_id = local.kv_id
 }
+
+data "azurerm_key_vault_secret" "aksvmsize" {
+  name         = "${var.pjtcode}-aksvmsize"
+  key_vault_id = local.kv_id
+}

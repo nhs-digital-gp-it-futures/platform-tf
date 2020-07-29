@@ -69,3 +69,7 @@ variable "kv_addrprefix" {
 variable "kv_aksversion" {
   type = string
 }
+
+variable "kv_aksvmsize" {
+  type = string
+}
