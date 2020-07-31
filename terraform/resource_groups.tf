@@ -21,3 +21,21 @@ resource "azurerm_resource_group" "storage" {
     environment = var.environment
   }
 }
+
+resource "azurerm_resource_group" "sql-pri" {
+  name     = "${var.project}-${var.environment}-rg-sql-pri"
+  location = var.region
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_resource_group" "sql-sec" {
+  count         = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
+
+  name          = "${var.project}-${var.environment}-rg-sql-sec"
+  location      = local.sql_region2
+  tags = {
+    environment = var.environment
+  }
+}
