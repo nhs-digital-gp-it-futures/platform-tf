@@ -73,3 +73,7 @@ variable "kv_aksversion" {
 variable "kv_aksvmsize" {
   type = string
 }
+
+variable "kv_coreurl" {
+  type = string
+}

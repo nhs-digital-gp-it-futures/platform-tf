@@ -14,6 +14,14 @@ resource "azurerm_resource_group" "aks" {
   }
 }
 
+resource "azurerm_resource_group" "appgw" {
+  name          = "${var.project}-${var.environment}-rg-appgw"
+  location      = var.region
+  tags = {
+    environment = var.environment
+  }
+}
+
 resource "azurerm_resource_group" "storage" {
   name          = "${var.project}-${var.environment}-rg-sa"
   location      = var.region
