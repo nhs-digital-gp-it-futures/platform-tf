@@ -1,2 +1,3 @@
-terraform/\.terraform/
-generateKeyVault/\.terraform/
+*/\.terraform/
+
+**/*.old

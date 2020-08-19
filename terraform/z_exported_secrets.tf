@@ -65,26 +65,26 @@ resource "azurerm_key_vault_secret" "kv_devsa" {
   }
 }
 
-resource "azurerm_key_vault_secret" "kv_livesapri" {
-  count = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
-  name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpri"
-  value        = azurerm_storage_account.data_pri[0].primary_connection_string
-  content_type = "${var.project}-Connection-String"
-  key_vault_id = local.kv_id
+# resource "azurerm_key_vault_secret" "kv_livesapri" {
+#   count = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
+#   name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpri"
+#   value        = azurerm_storage_account.data_pri[0].primary_connection_string
+#   content_type = "${var.project}-Connection-String"
+#   key_vault_id = local.kv_id
   
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
-resource "azurerm_key_vault_secret" "kv_livesapub" {
-  count = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
-  name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpub"
-  value        = azurerm_storage_account.data_pub[0].primary_connection_string
-  content_type = "${var.project}-Connection-String"
-  key_vault_id = local.kv_id
+# resource "azurerm_key_vault_secret" "kv_livesapub" {
+#   count = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
+#   name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpub"
+#   value        = azurerm_storage_account.data_pub[0].primary_connection_string
+#   content_type = "${var.project}-Connection-String"
+#   key_vault_id = local.kv_id
   
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
