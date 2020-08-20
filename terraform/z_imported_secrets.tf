@@ -3,16 +3,6 @@ data "azurerm_key_vault_secret" "addrprefix" {
   key_vault_id = local.kv_id
 }
 
-data "azurerm_key_vault_secret" "aksversion" {
-  name         = "${var.pjtcode}${local.shortenv}aksversion"
-  key_vault_id = local.kv_id
-}
-
-data "azurerm_key_vault_secret" "aksvmsize" {
-  name         = "${var.pjtcode}${local.shortenv}aksvmsize"
-  key_vault_id = local.kv_id
-}
-
 data "azurerm_key_vault_secret" "sqladminusername" {
   name         = "${var.pjtcode}${local.shortenv}sqladminusername"
   key_vault_id = local.kv_id

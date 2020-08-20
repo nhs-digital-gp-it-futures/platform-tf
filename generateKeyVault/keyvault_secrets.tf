@@ -140,35 +140,35 @@ resource "azurerm_key_vault_secret" "kv_addrprefix" {
   }
 }
 
-resource "azurerm_key_vault_secret" "kv_aksversion" {
-  name         = "${var.pjtcode}${local.shortEnv}aksversion"
-  value        = var.kv_aksversion
-  content_type = "${var.project}-AKS-Version"
-  key_vault_id = azurerm_key_vault.keyvault.id
+# resource "azurerm_key_vault_secret" "kv_aksversion" {
+#   name         = "${var.pjtcode}${local.shortEnv}aksversion"
+#   value        = var.kv_aksversion
+#   content_type = "${var.project}-AKS-Version"
+#   key_vault_id = azurerm_key_vault.keyvault.id
   
-  depends_on = [
-    azurerm_key_vault_access_policy.keyvault_access,
-  ]
+#   depends_on = [
+#     azurerm_key_vault_access_policy.keyvault_access,
+#   ]
   
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
-resource "azurerm_key_vault_secret" "kv_aksvmsize" {
-  name         = "${var.pjtcode}${local.shortEnv}aksvmsize"
-  value        = var.kv_aksvmsize
-  content_type = "${var.project}-AKS-VM-size"
-  key_vault_id = azurerm_key_vault.keyvault.id
+# resource "azurerm_key_vault_secret" "kv_aksvmsize" {
+#   name         = "${var.pjtcode}${local.shortEnv}aksvmsize"
+#   value        = var.kv_aksvmsize
+#   content_type = "${var.project}-AKS-VM-size"
+#   key_vault_id = azurerm_key_vault.keyvault.id
   
-  depends_on = [
-    azurerm_key_vault_access_policy.keyvault_access,
-  ]
+#   depends_on = [
+#     azurerm_key_vault_access_policy.keyvault_access,
+#   ]
   
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
 resource "azurerm_key_vault_secret" "kv_coreurl" {
   name         = "${var.pjtcode}${local.shortEnv}coreurl"
