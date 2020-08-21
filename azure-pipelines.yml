@@ -31,8 +31,6 @@ jobs:
   displayName: Setup Environment
   variables:
     - group: dev-core-secrets
-    - name: tfVersion
-      value: 0.12.24
   steps:
     - task: DownloadSecureFile@1
       displayName: Download Secret
@@ -59,31 +57,41 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
 
+    - bash: 'ls -R'
+      displayName: Get Folders (DEBUG)
+      workingDirectory: '$(build.artifactStagingDirectory)'
+
+- job: buildBranchKeyVault
+  displayName: Build Branch Key Vault
+  variables:
+    - group: dev-core-secrets
+    - name: tfVersion
+      value: 0.12.24
+    - name: release
+      value: feature-1234
+  steps:
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: Install Terraform $(tfVersion)
       inputs:
         terraformVersion: $(tfVersion)
 
-    - bash: 'ls -R'
-      displayName: Get Folders (DEBUG)
-      workingDirectory: '$(build.artifactStagingDirectory)'
-
-- job: runTerraformKeyVault
-  displayName: Build Branch Key Vault
-  variables:
-    - group: dev-core-secrets
-    - name: release
-      value: feature-1234
-  steps:
-    - task: AzureCLI@2
-      name: tfInitialise
-      displayName: Terraform Initialise
+    - task: TerraformTaskV1@0
       inputs:
-        azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
+        provider: 'azurerm'
+        command: 'init'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        inlineScript: 'Terraform init -backend-config "../gpitfutures.devsub.tfstate.tf" -backend-config="key=gpit.$(release).keyvault.terraform.tfstate"'
+        commandOptions: '-backend-config "../gpitfutures.devsub.tfstate.tf" -backend-config="key=gpit.$(release).keyvault.terraform.tfstate"'''
+        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+
+    # - task: AzureCLI@2
+    #   name: tfInitialise
+    #   displayName: Terraform Initialise
+    #   inputs:
+    #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+    #     inlineScript: 'Terraform init -backend-config "../gpitfutures.devsub.tfstate.tf" -backend-config="key=gpit.$(release).keyvault.terraform.tfstate"'
 
 # - job: setupEnvironment
 #   displayName: Setup Environment
