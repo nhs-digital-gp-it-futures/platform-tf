@@ -36,17 +36,17 @@ jobs:
   steps:
     - task: DownloadSecureFile@1
       displayName: Download Secret1
-      name: devTFState
+      name: TFState
       inputs:
         secureFile: gpitfutures.devsub.tfstate.tf
-      #$(devTFState.secureFilePath)
+      #$(TFState.secureFilePath)
 
     - task: DownloadSecureFile@1
       displayName: Download Secret2
-      name: devCoreTFVars
+      name: CoreTFVars
       inputs:
         secureFile: gpitfutures.core.keyvault.dev.tfvars
-      #$(devCoreTFVars.secureFilePath)
+      #$(CoreTFVars.secureFilePath)
 
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
@@ -67,12 +67,19 @@ jobs:
         OverWrite: true
 
     - task: CopyFiles@2
-      displayName: Copy Secure Files multi
+      displayName: Copy Secure Files2
       inputs:
         SourceFolder: '$(Agent.TempDirectory)'
-        Contents: |
-          'gpitfutures.devsub.tfstate.tf'
-          'gpitfutures.core.keyvault.dev.tfvars'
+        Contents: '$(CoreTFVars.name)'
+        TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
+        CleanTargetFolder: false
+        OverWrite: true
+
+    - task: CopyFiles@2
+      displayName: Copy Secure Files3
+      inputs:
+        SourceFolder: '$(Agent.TempDirectory)'
+        Contents: 'gpitfutures.core.keyvault.dev.tfvars'
         TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
         CleanTargetFolder: false
         OverWrite: true
@@ -93,6 +100,7 @@ jobs:
 
     - bash: 'ls ./generateKeyVault'
       displayName: Get Folders (DEBUG)
+      workingDirectory: '$(build.artifactStagingDirectory)'
 
 # - job: runTerraformKeyVault
 #   displayName: Setup Environment
