@@ -30,10 +30,24 @@ jobs:
 - job: setupEnvironment
   displayName: Setup Environment
   variables:
-    - group: dev-secrets
+    - group: dev-core-secrets
     - name: tfVersion
       value: 0.12.24
   steps:
+    - task: DownloadSecureFile@1
+      displayName: Download Secret1
+      name: devTFState
+      inputs:
+        secureFile: gpitfutures.devsub.tfstate.tf
+      #$(devTFState.secureFilePath)
+
+    - task: DownloadSecureFile@1
+      displayName: Download Secret2
+      name: devCoreTFVars
+      inputs:
+        secureFile: gpitfutures.core.keyvault.dev.tfvars
+      #$(devCoreTFVars.secureFilePath)
+
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
       inputs:
@@ -43,19 +57,49 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
 
+    # - task: CopyFiles@2
+    #   displayName: Copy Terraform Files
+    #   inputs:
+    #     SourceFolder: 'terraform'
+    #     Contents: '**'
+    #     TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+    #     CleanTargetFolder: false
+    #     OverWrite: true
+
     - task: CopyFiles@2
-      displayName: Copy Terraform Files
+      displayName: Copy Secure Files
       inputs:
         SourceFolder: 'terraform'
         Contents: '**'
         TargetFolder: '$(build.artifactStagingDirectory)/terraform'
         CleanTargetFolder: false
-        OverWrite: true
+        OverWrite: true   
 
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-      displayName: ‘Install Terraform 0.12.24’
+      displayName: ‘Install Terraform $(tfVersion)’
       inputs:
-        terraformVersion: 0.12.24
+        terraformVersion: $(tfVersion)
+
+    - bash: 'ls -la'
+      displayName: Get Folders
+
+# - job: runTerraformKeyVault
+#   displayName: Setup Environment
+#   variables:
+#     - group: dev-core-secrets
+#   steps:
+#     - task: AzureCLI@2
+#       name: tfInitialise
+#       displayName: Terraform Initialise
+#       inputs:
+#         azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+#         inlineScript: "Terraform init -backend-config "..\..\Secrets\gpitfutures.devsub.tfstate.tf" -backend-config="key=core.dev.keyvault.terraform.tfstate"
+
+
+
 
 #  - task: UseGitVersion@5
 #    displayName: gitversion
