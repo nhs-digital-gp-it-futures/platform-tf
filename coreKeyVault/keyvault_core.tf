@@ -11,12 +11,6 @@ resource "azurerm_key_vault" "keyvault_core" {
   purge_protection_enabled        = "true"
   soft_delete_enabled             = "true"
 
-  #network_acls {
-  #  default_action = "Allow"
-  #  bypass         = "AzureServices"
-  #  ip_rules       = var.adminRange
-  #}
-
   tags = {
     environment = local.coreEnv
   }

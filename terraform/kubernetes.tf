@@ -42,7 +42,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
     oms_agent {
       enabled                     = false
-      #log_analytics_workspace_id  = azurerm_log_analytics_workspace.workspace.id
     }
   }
 
@@ -59,9 +58,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
 lifecycle {
-    # re-imported cluster means client secret is trying to regenerate mistakenly
     ignore_changes = [
-      #service_principal[0].client_secret,
       default_node_pool[0].node_count
     ]
   }

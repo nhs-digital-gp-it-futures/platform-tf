@@ -18,3 +18,9 @@ data "azurerm_key_vault_secret" "spnsecret" {
   name         = "${var.pjtcode}${local.coreEnv}spnsecret"
   key_vault_id = data.azurerm_key_vault.keyvault_core.id
 }
+
+data "azurerm_key_vault_secret" "sqladmins" {
+  name         = "${var.pjtcode}${local.coreEnv}SG-SQLAdmins"
+  key_vault_id = data.azurerm_key_vault.keyvault_core.id
+}
+

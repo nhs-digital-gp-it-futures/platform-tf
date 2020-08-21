@@ -3,10 +3,5 @@ locals {
 }
 
 locals {
-  #coreEnv = "dev"
   coreEnv = "${local.shortEnv}"
 }
-
-#output "shortname" {
-#    value=local.shortEnv
-#}

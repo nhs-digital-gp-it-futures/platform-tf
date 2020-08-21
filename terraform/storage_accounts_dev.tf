@@ -1,5 +1,3 @@
-
-
 resource "azurerm_storage_account" "data_gen" {
   count                     = local.shortenv != "test" && local.shortenv != "prod" ? 1 : 0 
 
