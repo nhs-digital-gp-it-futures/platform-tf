@@ -174,4 +174,8 @@ resource "azurerm_application_gateway" "AppGate" {
     }
   }
 
+  tags = {
+    environment       = var.environment
+  }
+
 }

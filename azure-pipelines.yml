@@ -1,0 +1,239 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+      - feature/*
+  # paths:
+  #   include:
+  #   - /*
+  #   exclude:
+  #   - housekeeping/*
+  #   - docs/*
+
+# pr:
+#   branches:
+#     include:
+#     - master
+  # paths:
+  #   include:
+  #   - /*
+  #   exclude:
+  #   - housekeeping/*
+  #   - docs/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: packageAndPublish
+  displayName: Package And Publish Buyingcatalogue
+  variables:
+    - group: dev-secrets
+  steps:
+  - task: UseGitVersion@5
+    displayName: gitversion
+    inputs:
+      versionSpec: '5.x'
+
+#  - task: HelmInstaller@1
+#    displayName: 'install helm'
+#    inputs:
+#      helmVersionToInstall: 'latest'
+#  - bash: |
+#      helm repo add gpitfuturesdevacr https://gpitfuturesdevacr.azurecr.io/helm/v1/repo --username gpitfuturesdevacr --password $(gpitfuturesdevacr-pass)
+#      helm dependency update src/buyingcatalogue
+#      helm package \
+#          --version $(GitVersion.SemVer) \
+#          --app-version $(GitVersion.SemVer) \
+#          src/buyingcatalogue
+#    displayName: 'helm package'
+#  - bash: |
+#      chartPackage=$(ls buyingcatalogue-*.tgz)
+#      echo "Chart Package $chartPackage"
+#      az acr helm push --force \
+#          -n gpitfuturesdevacr \
+#          -u gpitfuturesdevacr \
+#          -p $(gpitfuturesdevacr-pass) \
+#          $chartPackage
+#      echo $(jq -n --arg version "$(GitVersion.SemVer)" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
+#    failOnStderr: false
+#    name: helmPush
+#    displayName: 'az acr helm push'
+#  - script: echo "##vso[task.setvariable variable=semVer;isOutput=true]$(GitVersion.SemVer)"
+#    name: setVersionStep  
+#  - bash: |
+#      echo "semver $(setVersionStep.semVer), MajorMinorPatch $(GitVersion.MajorMinorPatch), Reason $(Build.Reason), Branch $(Build.SourceBranch), BranchName $(Build.SourceBranchName)"
+#      if [ $(Build.Reason) = "PullRequest" ]
+#      then
+#        echo "PRID $(System.PullRequest.PullRequestId), PRNumber $(System.PullRequest.PullRequestNumber), PRSource $(System.PullRequest.SourceBranch), Target $(System.PullRequest.TargetBranch)"
+#      fi
+#      env | sort
+#    name: echovar
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: 'environments'
+      Contents: '**'
+      TargetFolder: '$(build.artifactStagingDirectory)/environments'
+      CleanTargetFolder: false
+      OverWrite: true
+    displayName: Copy environments folder
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: 'selenium-grid'
+      Contents: '**'
+      TargetFolder: '$(build.artifactStagingDirectory)/selenium-grid'
+      CleanTargetFolder: false
+      OverWrite: true
+    displayName: Copy selenium-grid folder
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: ''
+      Contents: '*.sh'
+      TargetFolder: '$(build.artifactStagingDirectory)'
+      CleanTargetFolder: false
+      OverWrite: true
+    displayName: Copy scripts
+
+  - publish: $(build.artifactStagingDirectory)
+    artifact: build-artifact 
+
+- job: prepareEnvironment
+  dependsOn: packageAndPublish
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: dev-secrets
+    - name: semVer
+      value: $[ dependencies.packageAndPublish.outputs['setVersionStep.semVer'] ]
+  steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-dev-aks -g gpitfutures-dev-rg-aks'
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+
+  - bash: './determine-namespace.sh'
+    name: DeployVars
+    displayName: Set up environment variables for deployment
+  
+  - bash: |
+      helm repo add gpitfuturesdevacr https://gpitfuturesdevacr.azurecr.io/helm/v1/repo --username gpitfuturesdevacr --password $(gpitfuturesdevacr-pass)
+    name: addRepo
+    displayName: Add gpitfuturesdevacr repo
+    condition: eq(variables['Build.Reason'], 'ResourceTrigger')
+
+  - bash: |
+      buildNameVariableName=$(compgen -A variable | grep 'RESOURCES_PIPELINE_.*RUNNAME')
+      component=$(echo $buildNameVariableName | cut -d_ -f3)
+      version=$(echo ${!buildNameVariableName} | cut -d' ' -f1 )
+      arg="$component=$version"
+      ./update-chart-versions.sh -m $(DeployVars.Namespace) -o $arg
+    name: UpdateVersions
+    displayName: Grab and update component versions
+    condition: eq(variables['Build.Reason'], 'ResourceTrigger')
+
+- job: deployToDev
+  dependsOn:
+    - packageAndPublish 
+    - prepareEnvironment
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: dev-secrets
+    - name: semVer
+      value: $[ dependencies.packageAndPublish.outputs['setVersionStep.semVer'] ]
+    - name: namespace
+      value: $[ dependencies.prepareEnvironment.outputs['DeployVars.Namespace'] ]
+    - name: sqlPackageArgs
+      value: "/p:DatabaseEdition=Standard /p:DatabaseServiceObjective=S0"
+    - name: devClusterIp
+      value: "51.11.46.27"
+  steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-dev-aks -g gpitfutures-dev-rg-aks'
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+    
+  - bash: |
+      helm repo add gpitfuturesdevacr https://gpitfuturesdevacr.azurecr.io/helm/v1/repo --username gpitfuturesdevacr --password $(gpitfuturesdevacr-pass)
+      helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+      helm repo update
+    name: addRepos
+    displayName: Add gpitfuturesdevacr & stable repo
+
+  - bash: |
+        cd selenium-grid 
+        ./launch-selenium-grid.sh --ip "$(devClusterIp)" --add "$(namespace)-dev.buyingcatalogue.digital.nhs.uk"
+    name: setupSeleniumGrid
+    displayName: Setup Selenium Grid
+
+  - bash: |
+      ./launch-or-update-azure.sh -c remote \
+        -n $(namespace) \
+        -d gpitfutures-dev-sql-pri.database.windows.net \
+        -u $(gpitdevsqladminusername) \
+        -p $(gpitdevsqladminpassword) \
+        -w true \
+        -v $(semVer) \
+        -s "/p:DatabaseEdition=Standard /p:DatabaseServiceObjective=S0" \
+        -a "$(gpitdevstorageaccountconnectionstring)" \
+        -i "$(devClusterIp)" \
+        -r $(srt-redishost) \
+        -q $(srt-redispass) \
+        --db-user-pass $(gpitfuturesdevdbpassword)
+    name: deploySystem
+    displayName: Deploy System
+
+- job: cleanUpDynamicEnv
+  dependsOn: packageAndPublish
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: dev-secrets
+    - name: semVer
+      value: $[ dependencies.packageAndPublish.outputs['setVersionStep.semVer'] ]
+  steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-dev-aks -g gpitfutures-dev-rg-aks'
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+  - bash: |
+      helm repo add gpitfuturesdevacr https://gpitfuturesdevacr.azurecr.io/helm/v1/repo --username gpitfuturesdevacr --password $(gpitfuturesdevacr-pass)
+    name: addRepo
+    displayName: Add gpitfuturesdevacr
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'scriptPath'
+      scriptPath: 'tear-down-azure.sh'
+      arguments: '-m "$(Build.SourceVersionMessage)" -d gpitfutures-dev-sql-pri -g gpitfutures-dev-rg-sql-pri -a "$(gpitdevstorageaccountconnectionstring)"'
+    name: cleanUp
+    displayName: Clean up dynamic environments
+
+
+# TODO
+# - job: runAcceptanceTests
+#   dependsOn: packageAndPublish
+#   variables:
+#     - group: dev-secrets
+#   steps:
+#     public browse
+#     marketing pages
+#     admin
+#     order
+#     identity  
+
+
