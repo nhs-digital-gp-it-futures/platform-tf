@@ -49,6 +49,10 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
 
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: '0.12.24'
+
 #  - task: UseGitVersion@5
 #    displayName: gitversion
 #    inputs:
