@@ -60,28 +60,39 @@ jobs:
     - task: CopyFiles@2
       displayName: Copy Secure Files
       inputs:
-        SourceFolder: '$(devTFState.secureFilePath)'
-        Contents: '**'
+        SourceFolder: '$(Agent.TempDirectory)'
+        Contents: 'gpitfutures.devsub.tfstate.tf'
         TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
         CleanTargetFolder: false
         OverWrite: true
 
     - task: CopyFiles@2
-      displayName: Copy Secure Files
+      displayName: Copy Secure Files multi
       inputs:
-        SourceFolder: 'terraform'
-        Contents: '**'
-        TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+        SourceFolder: '$(Agent.TempDirectory)'
+        Contents: |
+          'gpitfutures.devsub.tfstate.tf'
+          'gpitfutures.core.keyvault.dev.tfvars'
+        TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
         CleanTargetFolder: false
-        OverWrite: true   
+        OverWrite: true
+
+    # - task: CopyFiles@2
+    #   displayName: Copy Secure Files
+    #   inputs:
+    #     SourceFolder: 'terraform'
+    #     Contents: '**'
+    #     TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+    #     CleanTargetFolder: false
+    #     OverWrite: true   
 
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: ‘Install Terraform $(tfVersion)’
       inputs:
         terraformVersion: $(tfVersion)
 
-    - bash: 'tree'
-      displayName: Get Folders
+    - bash: 'ls ./generateKeyVault'
+      displayName: Get Folders (DEBUG)
 
 # - job: runTerraformKeyVault
 #   displayName: Setup Environment
