@@ -57,14 +57,14 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
 
-    # - task: CopyFiles@2
-    #   displayName: Copy Terraform Files
-    #   inputs:
-    #     SourceFolder: 'terraform'
-    #     Contents: '**'
-    #     TargetFolder: '$(build.artifactStagingDirectory)/terraform'
-    #     CleanTargetFolder: false
-    #     OverWrite: true
+    - task: CopyFiles@2
+      displayName: Copy Secure Files
+      inputs:
+        SourceFolder: '$(devTFState.secureFilePath)'
+        Contents: '**'
+        TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
+        CleanTargetFolder: false
+        OverWrite: true
 
     - task: CopyFiles@2
       displayName: Copy Secure Files
@@ -80,7 +80,7 @@ jobs:
       inputs:
         terraformVersion: $(tfVersion)
 
-    - bash: 'ls -la'
+    - bash: 'tree'
       displayName: Get Folders
 
 # - job: runTerraformKeyVault
