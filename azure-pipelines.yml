@@ -3,7 +3,8 @@ trigger:
   branches:
     include:
       - master
-      - feature/*
+#      - feature/*
+
   # paths:
   #   include:
   #   - /*
@@ -27,9 +28,11 @@ pool:
 
 jobs:
 - job: setupEnvironment
-  displayName: Install Terraform
-#  variables:
-#    - group: dev-secrets
+  displayName: Setup Environment
+  variables:
+    - group: dev-secrets
+    - name: tfVersion
+      value: 0.12.24
   steps:
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
@@ -49,9 +52,10 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
 
-    - task: TerraformInstaller@0
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+      displayName: ‘Install Terraform 0.12.24’
       inputs:
-        terraformVersion: '0.12.24'
+        terraformVersion: 0.12.24
 
 #  - task: UseGitVersion@5
 #    displayName: gitversion
