@@ -68,7 +68,7 @@ data "azurerm_client_config" "current" {
 resource "azurerm_key_vault_access_policy" "keyvault_devops_access" {
   key_vault_id = azurerm_key_vault.keyvault.id
   tenant_id    = var.tenant_id
-  object_id    = var.kv_appid
+  object_id    = data.azurerm_key_vault_secret.spn_appid.value
   
   key_permissions = [
 
