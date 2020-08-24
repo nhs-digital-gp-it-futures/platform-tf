@@ -5,12 +5,12 @@ trigger:
       - master
       - feature/*
 
-resources:
-  repositories:
-  - repository: platform-helm
-    type: github
-    name: nhs-digital-gp-it-futures/platform-helm
-    endpoint: nhs-digital-gp-it-futures
+# resources:
+#   repositories:
+#   - repository: platform-helm
+#     type: github
+#     name: nhs-digital-gp-it-futures/platform-helm
+#     endpoint: nhs-digital-gp-it-futures
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -132,81 +132,81 @@ jobs:
         workingDirectory: '$(build.artifactStagingDirectory)/terraform'
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
+
+### <--- Following code is for next task - please ignore for now  --->
+
+# - job: setupPlatformHelmRepo
+#   dependsOn: buildBranchEnvironment
+#   displayName: Setup Platform Helm Code
+#   variables:
+#     - group: dev-core-secrets
+#     - name: release
+#       value: feature-1234
       
-- job: setupPlatformHelmRepo
-  dependsOn: buildBranchEnvironment
-  displayName: Setup Platform Helm Code
-  variables:
-    - group: dev-core-secrets
-    - name: release
-      value: feature-1234
-      
-  steps:
-  - checkout: platform-helm
+#   steps:
+#   - checkout: platform-helm
 
-  # - task: DownloadBuildArtifacts@0
-  #   displayName: Download Build Artifacts
-  #   inputs:
-  #     buildType: 'specific'
-  #     project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
-  #     pipeline: '75'
-  #     buildVersionToDownload: 'latest'
-  #     downloadType: 'specific'
-  #     downloadPath: '$(build.ArtifactStagingDirectory)'
+#   - task: DownloadPipelineArtifact@2
+#     displayName: Download Helm Pipeline Artifact
+#     inputs:
+#       buildType: 'specific'
+#       project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
+#       definition: '75'
+#       buildVersionToDownload: 'latest'
+#       targetPath: '$(build.ArtifactStagingDirectory)'
 
-  - task: DownloadPipelineArtifact@2
-    displayName: Download Helm Pipeline Artifact
-    inputs:
-      buildType: 'specific'
-      project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
-      definition: '75'
-      buildVersionToDownload: 'latest'
-      targetPath: '$(build.ArtifactStagingDirectory)'
+#   - bash: 'ls -R'
+#     displayName: Get Folders (Sources Dir)
+#     workingDirectory: '$(Build.SourcesDirectory)'
 
-  - bash: 'ls -R'
-    displayName: Get Folders (Sources Dir)
-    workingDirectory: '$(Build.SourcesDirectory)'
+#   - bash: 'ls -R'
+#     displayName: Get Folders (Artifacts)
+#     workingDirectory: '$(build.ArtifactStagingDirectory)'
 
-  - bash: 'ls -R'
-    displayName: Get Folders (Artifacts)
-    workingDirectory: '$(build.ArtifactStagingDirectory)'
+# - job: prepareEnvironment
+#   dependsOn: setupPlatformHelmRepo
+#   variables:
+#     - group: dev-secrets
+#     - name: release
+#       value: feature-1234
 
-- job: prepareEnvironment
-  dependsOn: setupPlatformHelmRepo
-  variables:
-    - group: dev-secrets
-    - name: release
-      value: feature-1234
-    # - name: semVer
-    #   value: $[ dependencies.packageAndPublish.outputs['setVersionStep.semVer'] ]
-  steps:
-  - task: AzureCLI@2
-    name: kubectlContext
-    displayName: Get Kubernetes Context
-    inputs:
-      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
+#   steps:
+#   - task: AzureCLI@2
+#     name: kubectlContext
+#     displayName: Get Kubernetes Context
+#     inputs:
+#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#       scriptType: 'bash'
+#       scriptLocation: 'inlineScript'
+#       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
-  - task: AzureCLI@2
-    name: kubectlInstallAAD
-    displayName: Install AAD Pod Identity
-    inputs:
-      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
+#   - task: AzureCLI@2
+#     name: kubectlInstallAAD
+#     displayName: Install AAD Pod Identity
+#     inputs:
+#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#       scriptType: 'bash'
+#       scriptLocation: 'inlineScript'
+#       inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
 
-  - task: AzureCLI@2
-    name: kubectlGetNamespaces
-    displayName: Get Kubernetes Namespaces
-    inputs:
-      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl get namespaces'
+#   - task: AzureCLI@2
+#     name: kubectlCreateIdentity
+#     displayName: Create Identity (MSI) file
+#     inputs:
+#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#       scriptType: 'bash'
+#       scriptLocation: 'inlineScript'
+#       inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > $(release)-msi.txt'
 
-  # - bash: './determine-namespace.sh'
-  #   name: DeployVars
-  #   displayName: Set up environment variables for deployment
+#   - task: AzureCLI@2
+#     name: kubectlGetNamespaces
+#     displayName: Get Kubernetes Namespaces
+#     inputs:
+#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#       scriptType: 'bash'
+#       scriptLocation: 'inlineScript'
+#       inlineScript: 'kubectl get namespaces'
+
+  # # - bash: './determine-namespace.sh'
+  # #   name: DeployVars
+  # #   displayName: Set up environment variables for deployment
