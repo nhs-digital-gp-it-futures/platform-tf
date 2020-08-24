@@ -3,7 +3,7 @@ trigger:
   branches:
     include:
       - master
-#      - feature/*
+      - feature/*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -28,9 +28,9 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
 
-    - bash: 'ls -R'
-      displayName: Get Folders (DEBUG)
-      workingDirectory: '$(build.artifactStagingDirectory)'
+    # - bash: 'ls -R'
+    #   displayName: Get Folders (DEBUG)
+    #   workingDirectory: '$(build.artifactStagingDirectory)'
 
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: Install Terraform $(tfVersion)
@@ -68,6 +68,7 @@ jobs:
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
 - job: buildBranchEnvironment
+  dependsOn: buildBranchKeyVault
   displayName: Build Branch Environment
   variables:
     - group: dev-core-secrets
@@ -86,9 +87,9 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
       
-    - bash: 'ls -R'
-      displayName: Get Folders (DEBUG)
-      workingDirectory: '$(build.artifactStagingDirectory)'
+    # - bash: 'ls -R'
+    #   displayName: Get Folders (DEBUG)
+    #   workingDirectory: '$(build.artifactStagingDirectory)'
       
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: Install Terraform $(tfVersion)
