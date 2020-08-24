@@ -11,6 +11,12 @@ resource "azurerm_key_vault_secret" "kv-sqluser" {
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }
 
 resource "random_password" "password1" {
@@ -33,6 +39,12 @@ resource "azurerm_key_vault_secret" "kv-sqlpass" {
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }
 
 resource "azurerm_key_vault_secret" "kv_addrprefix" {
@@ -48,6 +60,12 @@ resource "azurerm_key_vault_secret" "kv_addrprefix" {
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }
 
 resource "azurerm_key_vault_secret" "kv_coreurl" {
@@ -63,4 +81,10 @@ resource "azurerm_key_vault_secret" "kv_coreurl" {
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }

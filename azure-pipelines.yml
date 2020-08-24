@@ -99,3 +99,71 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
+- job: buildBranchEnvironment
+  displayName: Build Branch Environment
+  variables:
+    - group: dev-core-secrets
+    - name: tfVersion
+      value: 0.12.24
+    - name: release
+      value: feature-1234
+      
+  steps:
+     
+    - task: CopyFiles@2
+      displayName: Copy Branch Environment Config Files
+      inputs:
+        SourceFolder: 'terraform'
+        Contents: '**'
+        TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+        CleanTargetFolder: false
+        OverWrite: true
+      
+    # - task: CopyFiles@2
+    #   displayName: Copy Secure Files (tfstate)
+    #   inputs:
+    #     SourceFolder: '$(Agent.TempDirectory)'
+    #     Contents: 'gpitfutures.devsub.tfstate.tf'
+    #     TargetFolder: '$(build.artifactStagingDirectory)'
+    #     CleanTargetFolder: false
+    #     OverWrite: true
+      
+    - bash: 'ls -R'
+      displayName: Get Folders (DEBUG)
+      workingDirectory: '$(build.artifactStagingDirectory)'
+      
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+      displayName: Install Terraform $(tfVersion)
+      inputs:
+        terraformVersion: $(tfVersion)
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Initialise (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
+        backendAzureRmStorageAccountName: 'gpitfuturessatf'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'gpit.$(release).terraform.tfstate'
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Plan (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Apply (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
+      
