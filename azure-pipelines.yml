@@ -181,22 +181,24 @@ jobs:
     #   value: $[ dependencies.packageAndPublish.outputs['setVersionStep.semVer'] ]
   steps:
   - task: AzureCLI@2
+    name: kubectlContext
     displayName: Get Kubernetes Context
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
-    name: kubectlContext
+
 
   - task: AzureCLI@2
+    name: kubectlGetNamespaces
     displayName: Get Kubernetes Namespaces
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl get namespaces'
-    name: kubectlContext
+
 
   # - bash: './determine-namespace.sh'
   #   name: DeployVars
