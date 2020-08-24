@@ -133,8 +133,8 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
       
-- job: 
-  dependsOn: setupPlatformHelm
+- job: setupPlatformHelmRepo
+  dependsOn: buildBranchEnvironment
   displayName: Setup Platform Helm Code
   variables:
     - group: dev-core-secrets
@@ -152,12 +152,12 @@ jobs:
       pipeline: '75'
       buildVersionToDownload: 'latest'
       downloadType: 'specific'
-      downloadPath: '$(System.ArtifactsDirectory)'
+      downloadPath: '$(build.ArtifactStagingDirectory)'
 
   - bash: 'ls -R'
-    displayName: Get Folders (All)
-    #workingDirectory: '$(build.artifactStagingDirectory)'
+    displayName: Get Folders (Sources Dir)
+    workingDirectory: '$(Build.SourcesDirectory)'
 
   - bash: 'ls -R'
     displayName: Get Folders (Artifacts)
-    workingDirectory: '$(build.artifactStagingDirectory)'
+    workingDirectory: '$(build.ArtifactStagingDirectory)'
