@@ -27,17 +27,26 @@ pool:
   vmImage: 'ubuntu-latest'
 
 jobs:
-- job: setupEnvironment
-  displayName: Setup Environment
+# - job: setupEnvironment
+#   displayName: Setup Environment
+#   variables:
+#     - group: dev-core-secrets
+#   steps:
+
+- job: buildBranchKeyVault
+  displayName: Build Branch Key Vault
   variables:
     - group: dev-core-secrets
+    - name: tfVersion
+      value: 0.12.24
+    - name: release
+      value: feature-1234
   steps:
     - task: DownloadSecureFile@1
       displayName: Download Secret
       name: TFState
       inputs:
         secureFile: gpitfutures.devsub.tfstate.tf
-      #$(TFState.secureFilePath)
 
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
@@ -61,15 +70,15 @@ jobs:
       displayName: Get Folders (DEBUG)
       workingDirectory: '$(build.artifactStagingDirectory)'
 
-- job: buildBranchKeyVault
-  displayName: Build Branch Key Vault
-  variables:
-    - group: dev-core-secrets
-    - name: tfVersion
-      value: 0.12.24
-    - name: release
-      value: feature-1234
-  steps:
+# - job: buildBranchKeyVault
+#   displayName: Build Branch Key Vault
+#   variables:
+#     - group: dev-core-secrets
+#     - name: tfVersion
+#       value: 0.12.24
+#     - name: release
+#       value: feature-1234
+#   steps:
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: Install Terraform $(tfVersion)
       inputs:
