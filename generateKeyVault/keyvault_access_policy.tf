@@ -66,9 +66,7 @@ data "azurerm_client_config" "current" {
 }
 
 resource "azurerm_key_vault_access_policy" "keyvault_devops_access" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
-
-  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  key_vault_id = azurerm_key_vault.keyvault.id
   tenant_id    = var.tenant_id
   object_id    = var.kv_appid
   
@@ -126,14 +124,12 @@ resource "azurerm_key_vault_access_policy" "keyvault_devops_access" {
   ]
 
   depends_on = [
-    azurerm_key_vault.keyvault_core[0],
+    azurerm_key_vault.keyvault,
   ]
 }
 
 resource "azurerm_key_vault_access_policy" "keyvault_current_access" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
-
-  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  key_vault_id = azurerm_key_vault.keyvault.id
   tenant_id    = var.tenant_id
   object_id    = data.azurerm_client_config.current.object_id
 
@@ -191,6 +187,6 @@ resource "azurerm_key_vault_access_policy" "keyvault_current_access" {
   ]
 
   depends_on = [
-    azurerm_key_vault.keyvault_core[0],
+    azurerm_key_vault.keyvault,
   ]
 }
