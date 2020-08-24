@@ -93,8 +93,10 @@ jobs:
         provider: 'azurerm'
         command: 'plan'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-var="environment=$release" -var="keyvault=gpit-$release-kv" -var="keyvaultrg=$release-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk"'
+        commandOptions: '-var="environment=$release" -var="keyvault=gpit-$release-kv" -var="keyvaultrg=$release-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+
+        
 
 
     # - task: AzureCLI@2
