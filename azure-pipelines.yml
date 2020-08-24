@@ -101,7 +101,7 @@ jobs:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        inlineScript: 'terraform plan -var-file "..\..\Secrets\gpitfutures.devsub.tfvars" --var="environment=$release" -var="keyvault=gpit-$release-kv" -var="keyvaultrg=$release-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk"'  
+        inlineScript: 'terraform plan -var-file "./gpitfutures.devsub.tfvars" --var="environment=$release" -var="keyvault=gpit-$release-kv" -var="keyvaultrg=$release-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk"'  
 
 # - job: setupEnvironment
 #   displayName: Setup Environment
