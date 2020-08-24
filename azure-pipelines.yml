@@ -155,6 +155,7 @@ jobs:
   #     downloadPath: '$(build.ArtifactStagingDirectory)'
 
   - task: DownloadPipelineArtifact@2
+    displayName: Download Helm Pipeline Artifact
     inputs:
       buildType: 'specific'
       project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
@@ -169,3 +170,34 @@ jobs:
   - bash: 'ls -R'
     displayName: Get Folders (Artifacts)
     workingDirectory: '$(build.ArtifactStagingDirectory)'
+
+- job: prepareEnvironment
+  # dependsOn: packageAndPublish
+  variables:
+    - group: dev-secrets
+    - name: release
+      value: feature-1234
+    # - name: semVer
+    #   value: $[ dependencies.packageAndPublish.outputs['setVersionStep.semVer'] ]
+  steps:
+  - task: AzureCLI@2
+    displayName: Get Kubernetes Context
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
+    name: kubectlContext
+
+  - task: AzureCLI@2
+    displayName: Get Kubernetes Namespaces
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl get namespaces'
+    name: kubectlContext
+
+  # - bash: './determine-namespace.sh'
+  #   name: DeployVars
+  #   displayName: Set up environment variables for deployment
