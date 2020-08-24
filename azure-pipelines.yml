@@ -76,11 +76,24 @@ jobs:
         terraformVersion: $(tfVersion)
 
     - task: TerraformTaskV1@0
+      displayName: 'Terraform Initialise (Key Vault)'
       inputs:
         provider: 'azurerm'
         command: 'init'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-backend-config "../gpitfutures.devsub.tfstate.tf" -backend-config="key=gpit.$(release).keyvault.terraform.tfstate"'
+        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
+        backendAzureRmStorageAccountName: 'gpitfuturessatf'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'gpit.$(release).keyvault.terraform.tfstate'
+
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Plan (Key Vault)'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+        commandOptions: '-var="environment=$release" -var="keyvault=gpit-$release-kv" -var="keyvaultrg=$release-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
 
