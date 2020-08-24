@@ -144,15 +144,23 @@ jobs:
   steps:
   - checkout: platform-helm
 
-  - task: DownloadBuildArtifacts@0
-    displayName: Build Branch Environment
+  # - task: DownloadBuildArtifacts@0
+  #   displayName: Download Build Artifacts
+  #   inputs:
+  #     buildType: 'specific'
+  #     project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
+  #     pipeline: '75'
+  #     buildVersionToDownload: 'latest'
+  #     downloadType: 'specific'
+  #     downloadPath: '$(build.ArtifactStagingDirectory)'
+
+  - task: DownloadPipelineArtifact@2
     inputs:
       buildType: 'specific'
       project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
-      pipeline: '75'
+      definition: '75'
       buildVersionToDownload: 'latest'
-      downloadType: 'specific'
-      downloadPath: '$(build.ArtifactStagingDirectory)'
+      targetPath: '$(build.ArtifactStagingDirectory)'
 
   - bash: 'ls -R'
     displayName: Get Folders (Sources Dir)
