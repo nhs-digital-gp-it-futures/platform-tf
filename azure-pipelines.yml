@@ -26,8 +26,8 @@ jobs:
       value: feature-1234
 
   steps:
-    - bash: 'ls -R'
-      displayName: Get Folders (DEBUG)
+    # - bash: 'ls -R'
+    #   displayName: Get Folders (DEBUG)
       #workingDirectory: '$(build.artifactStagingDirectory)'
 
     - task: CopyFiles@2
@@ -133,3 +133,31 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
       
+- job: 
+  dependsOn: setupPlatformHelm
+  displayName: Setup Platform Helm Code
+  variables:
+    - group: dev-core-secrets
+    - name: release
+      value: feature-1234
+      
+  steps:
+  - checkout: platform-helm
+
+  - task: DownloadBuildArtifacts@0
+    displayName: Build Branch Environment
+    inputs:
+      buildType: 'specific'
+      project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
+      pipeline: '75'
+      buildVersionToDownload: 'latest'
+      downloadType: 'specific'
+      downloadPath: '$(System.ArtifactsDirectory)'
+
+  - bash: 'ls -R'
+    displayName: Get Folders (All)
+    #workingDirectory: '$(build.artifactStagingDirectory)'
+
+  - bash: 'ls -R'
+    displayName: Get Folders (Artifacts)
+    workingDirectory: '$(build.artifactStagingDirectory)'
