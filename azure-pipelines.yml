@@ -5,24 +5,6 @@ trigger:
       - master
 #      - feature/*
 
-  # paths:
-  #   include:
-  #   - /*
-  #   exclude:
-  #   - housekeeping/*
-  #   - docs/*
-
-# pr:
-#   branches:
-#     include:
-#     - master
-  # paths:
-  #   include:
-  #   - /*
-  #   exclude:
-  #   - housekeeping/*
-  #   - docs/*
-
 pool:
   vmImage: 'ubuntu-latest'
 
@@ -35,13 +17,8 @@ jobs:
       value: 0.12.24
     - name: release
       value: feature-1234
-  steps:
-    # - task: DownloadSecureFile@1
-    #   displayName: Download Secret
-    #   name: TFState
-    #   inputs:
-    #     secureFile: gpitfutures.devsub.tfstate.tf
 
+  steps:
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
       inputs:
@@ -50,15 +27,6 @@ jobs:
         TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
         CleanTargetFolder: false
         OverWrite: true
-
-    # - task: CopyFiles@2
-    #   displayName: Copy Secure Files (tfstate)
-    #   inputs:
-    #     SourceFolder: '$(Agent.TempDirectory)'
-    #     Contents: 'gpitfutures.devsub.tfstate.tf'
-    #     TargetFolder: '$(build.artifactStagingDirectory)'
-    #     CleanTargetFolder: false
-    #     OverWrite: true
 
     - bash: 'ls -R'
       displayName: Get Folders (DEBUG)
@@ -107,9 +75,8 @@ jobs:
       value: 0.12.24
     - name: release
       value: feature-1234
-      
+
   steps:
-     
     - task: CopyFiles@2
       displayName: Copy Branch Environment Config Files
       inputs:
@@ -118,15 +85,6 @@ jobs:
         TargetFolder: '$(build.artifactStagingDirectory)/terraform'
         CleanTargetFolder: false
         OverWrite: true
-      
-    # - task: CopyFiles@2
-    #   displayName: Copy Secure Files (tfstate)
-    #   inputs:
-    #     SourceFolder: '$(Agent.TempDirectory)'
-    #     Contents: 'gpitfutures.devsub.tfstate.tf'
-    #     TargetFolder: '$(build.artifactStagingDirectory)'
-    #     CleanTargetFolder: false
-    #     OverWrite: true
       
     - bash: 'ls -R'
       displayName: Get Folders (DEBUG)
