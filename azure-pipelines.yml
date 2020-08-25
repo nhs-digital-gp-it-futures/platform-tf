@@ -5,6 +5,13 @@ trigger:
 #      - master # Not deploying to master branch yet
       - feature/*
 
+pr:
+  branches:
+    exclude:
+    - master
+    - feature/*
+    - '*'
+
 ### <--- Following code is for next task - please ignore for now  --->
 #
 # resources:
