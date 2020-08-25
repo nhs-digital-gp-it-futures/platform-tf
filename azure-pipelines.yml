@@ -20,10 +20,8 @@ jobs:
   displayName: Test Branching variables
   steps:
   - script: |
-      branchSource="$(Build.SourceBranch)"
-      BUILD_NUMBER=$branchSource -replace "refs/heads/", ""
+      BUILD_NUMBER=git branch --show-current
       echo "##vso[task.setvariable variable=myVariable]$BUILD_NUMBER"
-      echo $branchSource
       echo $BUILD_NUMBER
     displayName: Figure out the build number
   - script: |
@@ -36,9 +34,6 @@ jobs:
 #      ./scripts/calculateGitBranch.sh
 #    name: calculateGitBranch
 #    displayName: Set up environment variables for deployment
-  - bash: echo $(myVariable)
-    name: displayVariable
-    displayName: Variable
 
 # - job: buildBranchKeyVault
 #   displayName: Build Branch Key Vault
