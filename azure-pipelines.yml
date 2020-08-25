@@ -19,11 +19,13 @@ jobs:
 - job: testVariables
   displayName: Test Branching variables
   steps:
-  - bash: 'ls -R'
-    displayName: Get Folders (DEBUG)
-#  - bash: './scripts/calculateGitBranch.sh'
-#    name: calculateGitBranch
-#    displayName: Set up environment variables for deployment
+#  - bash: 'ls -R'
+#    displayName: Get Folders (DEBUG)
+  - bash: |
+      chmod 777 ./scripts/calculateGitBranch.sh
+      '. ./scripts/calculateGitBranch.sh'
+    name: calculateGitBranch
+    displayName: Set up environment variables for deployment
 
 # - job: buildBranchKeyVault
 #   displayName: Build Branch Key Vault
