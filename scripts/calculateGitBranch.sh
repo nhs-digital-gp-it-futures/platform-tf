@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-#branchName=git rev-parse --abbrev-ref HEAD
-branchName=feature/7977-build-pipeline-for-tf
+branchName=git rev-parse --abbrev-ref HEAD
+#branchName=feature/7977-build-pipeline-for-tf
 
 if [[ "$branchName" == master ]]; then
     echo "master"
@@ -18,4 +18,4 @@ else
 fi
 
 echo "release=$release"
-#echo "##vso[task.setvariable variable=Namespace;isOutput=true]$namespace"
+echo "##vso[task.setvariable variable=release;isOutput=true]$release"

@@ -26,6 +26,9 @@ jobs:
       ./scripts/calculateGitBranch.sh
     name: calculateGitBranch
     displayName: Set up environment variables for deployment
+  - bash: echo $(release)
+    name: displayVariable
+    displayName: Variable
 
 # - job: buildBranchKeyVault
 #   displayName: Build Branch Key Vault
