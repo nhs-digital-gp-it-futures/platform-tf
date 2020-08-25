@@ -68,14 +68,14 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
-#     - task: TerraformTaskV1@0
-#       displayName: 'Terraform Apply (Key Vault)'
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'apply'
-#         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-#         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
-#         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Apply (Key Vault)'
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
 - job: buildBranchEnvironment
   dependsOn: buildBranchKeyVault
@@ -84,8 +84,6 @@ jobs:
     - group: dev-core-secrets
     - name: tfVersion
       value: 0.12.24
-#     - name: release
-#       value: feature-1234
 
   steps:
 
@@ -132,14 +130,14 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       
-#     - task: TerraformTaskV1@0
-#       displayName: 'Terraform Apply (Branch Environment)'
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'apply'
-#         workingDirectory: '$(build.artifactStagingDirectory)/terraform'
-#         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
-#         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Apply (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
 
 ### <--- Following code is for next task - please ignore for now  --->
 
