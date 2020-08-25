@@ -20,10 +20,12 @@ jobs:
   displayName: Test Branching variables
   steps:
   - script: |
-      export BUILD_NUMBER=$(git rev-parse --short HEAD)
+      export BUILD_NUMBER=$(git rev-parse --abbrev-ref HEAD)
       echo "##vso[task.setvariable variable=myVariable]$BUILD_NUMBER"
-      echo my variable is $(myVariable) [!!! This is still empty here.]
-      echo my variable is $BUILD_NUMBER
+    displayName: Figure out the build number
+  - script: |
+      echo my variable is $(myVariable)
+#      echo my variable is $BUILD_NUMBER
 #  - bash: 'ls -R'
 #    displayName: Get Folders (DEBUG)
 #  - bash: |
@@ -31,7 +33,7 @@ jobs:
 #      ./scripts/calculateGitBranch.sh
 #    name: calculateGitBranch
 #    displayName: Set up environment variables for deployment
-  - bash: echo $(BUILD_NUMBER)
+  - bash: echo $(myVariable)
     name: displayVariable
     displayName: Variable
 
