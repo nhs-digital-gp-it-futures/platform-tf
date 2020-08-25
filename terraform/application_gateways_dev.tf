@@ -21,9 +21,9 @@ resource "azurerm_application_gateway" "AppGate" {
   resource_group_name              = azurerm_resource_group.appgw.name
 
   sku {
-    name                           = local.waf_name
-    tier                           = local.waf_tier
-    capacity                       = local.waf_capacity
+    name                           = local.ag_skuname
+    tier                           = local.ag_tier
+    capacity                       = local.ag_capacity
   }
 
   gateway_ip_configuration {
@@ -137,42 +137,42 @@ resource "azurerm_application_gateway" "AppGate" {
     identity_ids = [data.azurerm_user_assigned_identity.managed_identity_aad.id]
   }
 
-  waf_configuration {
-    enabled                  = true
-    file_upload_limit_mb     = 100
-    firewall_mode            = "Prevention"
-    max_request_body_size_kb = 128
-    request_body_check       = true
-    rule_set_type            = "OWASP"
-    rule_set_version         = "3.1"
+  # waf_configuration {
+  #   enabled                  = true
+  #   file_upload_limit_mb     = 100
+  #   firewall_mode            = "Prevention"
+  #   max_request_body_size_kb = 128
+  #   request_body_check       = true
+  #   rule_set_type            = "OWASP"
+  #   rule_set_version         = "3.1"
 
-    disabled_rule_group {
-      rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
-      rules           = [
-        942430,
-        942130,
-        942450,
-        942440,
-        942210,
-        942380,
-        942200,
-        942220,
-        942400
-      ]
-    }
-    disabled_rule_group {
-      rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
-      rules           = [ 920230 ]
-    }
-    disabled_rule_group {
-      rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
-      rules           = [ 931130 ]
-    }
-    disabled_rule_group {
-      rule_group_name = "REQUEST-932-APPLICATION-ATTACK-RCE"
-      rules           = [ 932115 ]
-    }
-  }
+  #   disabled_rule_group {
+  #     rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+  #     rules           = [
+  #       942430,
+  #       942130,
+  #       942450,
+  #       942440,
+  #       942210,
+  #       942380,
+  #       942200,
+  #       942220,
+  #       942400
+  #     ]
+  #   }
+  #   disabled_rule_group {
+  #     rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+  #     rules           = [ 920230 ]
+  #   }
+  #   disabled_rule_group {
+  #     rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+  #     rules           = [ 931130 ]
+  #   }
+  #   disabled_rule_group {
+  #     rule_group_name = "REQUEST-932-APPLICATION-ATTACK-RCE"
+  #     rules           = [ 932115 ]
+  #   }
+  # }
 
   tags = {
     environment       = var.environment
