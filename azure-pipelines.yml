@@ -22,6 +22,7 @@ jobs:
   - script: |
       export BUILD_NUMBER=$(git rev-parse --abbrev-ref HEAD)
       echo "##vso[task.setvariable variable=myVariable]$BUILD_NUMBER"
+      echo $BUILD_NUMBER
     displayName: Figure out the build number
   - script: |
       echo my variable is $(myVariable)
