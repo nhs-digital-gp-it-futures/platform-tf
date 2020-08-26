@@ -8,7 +8,8 @@ Repository for Platform Terraform code
 
 # To fix:
 1) Cert name in z_imported_certs.tf
-2) Trigger pipeline on Key Vault change (as per https://stackoverflow.com/questions/61541156/how-to-trigger-a-azure-devops-pipeline-whenever-there-is-azure-keyvault-secret-c)
+2) Cert manually imported into core key vault - needs coding
+3) Trigger pipeline on Key Vault change (as per https://stackoverflow.com/questions/61541156/how-to-trigger-a-azure-devops-pipeline-whenever-there-is-azure-keyvault-secret-c)
 
 # Notes: 
 1) Have set key vault to soft delete = no and no purge protection to make deleting key vaults easier
