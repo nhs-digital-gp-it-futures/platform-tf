@@ -183,6 +183,7 @@ jobs:
     workingDirectory: '$(build.ArtifactStagingDirectory)'
 
 - job: prepareEnvironment
+  displayName: Prepare Environment for code
   dependsOn: setupPlatformHelmRepo
   variables:
     - group: dev-secrets
@@ -224,7 +225,9 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl create namespace ingress-appgw'  
-      
+      failOnStandardError: false
+      ### Need to look at setting conditionals to prevent these running if items already exist
+
   - task: AzureCLI@2
     name: kubectlDeployRBAC
     displayName: Deploy RBAC
@@ -233,15 +236,26 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl create -f ./ingress/deployment-rbac.yaml'
+      failOnStandardError: false
+      ### Need to look at setting conditionals to prevent these running if items already exist
+
+  # - task: AzureCLI@2
+  #   name: kubectlCreateIdentity
+  #   displayName: Create Identity (MSI) file
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
 
   - task: AzureCLI@2
     name: kubectlCreateIdentity
-    displayName: Create Identity (MSI) file
+    displayName: Generate Identity (MSI) file
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
+      inlineScript: 'az identity list -g gpitfutures-$(release)-rg-aks -n gpitfutures-$(release)-aad-id -o json > ./ingress/$(release)-msi.txt'
 
   - task: AzureCLI@2
     name: kubectlGetNamespaces

@@ -134,7 +134,8 @@ resource "azurerm_application_gateway" "AppGate" {
 
   identity {
     type = "UserAssigned"
-    identity_ids = [data.azurerm_user_assigned_identity.managed_identity_aad.id]
+    #identity_ids = [data.azurerm_user_assigned_identity.managed_identity_aad.id]
+    identity_ids = [azurerm_user_assigned_identity.managed_id.id]
   }
 
   # waf_configuration {
