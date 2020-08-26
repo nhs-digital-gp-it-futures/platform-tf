@@ -178,4 +178,7 @@ resource "azurerm_application_gateway" "AppGate" {
     environment       = var.environment
   }
 
+  depends_on = [
+    azurerm_network_security_rule.Azure
+  ]
 }
