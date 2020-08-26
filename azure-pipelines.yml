@@ -217,13 +217,22 @@ jobs:
   #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
 
   - task: AzureCLI@2
+    name: kubectlDeployRBAC
+    displayName: Deploy RBAC
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl apply -f ./ingress/deployment-rbac.yaml'
+
+  - task: AzureCLI@2
     name: kubectlCreateIdentity
     displayName: Create Identity (MSI) file
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > $(release)-msi.txt'
+      inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
 
   - task: AzureCLI@2
     name: kubectlGetNamespaces
@@ -236,7 +245,3 @@ jobs:
 
   - bash: 'ls -R'
     displayName: Get Folders (code)
-
-  # # - bash: './determine-namespace.sh'
-  # #   name: DeployVars
-  # #   displayName: Set up environment variables for deployment
