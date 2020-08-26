@@ -217,13 +217,22 @@ jobs:
   #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
 
   - task: AzureCLI@2
+    name: kubectlCreateIngressNamespace
+    displayName: Create Ingress Namespace
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl create namespace ingress-appgw'  
+      
+  - task: AzureCLI@2
     name: kubectlDeployRBAC
     displayName: Deploy RBAC
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl apply -f ./ingress/deployment-rbac.yaml'
+      inlineScript: 'kubectl create -f ./ingress/deployment-rbac.yaml'
 
   - task: AzureCLI@2
     name: kubectlCreateIdentity
