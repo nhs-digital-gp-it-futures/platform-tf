@@ -45,3 +45,7 @@ variable "kv_sgsql" {
 variable "kv_sqladmins" {
   type = string
 }
+
+variable "kv_tfsakey" {
+  type = string
+}

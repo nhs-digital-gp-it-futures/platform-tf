@@ -4,13 +4,15 @@ resource "azurerm_key_vault_secret" "kv-sqluser" {
   content_type = "${var.project}-SQL-Username"
   key_vault_id = azurerm_key_vault.keyvault.id
   
-  depends_on = [
-    azurerm_key_vault_access_policy.keyvault_access,
-  ]
-  
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }
 
 resource "random_password" "password1" {
@@ -26,13 +28,15 @@ resource "azurerm_key_vault_secret" "kv-sqlpass" {
   content_type = "${var.project}-SQL-password"
   key_vault_id = azurerm_key_vault.keyvault.id
   
-  depends_on = [
-    azurerm_key_vault_access_policy.keyvault_access,
-  ]
-  
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }
 
 resource "azurerm_key_vault_secret" "kv_addrprefix" {
@@ -41,13 +45,15 @@ resource "azurerm_key_vault_secret" "kv_addrprefix" {
   content_type = "${var.project}-VNET-Address-prefix"
   key_vault_id = azurerm_key_vault.keyvault.id
   
-  depends_on = [
-    azurerm_key_vault_access_policy.keyvault_access,
-  ]
-  
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }
 
 resource "azurerm_key_vault_secret" "kv_coreurl" {
@@ -56,11 +62,13 @@ resource "azurerm_key_vault_secret" "kv_coreurl" {
   content_type = "${var.project}-core-url"
   key_vault_id = azurerm_key_vault.keyvault.id
   
-  depends_on = [
-    azurerm_key_vault_access_policy.keyvault_access,
-  ]
-  
   tags = {
     environment = var.environment
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_devops_access,
+    azurerm_key_vault_access_policy.keyvault_access,
+    azurerm_key_vault_access_policy.keyvault_current_access
+  ]
 }

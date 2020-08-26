@@ -1,5 +1,8 @@
 locals {
-    waf_name     = "WAF_v2"
-    waf_tier     = "WAF_v2"
-    waf_capacity = "1"
+    #ag_skuname = "WAF_v2"
+    #ag_tier     = "WAF_v2"
+    ag_skuname  = "Standard_v2"
+    ag_tier     = "Standard_v2"
+    
+    ag_capacity = "1"
 }
