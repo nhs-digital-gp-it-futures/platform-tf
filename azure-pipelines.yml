@@ -207,14 +207,14 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
-  - task: AzureCLI@2
-    name: kubectlInstallAAD
-    displayName: Install AAD Pod Identity
-    inputs:
-      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
+  # - task: AzureCLI@2
+  #   name: kubectlInstallAAD
+  #   displayName: Install AAD Pod Identity
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
 
   - task: AzureCLI@2
     name: kubectlCreateIdentity
