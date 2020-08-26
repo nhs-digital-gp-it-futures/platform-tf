@@ -234,6 +234,9 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl get namespaces'
 
+  - bash: 'ls -R'
+    displayName: Get Folders (code)
+
   # # - bash: './determine-namespace.sh'
   # #   name: DeployVars
   # #   displayName: Set up environment variables for deployment
