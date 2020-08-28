@@ -17,3 +17,11 @@ Repository for Platform Terraform code
 3) IP ranges will be hard to define as choices in code - maybe use existing VNET and add new subnet(s)
 4) No point creating an ACR/Event Hub/bastion in dynamic environment
 5) Kubernetes provider could be used to create a cluster_role_binding meaning you would be able to authenticate straight into the environment as the 'token'
+
+
+
+
+Error: Error waiting for the create/update of Application Gateway "gpitfutures-feature-9587-appgw" (Resource Group "gpitfutures-feature-9587-rg-appgw"): Code="ApplicationGatewayKeyVaultSecretException" Message="Problem occured while accessing and validating KeyVault Secrets associated with Application Gateway '/subscriptions/7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec/resourceGroups/gpitfutures-feature-9587-rg-appgw/providers/Microsoft.Network/applicationGateways/gpitfutures-feature-9587-appgw'. See details below:" Details=[{"code":"ApplicationGatewayKeyVaultSecretAccessDenied","message":"Access denied for KeyVault Secret 'https://gpitfutures-dev-core-kv.vault.azure.net/secrets/buying-catalogue-digital-nhs-uk-star/e24c4dbfa8ce4027998f1b31cda17b4d' for Application Gateway '/subscriptions/7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec/resourceGroups/gpitfutures-feature-9587-rg-appgw/providers/Microsoft.Network/applicationGateways/gpitfutures-feature-9587-appgw'. Make sure that Identity assigned to Application Gateway has access to the KeyVault associated with secret."}]        
+
+  on application_gateways_dev.tf line 16, in resource "azurerm_application_gateway" "AppGate":
+  16: resource "azurerm_application_gateway" "AppGate" {
