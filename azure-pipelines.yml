@@ -147,6 +147,10 @@ jobs:
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
 
 - job: checkIfFirstRun 
+
+  dependsOn: buildBranchEnvironment
+  displayName: Check if first run on new Cluster
+
   steps:
   - bash: | 
       shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
