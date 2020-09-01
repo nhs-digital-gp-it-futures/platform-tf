@@ -179,16 +179,109 @@ jobs:
         echo "Not First Run"
       fi 
     name: DetermineResult
+    
+- job: prepareEnvironment
+  displayName: Prepare Environment for code
+  dependsOn: checkIfFirstRun
+  condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
+  variables:
+    - group: dev-secrets
+    # - name: firstRun
+    #   value: $[ dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'] ]
+    # - name: release
+    #   value: feature-1234
+
+  steps:
+  - bash: |
+      shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+      echo "##vso[task.setvariable variable=release]$shortBranchName"
+      echo Calculated branch name is: $shortBranchName
+    displayName: Get Branch Name
+    env:
+      BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+  
+  - task: AzureCLI@2
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
+
+  # - task: AzureCLI@2
+  #   name: kubectlInstallAAD
+  #   displayName: Install AAD Pod Identity
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
+
+  - task: AzureCLI@2
+    name: kubectlCreateIngressNamespace
+    displayName: Create Ingress Namespace
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl create namespace ingress-appgw'  
+      failOnStandardError: false
+      ### Need to look at setting conditionals to prevent these running if items already exist
+
+  - task: AzureCLI@2
+    name: kubectlDeployRBAC
+    displayName: Deploy RBAC
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl create -f ./ingress/deployment-rbac.yaml'
+      failOnStandardError: false
+      ### Need to look at setting conditionals to prevent these running if items already exist
+
+  # - task: AzureCLI@2
+  #   name: kubectlCreateIdentity
+  #   displayName: Create Identity (MSI) file
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
+
+  - task: AzureCLI@2
+    name: kubectlCreateIdentity
+    displayName: Generate Identity (MSI) file
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az identity list -g gpitfutures-$(release)-rg-aks -n gpitfutures-$(release)-aad-id -o json > ./ingress/$(release)-msi.txt'
+
+  - task: AzureCLI@2
+    name: kubectlGetNamespaces
+    displayName: Get Kubernetes Namespaces
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl get namespaces'
+
+  - bash: 'ls -R'
+    displayName: Get Folders (code)
 
 # - job: setupPlatformHelmRepo
-#   dependsOn: buildBranchEnvironment
+#   dependsOn: checkIfFirstRun
 #   displayName: Setup Platform Helm Code
 #   variables:
 #     - group: dev-core-secrets
+#     - name: firstRun
+#       value: $[ dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'] ]
 #     # - name: release
 #     #   value: feature-1234
-      
+
 #   steps:
+    
 #   - checkout: platform-helm
 
 #   - bash: |
@@ -215,90 +308,3 @@ jobs:
 #   - bash: 'ls -R'
 #     displayName: Get Folders (Artifacts)
 #     workingDirectory: '$(build.ArtifactStagingDirectory)'
-
-# - job: prepareEnvironment
-#   displayName: Prepare Environment for code
-#   dependsOn: setupPlatformHelmRepo
-#   variables:
-#     - group: dev-secrets
-#     # - name: release
-#     #   value: feature-1234
-
-#   steps:
-#   - bash: |
-#       shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
-#       echo "##vso[task.setvariable variable=release]$shortBranchName"
-#       echo Calculated branch name is: $shortBranchName
-#     displayName: Get Branch Name
-#     env:
-#       BUILD_SOURCEBRANCH: $(Build.SourceBranch)
-  
-#   - task: AzureCLI@2
-#     name: kubectlContext
-#     displayName: Get Kubernetes Context
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
-
-#   # - task: AzureCLI@2
-#   #   name: kubectlInstallAAD
-#   #   displayName: Install AAD Pod Identity
-#   #   inputs:
-#   #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#   #     scriptType: 'bash'
-#   #     scriptLocation: 'inlineScript'
-#   #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
-
-#   - task: AzureCLI@2
-#     name: kubectlCreateIngressNamespace
-#     displayName: Create Ingress Namespace
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'kubectl create namespace ingress-appgw'  
-#       failOnStandardError: false
-#       ### Need to look at setting conditionals to prevent these running if items already exist
-
-#   - task: AzureCLI@2
-#     name: kubectlDeployRBAC
-#     displayName: Deploy RBAC
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'kubectl create -f ./ingress/deployment-rbac.yaml'
-#       failOnStandardError: false
-#       ### Need to look at setting conditionals to prevent these running if items already exist
-
-#   # - task: AzureCLI@2
-#   #   name: kubectlCreateIdentity
-#   #   displayName: Create Identity (MSI) file
-#   #   inputs:
-#   #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#   #     scriptType: 'bash'
-#   #     scriptLocation: 'inlineScript'
-#   #     inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
-
-#   - task: AzureCLI@2
-#     name: kubectlCreateIdentity
-#     displayName: Generate Identity (MSI) file
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'az identity list -g gpitfutures-$(release)-rg-aks -n gpitfutures-$(release)-aad-id -o json > ./ingress/$(release)-msi.txt'
-
-#   - task: AzureCLI@2
-#     name: kubectlGetNamespaces
-#     displayName: Get Kubernetes Namespaces
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'kubectl get namespaces'
-
-#   - bash: 'ls -R'
-#     displayName: Get Folders (code)
