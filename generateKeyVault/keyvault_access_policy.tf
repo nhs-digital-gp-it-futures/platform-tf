@@ -189,4 +189,10 @@ resource "azurerm_key_vault_access_policy" "keyvault_current_access" {
   depends_on = [
     azurerm_key_vault.keyvault,
   ]
+
+  lifecycle {
+    ignore_changes = [
+      object_id
+    ]
+  }
 }
