@@ -264,7 +264,7 @@ jobs:
           #echo ClientID is: $aadClientId
           #echo ID Path is: $aadIdPath
     name: getAADValues
-    displayName: Get AAD clinet Values 
+    displayName: Get AAD client Values 
 
   - task: AzureCLI@2
     inputs:
@@ -273,7 +273,7 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
           cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentify.yaml
-          cat ./ingress/$(release)-aadpodidentify.yaml
+          #cat ./ingress/$(release)-aadpodidentify.yaml
     name: generateAADtemplates
     displayName: Generate AAD Templates 
 
@@ -289,18 +289,7 @@ jobs:
           kubectl apply -f ./ingress/$(release)-aadpodidentify.yaml -n ingress-appgw
     name: applyAADTemplates
     displayName: Apply AAD Templates 
-    enabled: false
-
-  # - task: AzureCLI@2
-  #   name: kubectlAADPodIdentity
-  #   displayName: AAD Pod Identity
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'clientId=$(az identity list --query "[?name=='gpitfutures-$release-aad-id'].clientId" -o tsv)'
-
-      
+    enabled: true      
 
   - task: AzureCLI@2
     name: kubectlGetNamespaces
