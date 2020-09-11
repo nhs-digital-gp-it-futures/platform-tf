@@ -275,7 +275,7 @@ jobs:
           cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentity.yaml
           cat ./ingress/aadpodidentitybinding-template.txt  | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentitybinding.yaml
           cat ./ingress/$(release)-aadpodidentitybinding.yaml
-          name: generateAADtemplates
+    name: generateAADtemplates
     displayName: Generate AAD Templates 
 
   - bash: 'ls -R'
