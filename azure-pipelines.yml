@@ -181,7 +181,7 @@ jobs:
     name: DetermineResult
     
 - job: prepareEnvironment
-  displayName: Prepare Environment for code
+  displayName: Prepare Environment
   dependsOn: checkIfFirstRun
   condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
   variables:
@@ -209,14 +209,15 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
-  # - task: AzureCLI@2
-  #   name: kubectlInstallAAD
-  #   displayName: Install AAD Pod Identity
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
+  - task: AzureCLI@2
+    name: kubectlInstallAAD
+    displayName: Install AAD Pod Identity
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
+    enabled: false
 
   - task: AzureCLI@2
     name: kubectlCreateIngressNamespace
@@ -271,7 +272,8 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$release-aad-id*" | sed -e "s*\${idPath}*$aadIdPath*" | sed -e "s*\${clientID}*$aadClientId*" > ./ingress/$release-aadpodidentify.yaml
+          cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentify.yaml
+          cat ./ingress/$(release)-aadpodidentify.yaml
     name: generateAADtemplates
     displayName: Generate AAD Templates 
 
@@ -284,9 +286,10 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          kubectl apply -f ./ingress/$release-aadpodidentify.yaml -n ingress-appgw
+          kubectl apply -f ./ingress/$(release)-aadpodidentify.yaml -n ingress-appgw
     name: applyAADTemplates
     displayName: Apply AAD Templates 
+    enabled: false
 
   # - task: AzureCLI@2
   #   name: kubectlAADPodIdentity
