@@ -272,9 +272,10 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentify.yaml
-          #cat ./ingress/$(release)-aadpodidentify.yaml
-    name: generateAADtemplates
+          cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentity.yaml
+          cat ./ingress/aadpodidentitybinding-template.txt  | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentitybinding.yaml
+          cat ./ingress/$(release)-aadpodidentitybinding.yaml
+          name: generateAADtemplates
     displayName: Generate AAD Templates 
 
   - bash: 'ls -R'
@@ -286,10 +287,11 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          kubectl apply -f ./ingress/$(release)-aadpodidentify.yaml -n ingress-appgw
+          kubectl apply -f ./ingress/$(release)-aadpodidentity.yaml -n ingress-appgw
+          kubectl apply -f ./ingress/$(release)-aadpodidentitybinding.yaml -n ingress-appgw
     name: applyAADTemplates
     displayName: Apply AAD Templates 
-    enabled: true      
+    enabled: false      
 
   - task: AzureCLI@2
     name: kubectlGetNamespaces
