@@ -257,9 +257,7 @@ jobs:
       echo ClientID is: $aadClientId
       echo ID Path is: $aadIdPath
     name: getAADValues
-    displayName: Get AAD clinet Values
-
-      
+    displayName: Get AAD clinet Values 
       
   # - task: AzureCLI@2
   #   name: kubectlAADPodIdentity
