@@ -240,23 +240,37 @@ jobs:
       failOnStandardError: false
       ### Need to look at setting conditionals to prevent these running if items already exist
 
-  # - task: AzureCLI@2
-  #   name: kubectlCreateIdentity
-  #   displayName: Create Identity (MSI) file
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
-
   - task: AzureCLI@2
-    name: kubectlCreateIdentity
+    name: kubectlGetIdentity
     displayName: Generate Identity (MSI) file
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az identity list -g gpitfutures-$(release)-rg-aks -n gpitfutures-$(release)-aad-id -o json > ./ingress/$(release)-msi.txt'
+      inlineScript: 'az identity list -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
+
+  - bash: |
+      aadClientId=$(az identity list --query "[?name=='gpitfutures-$(release)-aad-id'].clientId" -o tsv)
+      aadIdPath=$(az identity list --query "[?name=='gpitfutures-$(release)-aad-id'].id" -o tsv)
+      echo "##vso[task.setvariable variable=aadClientId]$aadClientId"
+      echo "##vso[task.setvariable variable=aadIdPath]$aadIdPath"
+      echo ClientID is: $aadClientId
+      echo ID Path is: $aadIdPath
+    name: getAADValues
+    displayName: Get AAD clinet Values
+
+      
+      
+  # - task: AzureCLI@2
+  #   name: kubectlAADPodIdentity
+  #   displayName: AAD Pod Identity
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'clientId=$(az identity list --query "[?name=='gpitfutures-$release-aad-id'].clientId" -o tsv)'
+
+      
 
   - task: AzureCLI@2
     name: kubectlGetNamespaces
