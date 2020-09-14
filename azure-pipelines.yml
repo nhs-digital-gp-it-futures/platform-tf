@@ -289,8 +289,11 @@ jobs:
       inlineScript: |
           kubectl apply -f ./ingress/$(release)-aadpodidentity.yaml -n ingress-appgw
           kubectl apply -f ./ingress/$(release)-aadpodidentitybinding.yaml -n ingress-appgw
-    name: applyAADTemplates
-    displayName: Apply AAD Templates 
+          az role assignment create --role "Managed Identity Operator" --assignee $(aadClientId) --scope $(aadIdPath)
+          az role assignment create --role "Contributor" --assignee $(aadClientId) --scope $(az network application-gateway list --query "[?name=='gpitfutures-$(release)-appgw'].id" -o tsv)
+          az role assignment create --role "Reader" --assignee $(aadClientId) --scope $(az group list --query "[?name=='gpitfutures-$(release)-rg-appgw'].id" -o tsv)
+    name: applyAADConfig
+    displayName: Apply AAD Config 
     enabled: true      
 
   - task: AzureCLI@2
