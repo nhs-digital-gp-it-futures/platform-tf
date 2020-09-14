@@ -289,9 +289,9 @@ jobs:
       inlineScript: |
           kubectl apply -f ./ingress/$(release)-aadpodidentity.yaml -n ingress-appgw
           kubectl apply -f ./ingress/$(release)-aadpodidentitybinding.yaml -n ingress-appgw
-          az role assignment create --role "Managed Identity Operator" --assignee $(aadClientId) --scope $(aadIdPath)
-          az role assignment create --role "Contributor" --assignee $(aadClientId) --scope $(az network application-gateway list --query "[?name=='gpitfutures-$(release)-appgw'].id" -o tsv)
-          az role assignment create --role "Reader" --assignee $(aadClientId) --scope $(az group list --query "[?name=='gpitfutures-$(release)-rg-appgw'].id" -o tsv)
+          az role assignment create --role "Managed Identity Operator" --assignee $(az aks list -g gpitfutures-$release-rg-aks --query "[?name=='gpitfutures-$release-aks'].servicePrincipalProfile.clientId" -o tsv) --scope $(aadIdPath)
+          az role assignment create --role "Contributor" --assignee $(az aks list -g gpitfutures-$release-rg-aks --query "[?name=='gpitfutures-$release-aks'].servicePrincipalProfile.clientId" -o tsv) --scope $(az network application-gateway list --query "[?name=='gpitfutures-$(release)-appgw'].id" -o tsv)
+          az role assignment create --role "Reader" --assignee $(az aks list -g gpitfutures-$release-rg-aks --query "[?name=='gpitfutures-$release-aks'].servicePrincipalProfile.clientId" -o tsv) --scope $(az group list --query "[?name=='gpitfutures-$(release)-rg-appgw'].id" -o tsv)
     name: applyAADConfig
     displayName: Apply AAD Config 
     enabled: true      
