@@ -233,18 +233,18 @@ jobs:
   - task: AzureCLI@2
     name: kubectlDeployRBAC
     displayName: Deploy RBAC
-    enabled: false
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl create -f ./ingress/deployment-rbac.yaml'
       failOnStandardError: false
+    enabled: false
       ### Need to look at setting conditionals to prevent these running if items already exist
 
   - task: AzureCLI@2
     name: kubectlGetIdentity
-    displayName: Generate Identity (MSI) file
+    displayName: AAD - Generate Identity (MSI) file
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
@@ -264,7 +264,7 @@ jobs:
           #echo ClientID is: $aadClientId
           #echo ID Path is: $aadIdPath
     name: getAADValues
-    displayName: Get AAD client Values 
+    displayName: AAD - Get client Values 
 
   - task: AzureCLI@2
     inputs:
@@ -276,10 +276,10 @@ jobs:
           cat ./ingress/aadpodidentitybinding-template.txt  | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentitybinding.yaml
           #cat ./ingress/$(release)-aadpodidentitybinding.yaml
     name: generateAADtemplates
-    displayName: Generate AAD Templates 
+    displayName: AAD - Generate Templates 
 
-  - bash: 'ls -R'
-    displayName: Get Folders (Templates)
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (Templates)
 
   - task: AzureCLI@2
     inputs:
@@ -295,19 +295,27 @@ jobs:
           az role assignment create --role "Contributor" --assignee $(az aks list -g gpitfutures-$release-rg-aks --query "[?name=='gpitfutures-$release-aks'].servicePrincipalProfile.clientId" -o tsv) --scope $(az network application-gateway list --query "[?name=='gpitfutures-$release-appgw'].id" -o tsv)
           az role assignment create --role "Reader" --assignee $(az aks list -g gpitfutures-$release-rg-aks --query "[?name=='gpitfutures-$release-aks'].servicePrincipalProfile.clientId" -o tsv) --scope $(az group list --query "[?name=='gpitfutures-$release-rg-appgw'].id" -o tsv)
     name: applyAADConfig
-    displayName: Apply AAD Config 
-    enabled: true      
+    displayName: AAD - Apply Config
+    enabled: true
 
-  - task: AzureCLI@2
-    name: kubectlGetNamespaces
-    displayName: Get Kubernetes Namespaces
+  - task: HelmInstaller@1
+    displayName: 'Helm Install'
     inputs:
-      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl get namespaces'
+      helmVersionToInstall: 'latest'
 
+  - bash: |
+      helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
+      helm repo update
+    displayName: 'Helm install AGIC'
 
+  # - task: AzureCLI@2
+  #   name: kubectlGetNamespaces
+  #   displayName: Get Kubernetes Namespaces
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'kubectl get namespaces'
 
 # - job: setupPlatformHelmRepo
 #   dependsOn: checkIfFirstRun
