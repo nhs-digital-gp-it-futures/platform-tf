@@ -296,12 +296,12 @@ jobs:
           kubectl apply -f ./ingress/$(release)-aadpodidentity.yaml -n ingress-appgw
           kubectl apply -f ./ingress/$(release)-aadpodidentitybinding.yaml -n ingress-appgw
           az role assignment create --role "Managed Identity Operator" --assignee $(aksSpId) --scope $(aadIdPath)
-          echo "az role assignment create --role "Managed Identity Operator" --assignee $(aadClientId) --scope $(aadIdPath)"
-          az role assignment create --role "Managed Identity Operator" --assignee $(aadClientId) --scope $(aadIdPath) --verbose --debug
-          echo "az role assignment create --role "Contributor" --assignee $(aadClientId) --scope $(appgwId)"
-          az role assignment create --role "Contributor" --assignee $(aadClientId) --scope $(appgwId) --verbose --debug
-          echo "az role assignment create --role "Reader" --assignee $(aadClientId) --scope $(appgwRgId)
-          az role assignment create --role "Reader" --assignee $(aadClientId) --scope $(appgwRgId) --verbose --debug
+          #echo "az role assignment create --role "Managed Identity Operator" --assignee $(aadClientId) --scope $(aadIdPath)"
+          #az role assignment create --role "Managed Identity Operator" --assignee $(aadClientId) --scope $(aadIdPath) --verbose --debug
+          #echo "az role assignment create --role "Contributor" --assignee $(aadClientId) --scope $(appgwId)"
+          #az role assignment create --role "Contributor" --assignee $(aadClientId) --scope $(appgwId) --verbose --debug
+          #echo "az role assignment create --role "Reader" --assignee $(aadClientId) --scope $(appgwRgId)
+          #az role assignment create --role "Reader" --assignee $(aadClientId) --scope $(appgwRgId) --verbose --debug
     name: applyAADConfig
     displayName: AAD - Apply Config
     enabled: true
