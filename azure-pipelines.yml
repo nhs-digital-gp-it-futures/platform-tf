@@ -186,10 +186,6 @@ jobs:
   condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
   variables:
     - group: dev-secrets
-    # - name: firstRun
-    #   value: $[ dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'] ]
-    # - name: release
-    #   value: feature-1234
 
   steps:
   - bash: |
@@ -217,7 +213,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
-    enabled: false
+    enabled: true
 
   - task: AzureCLI@2
     name: kubectlCreateIngressNamespace
@@ -228,7 +224,6 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl create namespace ingress-appgw'  
       failOnStandardError: false
-      ### Need to look at setting conditionals to prevent these running if items already exist
 
   - task: AzureCLI@2
     name: kubectlDeployRBAC
@@ -239,8 +234,7 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'kubectl create -f ./ingress/deployment-rbac.yaml'
       failOnStandardError: false
-    enabled: false
-      ### Need to look at setting conditionals to prevent these running if items already exist
+    enabled: true
 
   - task: AzureCLI@2
     name: kubectlGetIdentity
@@ -294,12 +288,6 @@ jobs:
     name: getAADValues
     displayName: AAD - Get client Values 
 
-  # - task: AzureCLI@2
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: |
   - bash: |
           cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentity.yaml
           cat ./ingress/aadpodidentitybinding-template.txt  | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentitybinding.yaml
@@ -345,15 +333,6 @@ jobs:
       helm repo update
       helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw #--dry-run --debug
     displayName: 'Agic - Install'
-
-  # - task: AzureCLI@2
-  #   name: kubectlGetNamespaces
-  #   displayName: Get Kubernetes Namespaces
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'kubectl get namespaces'
 
 # - job: setupPlatformHelmRepo
 #   dependsOn: checkIfFirstRun
