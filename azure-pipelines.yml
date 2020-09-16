@@ -334,14 +334,14 @@ jobs:
   - bash: |
         release=$(release)
         cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" > ./ingress/$release-helm-config.yaml
-        cat ./ingress/$release-helm-config.yaml
+        #cat ./ingress/$release-helm-config.yaml
     name: generateHelmTemplates
     displayName: Agic - Generate Templates 
 
   - bash: |
       helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
       helm repo update
-      echo "helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw"
+      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw --dry-run --debug
     displayName: 'Agic - Install'
 
   # - task: AzureCLI@2
