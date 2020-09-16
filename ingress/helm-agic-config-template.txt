@@ -4,8 +4,8 @@
 verbosityLevel: 5
 
 #Force to latest RC for keyvault annotations
-image:
-  tag: 1.2.0-rc3
+#image:
+#  tag: 1.2.0
 
 ################################################################################
 # Specify which application gateway the ingress controller will manage
