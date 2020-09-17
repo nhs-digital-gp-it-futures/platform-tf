@@ -392,7 +392,6 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
           acr=${{ variables.acr }}
-          echo "acr = $acr"
       
           acrUsername=$(az acr credential show --name $acr --query username -o tsv)
           acrPassword=$(az acr credential show --name $acr --query passwords[0].value -o tsv)
@@ -411,9 +410,9 @@ jobs:
       inlineScript: |
         acr=${{ variables.acr }}
       
-        helm repo add $acr }} https://$(acrLoginSvr)/helm/v1/repo \
-          --username $(acrUsername) \
-          --password $(acrPassword)
+        echo "helm repo add $acr https://$(acrLoginSvr)/helm/v1/repo --username $(acrUsername) --password '###dummypassword###''"
+
+        helm repo add $acr https://$(acrLoginSvr)/helm/v1/repo --username $(acrUsername) --password $(acrPassword)
 
   # - bash: 'ls -R'
   #   displayName: Get Folders (Sources Dir)
