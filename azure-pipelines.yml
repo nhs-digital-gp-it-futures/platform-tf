@@ -415,8 +415,9 @@ jobs:
       buildVersionToDownload: 'latestFromBranch'
       runBranch: 'refs/heads/master'
       #allowPartiallySucceededBuilds: false
-      #downloadType: 'single'
+      downloadType: 'single'
       #artifactName: '_nhs-digital-gp-it-futures.platform-helm'
+      artifactName: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)/helmArtifacts'
 
   - bash: 'ls -R'
