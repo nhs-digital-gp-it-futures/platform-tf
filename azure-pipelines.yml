@@ -373,8 +373,8 @@ jobs:
     workingDirectory: '$(build.ArtifactStagingDirectory)'
 
   - task: AzureCLI@2
-    name: kubectlContext
-    displayName: Get Kubernetes Context
+    name: kubectlGetNamespaces
+    displayName: Get Kubernetes Namespaces
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
