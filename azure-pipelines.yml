@@ -349,15 +349,6 @@ jobs:
 
   - checkout: platform-helm      
 
-  - task: DownloadPipelineArtifact@2
-    displayName: Download Helm Pipeline Artifact
-    inputs:
-      buildType: 'specific'
-      project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
-      definition: '75'
-      buildVersionToDownload: 'latest'
-      targetPath: '$(build.ArtifactStagingDirectory)'
-
   - bash: |
       release=$(release)
 
@@ -410,9 +401,39 @@ jobs:
       inlineScript: |
         acr=${{ variables.acr }}
       
-        echo "helm repo add $acr https://$(acrLoginSvr)/helm/v1/repo --username $(acrUsername) --password '###dummypassword###''"
-
         helm repo add $acr https://$(acrLoginSvr)/helm/v1/repo --username $(acrUsername) --password $(acrPassword)
+        helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+        helm repo update
+
+  - task: DownloadBuildArtifacts@0
+    displayName: Download Helm Pipeline Artifacts
+    inputs:
+      buildType: 'specific'
+      project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
+      pipeline: '75'
+      branchName: 'refs/heads/master'
+      buildVersionToDownload: 'latestFromBranch'
+      runBranch: 'refs/heads/master'
+      #allowPartiallySucceededBuilds: false
+      downloadType: 'single'
+      artifactName: '_nhs-digital-gp-it-futures.platform-helm'
+      downloadPath: '$(System.ArtifactsDirectory)/helmArtifacts'
+
+  - bash: 'ls -R'
+    displayName: Get Folders (ArtifactsDirectory)
+    workingDirectory: '$(System.ArtifactsDirectory)'      
+
+  # - task: DownloadPipelineArtifact@2
+  #   displayName: Download Platform Helm Artifact
+  #   inputs:
+  #     source: 'specific'
+  #     project: '$(System.TeamProjectId)'
+  #     pipeline: 288
+  #     runVersion: 'latestFromBranch'
+  #     runBranch: 'refs/heads/master'
+  #     allowPartiallySucceededBuilds: true
+  #     artifactName: 'Distribution archives'
+  #     itemPattern: '*.whl
 
   # - bash: 'ls -R'
   #   displayName: Get Folders (Sources Dir)
