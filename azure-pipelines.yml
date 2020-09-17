@@ -374,7 +374,7 @@ jobs:
     displayName: Check if BC Namespace exists
   
   - task: AzureCLI@2
-    condition: and(succeeded(), ne(variables.firstRunBC, 'Yes'))
+    condition: and(succeeded(), eq(variables.firstRunBC, 'Yes'))
     name: kubectlCreateAppNamespace
     displayName: Create App Namespace
     inputs:
