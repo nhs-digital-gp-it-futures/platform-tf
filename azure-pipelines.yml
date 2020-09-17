@@ -323,6 +323,7 @@ jobs:
 - job: deployBCApplication
   displayName: Deploy BC Application
   dependsOn: prepareAKSEnvironment
+  condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped')
   variables:
     - group: dev-secrets
 
