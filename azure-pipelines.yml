@@ -384,19 +384,22 @@ jobs:
       inlineScript: 'kubectl create namespace $(release)'  
 
   - task: AzureCLI@2
-    name: getCredentials
+    name: getACRCredentials
     displayName: Get ACR Credentials
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          acrUsername=$(az acr credential show --name ${{ variables.acr }} --query username -o tsv)
-          acrPassword=$(az acr credential show --name${{ variables.acr }} --query passwords[0].value -o tsv)
-          acrLoginSvr=$(az acr list --query "[?name=='gpitfuturesdevacr'].loginServer" -o tsv)
+          acr=${{ variables.acr }}
+          echo "acr = $acr"
+      
+          acrUsername=$(az acr credential show --name $acr --query username -o tsv)
+          acrPassword=$(az acr credential show --name $acr --query passwords[0].value -o tsv)
+          acrLoginSvr=$(az acr list --query "[?name=='$acr'].loginServer" -o tsv)
           echo "##vso[task.setvariable variable=acrUsername]$acrUsername"
           echo "##vso[task.setvariable variable=acrPassword]$acrPassword"
-          #echo "Username is $acrUsername"
+          echo "##vso[task.setvariable variable=acrLoginSvr]$acrLoginSvr"
 
   - task: AzureCLI@2
     name: setupHelmRepos
@@ -406,10 +409,11 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          helm repo add ${{ variables.acr }} https://$(acrLoginSvr)/helm/v1/repo \
+        acr=${{ variables.acr }}
+      
+        helm repo add $acr }} https://$(acrLoginSvr)/helm/v1/repo \
           --username $(acrUsername) \
           --password $(acrPassword)
-    enabled: true
 
   # - bash: 'ls -R'
   #   displayName: Get Folders (Sources Dir)
