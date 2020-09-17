@@ -326,6 +326,8 @@ jobs:
   condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped')
   variables:
     - group: dev-secrets
+    - name: acr
+      value: "gpitfuturesdevacr"
 
   steps:
   - bash: |
@@ -356,28 +358,56 @@ jobs:
       buildVersionToDownload: 'latest'
       targetPath: '$(build.ArtifactStagingDirectory)'
 
-  # - task: AzureCLI@2
-  #   name: kubectlCreateAppNamespace
-  #   displayName: Create App Namespace
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'kubectl create namespace $(release)'  
-
-  - bash: 'ls -R'
-    displayName: Get Folders (Sources Dir)
-    workingDirectory: '$(Build.SourcesDirectory)'
-
-  - bash: 'ls -R'
-    displayName: Get Folders (Artifacts)
-    workingDirectory: '$(build.ArtifactStagingDirectory)'
-
   - task: AzureCLI@2
-    name: kubectlGetNamespaces
-    displayName: Get Kubernetes Namespaces
+    condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
+    name: kubectlCreateAppNamespace
+    displayName: Create App Namespace
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl get namespaces'
+      inlineScript: 'kubectl create namespace $(release)'  
+
+  - task: AzureCLI@2
+    name: getCredentials
+    displayName: Get ACR Credentials
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          acrUsername=$(az acr credential show --name ${{ variables.acr }} --query username -o tsv)
+          acrPassword=$(az acr credential show --name${{ variables.acr }} --query passwords[0].value -o tsv)
+          echo "##vso[task.setvariable variable=acrUsername]$acrUsername"
+          echo "Username is $acrUsername"
+
+  - task: AzureCLI@2
+    name: setupHelmRepos
+    displayName: Setup Helm Repos
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          # helm repo add gpitfuturesdevacr https://gpitfuturesdevacr.azurecr.io/helm/v1/repo \
+          # --username gpitfuturesdevacr \
+          # --password $(gpitfuturesdevacr-pass)
+    enabled: false
+
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (Sources Dir)
+  #   workingDirectory: '$(Build.SourcesDirectory)'
+
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (Artifacts)
+  #   workingDirectory: '$(build.ArtifactStagingDirectory)'
+
+  # - task: AzureCLI@2
+  #   name: kubectlGetNamespaces
+  #   displayName: Get Kubernetes Namespaces
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'kubectl get namespaces'
+
