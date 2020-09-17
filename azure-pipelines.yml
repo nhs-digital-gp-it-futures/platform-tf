@@ -323,7 +323,7 @@ jobs:
 - job: deployBCApplication
   displayName: Deploy BC Application
   dependsOn: prepareAKSEnvironment
-  condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped')
+  condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning')
   variables:
     - group: dev-secrets
     - name: acr
@@ -358,8 +358,22 @@ jobs:
       buildVersionToDownload: 'latest'
       targetPath: '$(build.ArtifactStagingDirectory)'
 
+  - bash: |
+      release=$(release)
+
+      echo "Checking if this is first run..."  
+      
+      bcNamespace=$(kubectl get namespace $release)
+      if [[ -z "$bcNamespace" ]]; then
+        echo "First Run"
+        echo "##vso[task.setvariable variable=firstRunBC;isOutput=true]Yes" #set variable firstRunBC to Yes
+      else
+        echo "Not First Run"
+      fi 
+    name: firstRunBC
+  
   - task: AzureCLI@2
-    condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
+    condition: and(succeeded(), ne(variables.firstRunBC, Yes))
     name: kubectlCreateAppNamespace
     displayName: Create App Namespace
     inputs:
