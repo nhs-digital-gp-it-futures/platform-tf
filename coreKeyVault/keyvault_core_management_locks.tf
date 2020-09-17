@@ -6,7 +6,7 @@ resource "azurerm_management_lock" "keyvault_core_lock" {
   lock_level = "ReadOnly"
   notes      = "To prevent key vault being changed"
 
-    depends_on = [
+  depends_on = [
     azurerm_key_vault_access_policy.keyvault_current_access,
     azurerm_key_vault_access_policy.keyvault_devops_access,
     azurerm_key_vault_access_policy.keyvault_core_access

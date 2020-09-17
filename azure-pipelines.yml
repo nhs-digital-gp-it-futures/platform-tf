@@ -12,14 +12,12 @@ pr:
     - feature/*
     - '*'
 
-### <--- Following code is for next task - please ignore for now  --->
-#
-# resources:
-#   repositories:
-#   - repository: platform-helm
-#     type: github
-#     name: nhs-digital-gp-it-futures/platform-helm
-#     endpoint: nhs-digital-gp-it-futures
+resources:
+  repositories:
+  - repository: platform-helm
+    type: github
+    name: nhs-digital-gp-it-futures/platform-helm
+    endpoint: nhs-digital-gp-it-futures
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -148,19 +146,203 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
 
-### <--- Following code is for next task - please ignore for now  --->
+- job: checkIfFirstRun 
 
+  dependsOn: buildBranchEnvironment
+  displayName: Check if first run on new Cluster
+
+  steps:
+  - bash: | 
+      shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+      echo "##vso[task.setvariable variable=release]$shortBranchName"
+      echo Calculated branch name is: $shortBranchName
+    displayName: Get Branch Name
+    env:
+      BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+
+  - task: AzureCLI@2
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
+
+  - bash: |
+      echo "Checking if this is first run..."
+      agNamespace=$(kubectl get namespace ingress-appgw)
+      if [[ -z "$agNamespace" ]]; then
+        echo "First Run"
+        echo "##vso[task.setvariable variable=firstRun;isOutput=true]Yes" #set variable firstRun to Yes
+      else
+        echo "Not First Run"
+      fi 
+    name: DetermineResult
+    
+- job: prepareEnvironment
+  displayName: Prepare Environment
+  dependsOn: checkIfFirstRun
+  condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
+  variables:
+    - group: dev-secrets
+
+  steps:
+  - bash: |
+      shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+      echo "##vso[task.setvariable variable=release]$shortBranchName"
+      echo Calculated branch name is: $shortBranchName
+    displayName: Get Branch Name
+    env:
+      BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+  
+  - task: AzureCLI@2
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
+
+  - task: AzureCLI@2
+    name: kubectlInstallAAD
+    displayName: Install AAD Pod Identity
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
+    enabled: false  ##### Duplicate ####
+
+  - task: AzureCLI@2
+    name: kubectlCreateIngressNamespace
+    displayName: Create Ingress Namespace
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl create namespace ingress-appgw'  
+
+  - task: AzureCLI@2
+    name: kubectlDeployRBAC
+    displayName: Deploy RBAC
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'kubectl create -f ./ingress/deployment-rbac.yaml'
+      failOnStandardError: false
+    continueOnError: true
+    enabled: true
+
+  - task: AzureCLI@2
+    name: kubectlGetIdentity
+    displayName: AAD - Generate Identity (MSI) file
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az identity list -g gpitfutures-$(release)-rg-aks -o json > ./ingress/$(release)-msi.txt'
+      
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript:  |
+          release=$(release)
+      
+          aadClientId=$(az identity list --query "[?name=='gpitfutures-$release-aad-id'].clientId" -o tsv)
+          aadIdPath=$(az identity list --query "[?name=='gpitfutures-$release-aad-id'].id" -o tsv)
+          aksSpId=$(az aks list -g gpitfutures-$release-rg-aks --query "[?name=='gpitfutures-$release-aks'].servicePrincipalProfile.clientId" -o tsv)
+          aksFqdn=$(az aks list -g gpitfutures-$release-rg-aks --query "[?name=='gpitfutures-$release-aks'].fqdn" -o tsv)
+          appgwId=$(az network application-gateway list --query "[?name=='gpitfutures-$release-appgw'].id" -o tsv)
+          appgwRgName=$(az network application-gateway list --query "[?name=='gpitfutures-$release-appgw'].resourceGroup" -o tsv)
+          appgwRgId=$(az group list --query "[?name=='gpitfutures-$release-rg-appgw'].id" -o tsv)
+          subId=$(az account list --query "[?name=='GP IT Futures Buying Catalogue'].id" -o tsv --all)
+
+          echo "##vso[task.setvariable variable=aadClientId]$aadClientId"
+          echo "##vso[task.setvariable variable=aadIdPath]$aadIdPath"          
+          echo "##vso[task.setvariable variable=aksSpId]$aksSpId"
+          echo "##vso[task.setvariable variable=aksFqdn]$aksFqdn"
+          echo "##vso[task.setvariable variable=appgwId]$appgwId"
+          echo "##vso[task.setvariable variable=appgwRgName]$appgwRgName"
+          echo "##vso[task.setvariable variable=appgwRgId]$appgwRgId"
+          echo "##vso[task.setvariable variable=subId]$subId"
+
+          #echo subId is: $subId
+
+    name: getAADValues
+    displayName: AAD - Get client Values 
+
+  - bash: |
+          cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentity.yaml
+          cat ./ingress/aadpodidentitybinding-template.txt  | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentitybinding.yaml
+          #cat ./ingress/$(release)-aadpodidentitybinding.yaml
+    name: generateAADtemplates
+    displayName: AAD - Generate Templates 
+
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (Templates)
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          release=$(release)
+          kubectl apply -f ./ingress/$(release)-aadpodidentity.yaml -n ingress-appgw
+          kubectl apply -f ./ingress/$(release)-aadpodidentitybinding.yaml -n ingress-appgw
+          az role assignment create --role "Managed Identity Operator" --assignee $(aksSpId) --scope $(aadIdPath)
+    name: applyAADConfig
+    displayName: AAD - Apply Config
+    enabled: true
+
+  - task: HelmInstaller@1
+    displayName: 'Helm - Install'
+    inputs:
+      helmVersionToInstall: 'latest'
+
+  - bash: |
+        release=$(release)
+        agicshared="false"
+        agicnamespaces=""
+        cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" | sed -e "s*\${shared}*$agicshared*" | sed -e "s*\${namespaces}*$agicnamespaces*" > ./ingress/$release-helm-config.yaml
+        #cat ./ingress/$release-helm-config.yaml
+    name: generateHelmTemplates
+    displayName: Agic - Generate Templates 
+
+  - bash: |
+      helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
+      helm repo update
+      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw #--dry-run --debug
+    displayName: 'Agic - Install'
+
+### Please ignore - required for next stage
 # - job: setupPlatformHelmRepo
-#   dependsOn: buildBranchEnvironment
+#   dependsOn: checkIfFirstRun
 #   displayName: Setup Platform Helm Code
 #   variables:
 #     - group: dev-core-secrets
-#     - name: release
-#       value: feature-1234
-      
+#     - name: firstRun
+#       value: $[ dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'] ]
+#     # - name: release
+#     #   value: feature-1234
+
 #   steps:
+    
 #   - checkout: platform-helm
 
+#   - bash: |
+#       shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+#       echo "##vso[task.setvariable variable=release]$shortBranchName"
+#       echo Calculated branch name is: $shortBranchName
+#     displayName: Get Branch Name
+#     env:
+#       BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+  
 #   - task: DownloadPipelineArtifact@2
 #     displayName: Download Helm Pipeline Artifact
 #     inputs:
@@ -177,51 +359,3 @@ jobs:
 #   - bash: 'ls -R'
 #     displayName: Get Folders (Artifacts)
 #     workingDirectory: '$(build.ArtifactStagingDirectory)'
-
-# - job: prepareEnvironment
-#   dependsOn: setupPlatformHelmRepo
-#   variables:
-#     - group: dev-secrets
-#     - name: release
-#       value: feature-1234
-
-#   steps:
-#   - task: AzureCLI@2
-#     name: kubectlContext
-#     displayName: Get Kubernetes Context
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
-
-#   - task: AzureCLI@2
-#     name: kubectlInstallAAD
-#     displayName: Install AAD Pod Identity
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
-
-#   - task: AzureCLI@2
-#     name: kubectlCreateIdentity
-#     displayName: Create Identity (MSI) file
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'az identity create -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks -o json > $(release)-msi.txt'
-
-#   - task: AzureCLI@2
-#     name: kubectlGetNamespaces
-#     displayName: Get Kubernetes Namespaces
-#     inputs:
-#       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-#       scriptType: 'bash'
-#       scriptLocation: 'inlineScript'
-#       inlineScript: 'kubectl get namespaces'
-
-  # # - bash: './determine-namespace.sh'
-  # #   name: DeployVars
-  # #   displayName: Set up environment variables for deployment
