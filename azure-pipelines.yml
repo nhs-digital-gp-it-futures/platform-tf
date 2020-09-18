@@ -426,7 +426,7 @@ jobs:
       project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
       pipeline: '75'
       runBranch: 'refs/heads/master'
-      runVersion: 'latest'
+      runVersion: 'latestFromBranch'
       artifact: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)'
 
@@ -446,7 +446,7 @@ jobs:
       helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
       echo "Helm Chart version is: $helmChartVersion"
       chmod +x ./launch-or-update-azure.sh
-      ls -R
+      #ls -R
     name: deployBCHelmChart
     displayName: Deploy BC Helm Chart
     workingDirectory: '$(System.ArtifactsDirectory)'
