@@ -438,5 +438,8 @@ jobs:
     displayName: Get Folders (Sources Dir)
     workingDirectory: '$(Build.SourcesDirectory)'
 
+  - bash: 'ls -R'
+    displayName: Get Folders (WorkingDirectory)
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-
+    #cd $(Build.SourcesDirectory)
