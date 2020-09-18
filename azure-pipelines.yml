@@ -466,20 +466,21 @@ jobs:
           redisHost=$(az redis show --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query hostName -o tsv)
           redisPass=$(az redis list-keys --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query primaryKey -o tsv)
 
-          # ./launch-or-update-azure.sh \
-          #   -c remote \
-          #   -n $release \
-          #   -d $sqlDbSvrFqdn \
-          #   -u $sqlDbAdminUser \
-          #   -p $sqlDbAdminPass \
-          #   -w true \
-          #   -v $helmChartVersion \
-          #   -s "/p:DatabaseEdition=Basic /p:DatabaseServiceObjective=Basic" \
-          #   -a $saConnectionString \
-          #   -i $appgwPip \
-          #   -r $redisHost \
-          #   -q $redisPass \
-          #   --cookie-secret=$(srt-cookiesecret) \
-          #   --client-secret=$(srt-clientsecret) \
-          #   --db-user-pass=$(srt-sqldevdbpass) \
-          #   -f "azure-dev.yaml"
+          ./launch-or-update-azure.sh \
+            -c remote \
+            -n $release \
+            -d $sqlDbSvrFqdn \
+            -u $sqlDbAdminUser \
+            -p $sqlDbAdminPass \
+            -w true \
+            -v $helmChartVersion \
+            -s "/p:DatabaseEdition=Basic /p:DatabaseServiceObjective=Basic" \
+            -a $saConnectionString \
+            -i $appgwPip \
+            -r $redisHost \
+            -q $redisPass \
+            --cookie-secret=$(srt-cookiesecret) \
+            --client-secret=$(srt-clientsecret) \
+            --db-user-pass=$(srt-sqldevdbpass) \
+            -f "azure-dev.yaml" \
+            --helm-upgrade-args "--dry-run --debug"
