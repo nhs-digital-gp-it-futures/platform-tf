@@ -150,3 +150,54 @@ resource "azurerm_key_vault_secret" "kv-tfstoragekey" {
     environment = local.coreEnv
   }
 }
+
+resource "azurerm_key_vault_secret" "kv-srtcookiesecret" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "srt-cookiesecret"
+  value        = var.kv_srtcookiesecret
+  content_type = "The secret needed for encoding and decoding the cookie"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+
+resource "azurerm_key_vault_secret" "kv_srtclientsecret" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "srt-clientsecret"
+  value        = var.kv_srtclientsecret
+  content_type = "Client secret for dev"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+
+resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "srt-sqldevdbpass"
+  value        = var.kv_sqldevdbpass
+  content_type = "Dev DB Password"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}

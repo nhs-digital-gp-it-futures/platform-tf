@@ -442,11 +442,44 @@ jobs:
   #   displayName: Get Folders (WorkingDirectory)
   #   workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-  - bash: |    
-      helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
-      echo "Helm Chart version is: $helmChartVersion"
-      chmod +x ./launch-or-update-azure.sh
-      #ls -R
+  - task: AzureCLI@2
     name: deployBCHelmChart
     displayName: Deploy BC Helm Chart
-    workingDirectory: '$(System.ArtifactsDirectory)'
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      workingDirectory: '$(System.ArtifactsDirectory)'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+          echo "Helm Chart version is: $helmChartVersion"
+          chmod +x ./launch-or-update-azure.sh
+
+          release=$(release)
+          releaseNoPunct=$(echo $release | sed -e 's/-//g')
+
+          sqlDbSvrFqdn=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].fullyQualifiedDomainName" -o tsv)
+          sqlDbAdminUser=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].administratorLogin" -o tsv)
+          sqlDbAdminPass=$(az keyvault secret show --vault-name gpit-$release-kv --name "gpit${releaseNoPunct}sqladminpassword" --query value -o tsv)
+          saConnectionString=$(az storage account show-connection-string --name gpitfutures${releaseNoPunct}sa --resource-group gpitfutures-$release-rg-sa --query connectionString -o tsv)
+          appgwPip=$(az network public-ip show --name gpitfutures-$release-pip --resource-group gpitfutures-$release-rg-appgw --query ipAddress -o tsv)
+          redisHost=$(az redis show --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query hostName -o tsv)
+          redisPass=$(az redis list-keys --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query primaryKey -o tsv)
+
+          # ./launch-or-update-azure.sh \
+          #   -c remote \
+          #   -n $release \
+          #   -d $sqlDbSvrFqdn \
+          #   -u $sqlDbAdminUser \
+          #   -p $sqlDbAdminPass \
+          #   -w true \
+          #   -v $helmChartVersion \
+          #   -s "/p:DatabaseEdition=Basic /p:DatabaseServiceObjective=Basic" \
+          #   -a $saConnectionString \
+          #   -i $appgwPip \
+          #   -r $redisHost \
+          #   -q $redisPass \
+          #   --cookie-secret=$(srt-cookiesecret) \
+          #   --client-secret=$(srt-clientsecret) \
+          #   --db-user-pass=$(srt-sqldevdbpass) \
+          #   -f "azure-dev.yaml"
