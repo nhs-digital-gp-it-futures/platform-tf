@@ -434,12 +434,19 @@ jobs:
     displayName: Get Folders (ArtifactsDirectory)
     workingDirectory: '$(System.ArtifactsDirectory)'
 
-  - bash: 'ls -R'
-    displayName: Get Folders (Sources Dir)
-    workingDirectory: '$(Build.SourcesDirectory)'
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (Sources Dir)
+  #   workingDirectory: '$(Build.SourcesDirectory)'
 
-  - bash: 'ls -R'
-    displayName: Get Folders (WorkingDirectory)
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (WorkingDirectory)
+  #   workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-    #cd $(Build.SourcesDirectory)
+  - bash: |    
+      helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+      echo "Helm Chart version is: $helmChartVersion"
+      chmod +x ./launch-or-update-azure.sh
+      ls -R
+    name: deployBCHelmChart
+    displayName: Deploy BC Helm Chart
+    workingDirectory: '$(System.ArtifactsDirectory)'
