@@ -432,34 +432,11 @@ jobs:
 
   - bash: 'ls -R'
     displayName: Get Folders (ArtifactsDirectory)
-    workingDirectory: '$(System.ArtifactsDirectory)'      
+    workingDirectory: '$(System.ArtifactsDirectory)'
 
-  # - task: DownloadPipelineArtifact@2
-  #   displayName: Download Platform Helm Artifact
-  #   inputs:
-  #     source: 'specific'
-  #     project: '$(System.TeamProjectId)'
-  #     pipeline: 288
-  #     runVersion: 'latestFromBranch'
-  #     runBranch: 'refs/heads/master'
-  #     allowPartiallySucceededBuilds: true
-  #     artifactName: 'Distribution archives'
-  #     itemPattern: '*.whl
+  - bash: 'ls -R'
+    displayName: Get Folders (Sources Dir)
+    workingDirectory: '$(Build.SourcesDirectory)'
 
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (Sources Dir)
-  #   workingDirectory: '$(Build.SourcesDirectory)'
 
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (Artifacts)
-  #   workingDirectory: '$(build.ArtifactStagingDirectory)'
-
-  # - task: AzureCLI@2
-  #   name: kubectlGetNamespaces
-  #   displayName: Get Kubernetes Namespaces
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'kubectl get namespaces'
 
