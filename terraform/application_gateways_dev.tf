@@ -128,9 +128,12 @@ resource "azurerm_application_gateway" "AppGate" {
   # }
 
   ssl_certificate {
-     name = "${var.project}-${var.environment}-cert"
+     #name = "${var.project}-${var.environment}-cert"
+     name = "dev-buying-catalogue-digital-nhs-uk"
      key_vault_secret_id = data.azurerm_key_vault_secret.ssl_cert.id   
   }
+
+
 
   identity {
     type = "UserAssigned"
