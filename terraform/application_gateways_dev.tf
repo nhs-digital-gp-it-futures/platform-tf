@@ -198,7 +198,7 @@ resource "azurerm_application_gateway" "AppGate" {
       backend_address_pool,
       probe,
       redirect_configuration,      
-      #url_path_map,     
+      url_path_map,     
       tags, # AGIC adds tags which need to be ignored. Can't seem to ignore the individual tags
       #ssl_certificate # see issue above
     ]
