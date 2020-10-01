@@ -435,17 +435,23 @@ jobs:
     workingDirectory: '$(System.ArtifactsDirectory)'
 
   # - bash: 'ls -R'
-  #   displayName: Get Folders (Sources Dir)
-  #   workingDirectory: '$(Build.SourcesDirectory)'
-
-  # - bash: 'ls -R'
   #   displayName: Get Folders (WorkingDirectory)
   #   workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+  - task: DownloadSecureFile@1
+    displayName: Download Dynamic yaml File
+    name: azure-dyn # The name with which to reference the secure file's path on the agent, like $(mySecureFile.secureFilePath)
+    inputs:
+      secureFile: azure-dyn.yaml
+
+  - bash: 'ls -R'
+    displayName: Get Folders (Temp Dir)
+    workingDirectory: '$(Agent.TempDirectory)'
 
   - task: CopyFiles@2
     displayName: Copy Dynamic yaml File
     inputs:
-      SourceFolder: 'environments'
+      SourceFolder: '$(Agent.TempDirectory)'
       Contents: 'azure-dyn.yaml'
       TargetFolder: '$(System.ArtifactsDirectory)/environments'
       CleanTargetFolder: false
