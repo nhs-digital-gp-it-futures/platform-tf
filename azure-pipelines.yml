@@ -440,7 +440,7 @@ jobs:
 
   - task: DownloadSecureFile@1
     displayName: Download Dynamic yaml File
-    name: azure-dyn # The name with which to reference the secure file's path on the agent, like $(mySecureFile.secureFilePath)
+    name: azuredyn # The name with which to reference the secure file's path on the agent, like $(mySecureFile.secureFilePath)
     inputs:
       secureFile: azure-dyn.yaml
 
