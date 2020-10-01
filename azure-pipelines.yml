@@ -442,6 +442,15 @@ jobs:
   #   displayName: Get Folders (WorkingDirectory)
   #   workingDirectory: '$(System.DefaultWorkingDirectory)'
 
+  - task: CopyFiles@2
+    displayName: Copy Dynamic yaml File
+    inputs:
+      SourceFolder: 'environments'
+      Contents: 'azure-dyn.yaml'
+      TargetFolder: '$(System.ArtifactsDirectory)/environments'
+      CleanTargetFolder: false
+      OverWrite: false  
+  
   - task: AzureCLI@2
     name: deployBCHelmChart
     displayName: Deploy BC Helm Chart
@@ -482,5 +491,5 @@ jobs:
             --cookie-secret=$(srt-cookiesecret) \
             --client-secret=$(srt-clientsecret) \
             --db-user-pass=$(srt-sqldevdbpass) \
-            -f "azure-dev.yaml" #\
+            -f "azure-dyn.yaml" 
             #--helm-upgrade-args "--dry-run --debug"
