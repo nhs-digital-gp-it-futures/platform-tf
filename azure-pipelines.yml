@@ -497,5 +497,5 @@ jobs:
             --cookie-secret=$(srt-cookiesecret) \
             --client-secret=$(srt-clientsecret) \
             --db-user-pass=$(srt-sqldevdbpass) \
-            -f "azure-dyn.yaml" 
+            -f "azure-dyn.yaml" \
             --helm-upgrade-args "--dry-run --debug"
