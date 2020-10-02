@@ -498,4 +498,4 @@ jobs:
             --client-secret=$(srt-clientsecret) \
             --db-user-pass=$(srt-sqldevdbpass) \
             -f "azure-dyn.yaml" 
-            #--helm-upgrade-args "--dry-run --debug"
+            --helm-upgrade-args "--dry-run --debug"
