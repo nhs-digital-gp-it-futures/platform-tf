@@ -480,6 +480,11 @@ jobs:
           appgwPip=$(az network public-ip show --name gpitfutures-$release-pip --resource-group gpitfutures-$release-rg-appgw --query ipAddress -o tsv)
           redisHost=$(az redis show --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query hostName -o tsv)
           redisPass=$(az redis list-keys --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query primaryKey -o tsv)
+          
+          # From Core Keyvault
+          srtcookiesecret=$(srt-cookiesecret)
+          srtclientsecret=$(srt-clientsecret)
+          srtsqldevdbpass=$(srt-sqldevdbpass)
 
           ./launch-or-update-azure.sh \
             -c remote \
@@ -494,8 +499,8 @@ jobs:
             -i $appgwPip \
             -r $redisHost \
             -q $redisPass \
-            --cookie-secret=$(srt-cookiesecret) \
-            --client-secret=$(srt-clientsecret) \
-            --db-user-pass=$(srt-sqldevdbpass) \
+            --cookie-secret=$srtcookiesecret \
+            --client-secret=$srtclientsecret \
+            --db-user-pass=$srtsqldevdbpass \
             -f "azure-dyn.yaml" \
-            --helm-upgrade-args "--dry-run --debug"
+            --base-path '\$namespace-dyn.buyingcatalogue.digital.nhs.uk'
