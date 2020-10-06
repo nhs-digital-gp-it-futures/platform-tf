@@ -503,4 +503,4 @@ jobs:
             --client-secret=$srtclientsecret \
             --db-user-pass=$srtsqldevdbpass \
             -f "azure-dyn.yaml" \
-            --base-path "\$release-dyn.buyingcatalogue.digital.nhs.uk"
+            --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
