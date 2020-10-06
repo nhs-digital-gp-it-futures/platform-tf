@@ -482,9 +482,9 @@ jobs:
           redisPass=$(az redis list-keys --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query primaryKey -o tsv)
           
           # From Core Keyvault
-          srtcookiesecret=$(srt-cookiesecret)
-          srtclientsecret=$(srt-clientsecret)
-          srtsqldevdbpass=$(srt-sqldevdbpass)
+          srtcookiesecret="$(srt-cookiesecret)"
+          srtclientsecret="$(srt-clientsecret)"
+          srtsqldevdbpass="$(srt-sqldevdbpass)"
 
           ./launch-or-update-azure.sh \
             -c remote \
