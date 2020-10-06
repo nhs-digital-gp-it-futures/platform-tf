@@ -499,8 +499,11 @@ jobs:
             -i $appgwPip \
             -r $redisHost \
             -q $redisPass \
-            --cookie-secret=$srtcookiesecret \
-            --client-secret=$srtclientsecret \
-            --db-user-pass=$srtsqldevdbpass \
+            --cookie-secret $srtcookiesecret \
+            --client-secret $srtclientsecret \
+            --db-user-pass $srtsqldevdbpass \
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
+
+
+            
