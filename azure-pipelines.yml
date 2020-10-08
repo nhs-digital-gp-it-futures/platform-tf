@@ -185,7 +185,7 @@ jobs:
   dependsOn: checkIfFirstRun
   condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
   variables:
-    - group: dev-secrets
+    - group: dev-core-secrets
 
   steps:
   - bash: |
@@ -325,7 +325,7 @@ jobs:
   dependsOn: prepareAKSEnvironment
   condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning')
   variables:
-    - group: dev-secrets
+    - group: dev-core-secrets
     - name: acr
       value: "gpitfuturesdevacr"
 
