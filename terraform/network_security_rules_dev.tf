@@ -13,20 +13,20 @@
 #   description                 = "Allow staff access who work within approved offices"
 # }
 
-# resource "azurerm_network_security_rule" "VPN_Access" {
-#   name                        = "AllowBjssVpn"
-#   resource_group_name         = azurerm_resource_group.vnet.name
-#   network_security_group_name = azurerm_network_security_group.gateway.name
-#   source_address_prefix       = var.bjss_ip_add
-#   destination_address_prefix  = "*"
-#   source_port_range           = "*"
-#   destination_port_ranges     = [ "80", "443" ]
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "*"
-#   priority                    = "160"
-#   description                 = "Allow staff access who are connect to the BJSS VPN"
-# }
+resource "azurerm_network_security_rule" "VPN_Access" {
+  name                        = "AllowBjssVpn"
+  resource_group_name         = azurerm_resource_group.appgw.name
+  network_security_group_name = azurerm_network_security_group.gateway.name
+  source_address_prefix       = data.azurerm_key_vault_secret.bjssvpn.value
+  destination_address_prefix  = "*"
+  source_port_range           = "*"
+  destination_port_ranges     = [ "80", "443" ]
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  priority                    = "160"
+  description                 = "Allow staff access who are connect to the BJSS VPN"
+}
 
 resource "azurerm_network_security_rule" "DevOps" {
   name                        = "AllowAzureDevOps"

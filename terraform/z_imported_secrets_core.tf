@@ -28,3 +28,8 @@ data "azurerm_key_vault_secret" "ssl_cert" {
   name         = "buying-catalogue-digital-nhs-uk-star"
   key_vault_id = data.azurerm_key_vault.keyvault_core.id
 }
+
+data "azurerm_key_vault_secret" "bjssvpn" {
+  name         = "${var.pjtcode}${local.coreEnv}bjssvpn"
+  key_vault_id = data.azurerm_key_vault.keyvault_core.id
+}

@@ -137,7 +137,7 @@ resource "azurerm_key_vault_secret" "kv-kv-access-dl" {
 resource "azurerm_key_vault_secret" "kv-tfstoragekey" {
   count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
-  name         = "${var.pjtcode}${local.coreEnv}tf-storagekey"
+  name         = "${var.pjtcode}${local.coreEnv}tf-storagekey"bjssvpn
   value        = var.kv_tfsakey
   content_type = "${var.project}-tf-storagekey"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
@@ -191,6 +191,23 @@ resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {
   name         = "srt-sqldevdbpass"
   value        = var.kv_sqldevdbpass
   content_type = "Dev DB Password"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+
+resource "azurerm_key_vault_secret" "kv_bjssvpn" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.coreEnv}bjssvpn"
+  value        = var.kv_bjssvpn
+  content_type = "BJSS VPN"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
   depends_on = [

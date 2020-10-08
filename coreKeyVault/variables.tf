@@ -61,3 +61,7 @@ variable "kv_srtclientsecret" {
 variable "kv_sqldevdbpass" {
   type = string
 }
+
+variable "kv_bjssvpn" {
+  type = string
+}
