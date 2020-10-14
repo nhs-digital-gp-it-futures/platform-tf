@@ -66,7 +66,7 @@ isapi:
         - https://<namespace>.dyn.buyingcatalogue.digital.nhs.uk/admin/signout-callback-oidc  #To override from build
         - https://<namespace>.dyn.buyingcatalogue.digital.nhs.uk/order/signout-callback-oidc  #To override from build
 
-  allowInvalidCertificate: ### set to false once valid cert added
+  allowInvalidCertificate: false
   serviceDependencies:
     email:
       allowInvalidCertificate: true                 # our maildev image uses self-signed certs, override in prod
@@ -93,12 +93,12 @@ isapi:
 oapi:
   enabled: true  
   replicaCount: 1
-  allowInvalidCertificate: true ### set to false once valid cert added
+  allowInvalidCertificate: false
     
 ordapi:
   enabled: true  
   replicaCount: 1
-  allowInvalidCertificate: true ### set to false once valid cert added
+  allowInvalidCertificate: false
 
 email:
   enabled: true  #probably leave enabled apart from prod  
