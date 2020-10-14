@@ -322,7 +322,9 @@ jobs:
 
 - job: deployBCApplication
   displayName: Deploy BC Application
-  dependsOn: prepareAKSEnvironment
+  dependsOn: 
+  - buildBranchEnvironment
+  - prepareAKSEnvironment
   condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning')
   variables:
     - group: dev-core-secrets

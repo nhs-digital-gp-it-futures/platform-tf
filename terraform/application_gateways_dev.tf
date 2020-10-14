@@ -87,7 +87,7 @@ resource "azurerm_application_gateway" "AppGate" {
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
     protocol                       = "HTTPS"
     host_name                      = "www.${data.azurerm_key_vault_secret.coreurl.value}" 
-    ssl_certificate_name           = "${var.project}-${var.environment}-cert"
+    ssl_certificate_name           = "dyn-buying-catalogue-digital-nhs-uk"
   }
 
   http_listener {
