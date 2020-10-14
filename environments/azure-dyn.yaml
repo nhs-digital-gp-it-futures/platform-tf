@@ -55,7 +55,7 @@ isapi:
       secret: 
         name: "bc-buyingcatalogue"
         key: oidc-client-secret 
-      requirePkce : true
+      requirePkce: true
       requireConsent: false
       redirectUrls:         
         - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/oauth/callback          #To override from build
@@ -79,7 +79,8 @@ isapi:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
       appgw.ingress.kubernetes.io/ssl-redirect: "true"    
     hosts:
-      - host: https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk" #To override from build
+      #- host: https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
         paths: 
           - /identity/health/*
           - /identity/css/*  
