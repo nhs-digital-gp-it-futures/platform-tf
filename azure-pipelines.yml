@@ -457,7 +457,7 @@ jobs:
       Contents: 'azure-dyn.yaml'
       TargetFolder: '$(System.ArtifactsDirectory)/environments'
       CleanTargetFolder: false
-      OverWrite: false  
+      OverWrite: true  
   
   - task: AzureCLI@2
     name: deployBCHelmChart
