@@ -10,7 +10,7 @@ testStorage:
 keyVault:
   enabled: false  
   name: gpitfutures-dev-core-kv #should override per environment
-  isapiCertificateSecretName: buyingcataloguedev
+  isapiCertificateSecretName: buyingcataloguedyn
 
 azurite:
   enabled: false
