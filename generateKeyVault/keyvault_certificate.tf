@@ -23,7 +23,7 @@
 # #random_password.password1.result
 
 resource "azurerm_key_vault_certificate" "kv-azurecert" {
-  name         = "buyingcatalogue${var.environment}"
+  name         = "buyingcatalogue${local.shortEnv}"
   key_vault_id = azurerm_key_vault.keyvault.id
 
   certificate_policy {
@@ -68,11 +68,11 @@ resource "azurerm_key_vault_certificate" "kv-azurecert" {
 
       subject_alternative_names {
         dns_names = [
-            "buyingcatalogue${var.environment}.${var.region}.cloudapp.azure.com"
+            "buyingcatalogue${local.shortEnv}.${var.region}.cloudapp.azure.com"
             ]
       }
 
-      subject            = "CN = buyingcatalogue${var.environment}.${var.region}.cloudapp.azure.com"
+      subject            = "CN = buyingcatalogue${local.shortEnv}.${var.region}.cloudapp.azure.com"
       validity_in_months = 12
     }
   }

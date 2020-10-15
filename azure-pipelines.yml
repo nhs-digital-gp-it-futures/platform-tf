@@ -506,4 +506,6 @@ jobs:
             --db-user-pass "$srtsqldevdbpass" \
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
-            --helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$release-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$release"
+            --helm-upgrade-args "--set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
+            
+#--set keyVault.enabled=true 
