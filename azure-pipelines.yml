@@ -283,9 +283,6 @@ jobs:
     name: generateAADtemplates
     displayName: AAD - Generate Templates 
 
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (Templates)
-
   - task: AzureCLI@2
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
@@ -319,6 +316,14 @@ jobs:
       helm repo update
       helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw #--dry-run --debug
     displayName: 'Agic - Install'
+
+  - bash: |
+      kubectl apply -f https://raw.githubusercontent.com/sparebankenvest/azure-key-vault-to-kubernetes/crd-1.1.0/crds/AzureKeyVaultSecret.yaml
+      kubectl create ns akv2k8s
+      ping localhost -c 10
+      helm upgrade -i azure-key-vault-controller spv-charts/azure-key-vault-controller --namespace akv2k8s
+      helm upgrade -i azure-key-vault-env-injector spv-charts/azure-key-vault-env-injector --namespace akv2k8s
+    displayName: 'Setup Azure KeyVault Injection'
 
 - job: deployBCApplication
   displayName: Deploy BC Application
@@ -484,7 +489,7 @@ jobs:
           redisPass=$(az redis list-keys --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query primaryKey -o tsv)
           
           # From Core Keyvault
-          srtcookiesecret="$(srt-cookiesecret)"
+          srtcookiesecret="$(srt-cookiesecret)" 
           srtclientsecret="$(srt-clientsecret)"
           srtsqldevdbpass="$(srt-sqldevdbpass)"
 
@@ -506,6 +511,8 @@ jobs:
             --db-user-pass "$srtsqldevdbpass" \
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
-            --helm-upgrade-args "--set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
-            
-#--set keyVault.enabled=true 
+            --helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
+
+# srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
+# srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
+# srtcookiesecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-cookiesecret" --query value -o tsv)

@@ -32,7 +32,7 @@ resource "azurerm_key_vault_certificate" "kv-azurecert" {
     }
 
     key_properties {
-      exportable = false
+      exportable = true
       key_size   = 2048
       key_type   = "RSA"
       reuse_key  = true
