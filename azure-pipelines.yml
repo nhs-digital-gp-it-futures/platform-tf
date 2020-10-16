@@ -320,7 +320,8 @@ jobs:
   - bash: |
       kubectl apply -f https://raw.githubusercontent.com/sparebankenvest/azure-key-vault-to-kubernetes/crd-1.1.0/crds/AzureKeyVaultSecret.yaml
       kubectl create ns akv2k8s
-      ping localhost -c 10
+      helm repo add spv-charts http://charts.spvapi.no
+      helm repo update
       helm upgrade -i azure-key-vault-controller spv-charts/azure-key-vault-controller --namespace akv2k8s
       helm upgrade -i azure-key-vault-env-injector spv-charts/azure-key-vault-env-injector --namespace akv2k8s
     displayName: 'Setup Azure KeyVault Injection'
