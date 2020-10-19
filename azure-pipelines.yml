@@ -438,9 +438,9 @@ jobs:
       artifact: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)'
 
-  - bash: 'ls -R'
-    displayName: Get Folders (ArtifactsDirectory)
-    workingDirectory: '$(System.ArtifactsDirectory)'
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (ArtifactsDirectory)
+  #   workingDirectory: '$(System.ArtifactsDirectory)'
 
   # - bash: 'ls -R'
   #   displayName: Get Folders (WorkingDirectory)
@@ -452,9 +452,9 @@ jobs:
     inputs:
       secureFile: azure-dyn.yaml
 
-  - bash: 'ls -R'
-    displayName: Get Folders (Temp Dir)
-    workingDirectory: '$(Agent.TempDirectory)'
+  # - bash: 'ls -R'
+  #   displayName: Get Folders (Temp Dir)
+  #   workingDirectory: '$(Agent.TempDirectory)'
 
   - task: CopyFiles@2
     displayName: Copy Dynamic yaml File
