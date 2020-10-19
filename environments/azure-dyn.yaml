@@ -9,8 +9,8 @@ testStorage:
 
 keyVault:
   enabled: true  
-  name: gpit-<namespace>-kv #should override per environment
-  isapiCertificateSecretName: isapi-cert
+  name: "gpit-<namespace>-kv" #should override per environment
+  isapiCertificateSecretName: "isapi-cert"
 
 azurite:
   enabled: false
