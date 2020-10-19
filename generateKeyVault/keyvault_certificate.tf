@@ -23,7 +23,7 @@
 # #random_password.password1.result
 
 resource "azurerm_key_vault_certificate" "kv-azurecert" {
-  name         = "buyingcatalogue${local.shortEnv}"
+  name         = "isapi-cert"
   key_vault_id = azurerm_key_vault.keyvault.id
 
   certificate_policy {

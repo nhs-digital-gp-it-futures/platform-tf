@@ -8,9 +8,9 @@ testStorage:
   accessMode: "ReadWriteMany"
 
 keyVault:
-  enabled: false  
-  name: gpitfutures-dev-core-kv #should override per environment
-  isapiCertificateSecretName: buyingcataloguedyn
+  enabled: true  
+  name: gpit-<namespace>-kv #should override per environment
+  isapiCertificateSecretName: isapi-cert
 
 azurite:
   enabled: false
