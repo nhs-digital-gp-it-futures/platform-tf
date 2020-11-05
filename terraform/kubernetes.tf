@@ -53,6 +53,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enabled                       = "true"
   }
 
+  identity {
+    type = "SystemAssigned"
+  } 
+
   tags = {
     environment                   = var.environment
   }
