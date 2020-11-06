@@ -512,7 +512,7 @@ jobs:
             --db-user-pass "$srtsqldevdbpass" \
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
-            --helm-upgrade-args "--set timeout 20m0s"
+            --helm-upgrade-args "--set timeout=20m0s"
             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 
