@@ -18,7 +18,6 @@ resource "random_password" "password1" {
   special = true
   override_special = "$_%@"
 }
-#random_password.password1.result
 
 resource "azurerm_key_vault_secret" "kv-sqlpass" {
   name         = "${var.pjtcode}${local.shortEnv}sqladminpassword"

@@ -9,12 +9,12 @@ testStorage:
 
 keyVault:
   enabled: false #true  
-  name: "gpit-<namespace>-kv" #should override per environment
+  name: "gpit-<namespace>-kv"
   isapiCertificateSecretName: buyingcataloguedev #"isapi-cert"
 
 azurite:
   enabled: false
-  connectionString:                          # override per environment
+  connectionString:
   
 dapi:
   enabled: true  
@@ -22,7 +22,7 @@ dapi:
 
 db:
   enabled: false
-  disabledUrl: "" #azure sql url
+  disabledUrl: ""
   service:
     port: 1433
   
@@ -58,18 +58,18 @@ isapi:
       requirePkce: true
       requireConsent: false
       redirectUrls:         
-        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/oauth/callback          #To override from build
-        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/admin/oauth/callback    #To override from build
-        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/order/oauth/callback    #To override from build
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/oauth/callback
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/admin/oauth/callback
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/order/oauth/callback
       postLogoutRedirectUrls: 
-        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/signout-callback-oidc        #To override from build
-        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/admin/signout-callback-oidc  #To override from build
-        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/order/signout-callback-oidc  #To override from build
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/signout-callback-oidc
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/admin/signout-callback-oidc
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/order/signout-callback-oidc
 
   allowInvalidCertificate: false
   serviceDependencies:
     email:
-      allowInvalidCertificate: true                 # our maildev image uses self-signed certs, override in prod
+      allowInvalidCertificate: true
   dataProtection:
     applicationName: "ISAPI Development"
   ingress:
@@ -79,8 +79,7 @@ isapi:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
       appgw.ingress.kubernetes.io/ssl-redirect: "true"    
     hosts:
-      #- host: https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
-      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
         paths: 
           - /identity/health/*
           - /identity/css/*  
@@ -102,7 +101,7 @@ ordapi:
   allowInvalidCertificate: false
 
 email:
-  enabled: true  #probably leave enabled apart from prod  
+  enabled: true 
   replicaCount: 1
   ingress:
     enabled: true
@@ -111,7 +110,7 @@ email:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk
       appgw.ingress.kubernetes.io/ssl-redirect: "true"
     hosts:
-      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
         paths: 
           - /email*
 
@@ -133,7 +132,7 @@ mp:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
       appgw.ingress.kubernetes.io/ssl-redirect: "true"
     hosts:
-      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
         paths: 
           - /marketing/*
 
@@ -151,11 +150,11 @@ pb:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
       appgw.ingress.kubernetes.io/ssl-redirect: "true"
     hosts:
-      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
         paths: 
           - /
     tls: []
-  baseUri: https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+  baseUri: https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk
   featureFlags:
     loginEnabled : "true"
     useCapabilitiesSelector: "true"
@@ -175,7 +174,7 @@ admin:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
       appgw.ingress.kubernetes.io/ssl-redirect: "true"
     hosts:
-      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
         paths: 
           - /admin/*
     tls: []      
@@ -194,7 +193,7 @@ of:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
       appgw.ingress.kubernetes.io/ssl-redirect: "true"
     hosts:
-      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
         paths: 
           - /order/*
     tls: []  
@@ -202,7 +201,7 @@ of:
 
 redis:
   enabled: false
-  disabledUrl:                                            # Override per environment
+  disabledUrl:
   cluster:
     enabled: false
   usePassword: false
@@ -217,7 +216,7 @@ redis-commander:
       appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
       appgw.ingress.kubernetes.io/ssl-redirect: "true"
     hosts:
-      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk #To override from build
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
         paths: 
           - /redis-commander/*
 

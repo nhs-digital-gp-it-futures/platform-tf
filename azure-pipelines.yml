@@ -205,15 +205,15 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
-  - task: AzureCLI@2
-    name: kubectlInstallAAD
-    displayName: Install AAD Pod Identity
-    inputs:
-      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
-    enabled: false  ##### Duplicate ####
+  # - task: AzureCLI@2
+  #   name: kubectlInstallAAD
+  #   displayName: Install AAD Pod Identity
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
+  #   enabled: false  ##### Duplicate ####
 
   - task: AzureCLI@2
     name: kubectlCreateIngressNamespace
@@ -271,15 +271,12 @@ jobs:
           echo "##vso[task.setvariable variable=appgwRgId]$appgwRgId"
           echo "##vso[task.setvariable variable=subId]$subId"
 
-          #echo subId is: $subId
-
     name: getAADValues
     displayName: AAD - Get client Values 
 
   - bash: |
           cat ./ingress/aadpodidentity-template.txt | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${idPath}*$(aadIdPath)*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentity.yaml
           cat ./ingress/aadpodidentitybinding-template.txt  | sed -e "s*\${name}*gpitfutures-$(release)-aad-id*" | sed -e "s*\${clientID}*$(aadClientId)*" > ./ingress/$(release)-aadpodidentitybinding.yaml
-          #cat ./ingress/$(release)-aadpodidentitybinding.yaml
     name: generateAADtemplates
     displayName: AAD - Generate Templates 
 
@@ -307,14 +304,13 @@ jobs:
         agicshared="false"
         agicnamespaces=""
         cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" | sed -e "s*\${shared}*$agicshared*" | sed -e "s*\${namespaces}*$agicnamespaces*" > ./ingress/$release-helm-config.yaml
-        #cat ./ingress/$release-helm-config.yaml
     name: generateHelmTemplates
     displayName: Agic - Generate Templates 
 
   - bash: |
       helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
       helm repo update
-      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw #--dry-run --debug
+      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw
     displayName: 'Agic - Install'
 
   # - bash: |
@@ -448,13 +444,9 @@ jobs:
 
   - task: DownloadSecureFile@1
     displayName: Download Dynamic yaml File
-    name: azuredyn # The name with which to reference the secure file's path on the agent, like $(mySecureFile.secureFilePath)
+    name: azuredyn
     inputs:
       secureFile: azure-dyn.yaml
-
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (Temp Dir)
-  #   workingDirectory: '$(Agent.TempDirectory)'
 
   - task: CopyFiles@2
     displayName: Copy Dynamic yaml File
@@ -513,9 +505,9 @@ jobs:
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
             --helm-upgrade-args "--set timeout=20m0s"
-            
-#--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 
-# # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
-# # srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
-# # srtcookiesecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-cookiesecret" --query value -o tsv)
+# Required for next task - enabling key vault             
+#--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
+# srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
+# srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
+# srtcookiesecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-cookiesecret" --query value -o tsv)

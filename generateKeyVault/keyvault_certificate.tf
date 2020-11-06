@@ -1,27 +1,3 @@
-# resource "azurerm_key_vault_secret" "kv-sqluser" {
-#   name         = "${var.pjtcode}${local.shortEnv}sqladminusername"
-#   value        = var.kv_sqlusername
-#   content_type = "${var.project}-SQL-Username"
-#   key_vault_id = azurerm_key_vault.keyvault.id
-  
-#   tags = {
-#     environment = var.environment
-#   }
-
-#   depends_on = [
-#     azurerm_key_vault_access_policy.keyvault_devops_access,
-#     azurerm_key_vault_access_policy.keyvault_access,
-#     azurerm_key_vault_access_policy.keyvault_current_access
-#   ]
-# }
-
-# resource "random_password" "password1" {
-#   length = 16
-#   special = true
-#   override_special = "$_%@"
-# }
-# #random_password.password1.result
-
 resource "azurerm_key_vault_certificate" "kv-azurecert" {
   name         = "isapi-cert"
   key_vault_id = azurerm_key_vault.keyvault.id
@@ -53,8 +29,6 @@ resource "azurerm_key_vault_certificate" "kv-azurecert" {
     }
 
     x509_certificate_properties {
-      #Server Authentication = 1.3.6.1.5.5.7.3.1
-      #Client Authentication = 1.3.6.1.5.5.7.3.2
       extended_key_usage = ["1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"]
 
       key_usage = [
