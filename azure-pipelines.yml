@@ -512,7 +512,8 @@ jobs:
             --db-user-pass "$srtsqldevdbpass" \
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
-            --helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
+            
+#--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 
 # # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
 # # srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
