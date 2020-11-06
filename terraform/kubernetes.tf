@@ -21,10 +21,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  # service_principal {
-  #   client_id                     = data.azurerm_key_vault_secret.spnappid.value
-  #   client_secret                 = data.azurerm_key_vault_secret.spnsecret.value
-  # }
+  service_principal {
+    client_id                     = data.azurerm_key_vault_secret.spnappid.value
+    client_secret                 = data.azurerm_key_vault_secret.spnsecret.value
+  }
 
   network_profile {
     load_balancer_sku             = "standard"
@@ -53,9 +53,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enabled                       = "true"
   }
 
-  identity {
-    type = "SystemAssigned"
-  } 
+  # identity {
+  #   type = "SystemAssigned"
+  # } 
 
   tags = {
     environment                   = var.environment
