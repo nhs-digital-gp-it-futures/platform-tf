@@ -76,4 +76,8 @@ resource "azurerm_key_vault_certificate" "kv-azurecert" {
       validity_in_months = 12
     }
   }
+
+  depends_on = [
+    azurerm_management_lock.keyvault_lock
+  ]
 }
