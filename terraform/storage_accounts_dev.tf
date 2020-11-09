@@ -8,7 +8,7 @@ resource "azurerm_storage_account" "data_gen" {
   account_replication_type  = "grs"
   account_kind              = "StorageV2"
   enable_https_traffic_only = "true"
-  #allow_blob_public_access  = "true" # Explicitly required in later Azure RM Provider versions
+  allow_blob_public_access  = "true" # Explicitly required in later Azure RM Provider versions
   tags                      = {
     environment             = var.environment
   }
