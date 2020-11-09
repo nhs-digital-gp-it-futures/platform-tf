@@ -464,8 +464,8 @@ jobs:
           sqlDbAdminPass=$(az keyvault secret show --vault-name gpit-$release-kv --name "gpit${releaseNoPunct}sqladminpassword" --query value -o tsv)
           saConnectionString=$(az storage account show-connection-string --name gpitfutures${releaseNoPunct}sa --resource-group gpitfutures-$release-rg-sa --query connectionString -o tsv)
           appgwPip=$(az network public-ip show --name gpitfutures-$release-pip --resource-group gpitfutures-$release-rg-appgw --query ipAddress -o tsv)
-          redisHost=$(az redis show --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query hostName -o tsv)
-          redisPass=$(az redis list-keys --resource-group gpitfutures-$release-rg-redis --name gpitfutures-$release-redis --query primaryKey -o tsv)
+          redisHost=$(az redis show --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query hostName -o tsv)
+          redisPass=$(az redis list-keys --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query primaryKey -o tsv)
           
           # From Core Keyvault
           srtcookiesecret="$(srt-cookiesecret)" 

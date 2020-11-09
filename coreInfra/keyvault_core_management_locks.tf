@@ -12,4 +12,3 @@ resource "azurerm_management_lock" "keyvault_core_lock" {
     azurerm_key_vault_access_policy.keyvault_core_access
   ]
 }
- 

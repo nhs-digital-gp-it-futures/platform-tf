@@ -47,11 +47,3 @@ resource "azurerm_resource_group" "sql-sec" {
     environment = var.environment
   }
 }
-
-resource "azurerm_resource_group" "redis" {
-  name                            = "${var.project}-${var.environment}-rg-redis"
-  location                        = var.region
-  tags = {
-    environment                   = var.environment
-  }
-}
