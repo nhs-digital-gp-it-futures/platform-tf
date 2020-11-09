@@ -183,7 +183,8 @@ resource "azurerm_application_gateway" "AppGate" {
   }
 
   depends_on = [
-    azurerm_network_security_rule.Azure
+    azurerm_network_security_rule.Azure,
+    azurerm_key_vault_access_policy.keyvault_aad_access
   ]
 
   lifecycle {

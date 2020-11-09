@@ -3,7 +3,7 @@ resource "azurerm_management_lock" "keyvault_core_lock" {
 
   name       = "write-lock-keyvault"
   scope      = azurerm_key_vault.keyvault_core[0].id
-  lock_level = "ReadOnly"
+  lock_level = "CanNotDelete"
   notes      = "To prevent key vault being changed"
 
   depends_on = [
@@ -12,4 +12,3 @@ resource "azurerm_management_lock" "keyvault_core_lock" {
     azurerm_key_vault_access_policy.keyvault_core_access
   ]
 }
- 
