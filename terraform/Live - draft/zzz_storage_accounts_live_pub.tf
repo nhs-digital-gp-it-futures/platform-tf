@@ -1,7 +1,7 @@
 # resource "azurerm_storage_account" "data_pub" {
 #   count                     = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
 
-#   name                      = "${var.project}${local.shortenv}sapub"
+#   name                      = "${var.project}${local.shortenv}pub"
 #   location                  = var.region
 #   resource_group_name       = azurerm_resource_group.storage.name
 #   account_tier              = "Standard"
