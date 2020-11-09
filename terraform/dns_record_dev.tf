@@ -12,5 +12,3 @@ resource "azurerm_dns_cname_record" "dyn_cname" {
     ttl                 = 60
     record              = azurerm_public_ip.PipAppGw[0].fqdn
 }
-
-

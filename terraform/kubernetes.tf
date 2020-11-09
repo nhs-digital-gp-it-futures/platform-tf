@@ -53,6 +53,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     enabled                       = "true"
   }
 
+  # ### May be needed for key vault integration ###
   # identity {
   #   type = "SystemAssigned"
   # } 

@@ -409,20 +409,6 @@ jobs:
         helm repo add stable https://kubernetes-charts.storage.googleapis.com/
         helm repo update
 
-  # - task: DownloadBuildArtifacts@0
-  #   displayName: Download Helm Pipeline Artifacts
-  #   inputs:
-  #     (source)buildType: 'specific' 
-  #     project: 'c5f97979-5b03-4d10-ba8d-871d0526b408'
-  #     pipeline: '75'
-  #     (runbranch)branchName: 'refs/heads/master'
-  #     buildVersionToDownload: 'latestFromBranch'
-  #     #allowPartiallySucceededBuilds: false
-  #     downloadType: 'single'
-  #     #artifactName: '_nhs-digital-gp-it-futures.platform-helm'
-  #     artifactName: 'build-artifact'
-  #     downloadPath: '$(System.ArtifactsDirectory)/helmArtifacts'
-
   - task: DownloadPipelineArtifact@2
     displayName: Download Helm Pipeline Artifacts  
     inputs:

@@ -13,4 +13,3 @@ resource "azurerm_subnet" "aks" {
 
   service_endpoints    = ["Microsoft.Sql"]
 }
-
