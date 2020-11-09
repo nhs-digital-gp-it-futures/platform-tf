@@ -137,7 +137,7 @@ resource "azurerm_key_vault_secret" "kv-kv-access-dl" {
 resource "azurerm_key_vault_secret" "kv-tfstoragekey" {
   count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
-  name         = "${var.pjtcode}${local.coreEnv}tf-storagekey"bjssvpn
+  name         = "${var.pjtcode}${local.coreEnv}tf-storagekey"
   value        = var.kv_tfsakey
   content_type = "${var.project}-tf-storagekey"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
