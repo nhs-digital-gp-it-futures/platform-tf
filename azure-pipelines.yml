@@ -327,7 +327,7 @@ jobs:
   dependsOn: 
   - buildBranchEnvironment
   - prepareAKSEnvironment
-  condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning')
+  condition: and(eq(dependencies.buildBranchEnvironment.result, 'Succeeded'), in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning'))
   variables:
     - group: dev-core-secrets
     - name: acr
