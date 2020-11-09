@@ -87,7 +87,7 @@ resource "azurerm_application_gateway" "AppGate" {
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
     protocol                       = "HTTPS"
     host_name                      = "www.${data.azurerm_key_vault_secret.coreurl.value}" 
-    ssl_certificate_name           = "${var.project}-${var.environment}-cert"
+    ssl_certificate_name           = "dyn-buying-catalogue-digital-nhs-uk"
   }
 
   http_listener {
@@ -128,9 +128,12 @@ resource "azurerm_application_gateway" "AppGate" {
   # }
 
   ssl_certificate {
-     name = "${var.project}-${var.environment}-cert"
+     #name = "${var.project}-${var.environment}-cert"
+     name = "dyn-buying-catalogue-digital-nhs-uk"
      key_vault_secret_id = data.azurerm_key_vault_secret.ssl_cert.id   
   }
+
+
 
   identity {
     type = "UserAssigned"
@@ -182,4 +185,22 @@ resource "azurerm_application_gateway" "AppGate" {
   depends_on = [
     azurerm_network_security_rule.Azure
   ]
+
+  lifecycle {
+    # AGIC owns most app gateway settings, so we should ignore differences
+    ignore_changes = [
+      #gateway_ip_configuration,
+      request_routing_rule, 
+      http_listener, 
+      backend_http_settings, 
+      #frontend_ip_configuration, 
+      frontend_port,
+      backend_address_pool,
+      probe,
+      redirect_configuration,      
+      url_path_map,     
+      tags, # AGIC adds tags which need to be ignored. Can't seem to ignore the individual tags
+      #ssl_certificate # see issue above
+    ]
+  }
 }

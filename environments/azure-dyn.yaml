@@ -1,0 +1,249 @@
+dbPassword:
+clientSecret:
+appBaseUrl: "https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk"
+baseIsapiEnabledUrl: "https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/identity"
+
+testStorage:
+  storageClassName: "azurefile"
+  accessMode: "ReadWriteMany"
+
+keyVault:
+  enabled: false #true  
+  name: "gpit-<namespace>-kv"
+  isapiCertificateSecretName: buyingcataloguedev #"isapi-cert"
+
+azurite:
+  enabled: false
+  connectionString:
+  
+dapi:
+  enabled: true  
+  replicaCount: 1  
+
+db:
+  enabled: false
+  disabledUrl: ""
+  service:
+    port: 1433
+  
+bapi-db-deploy:
+  enabled: true
+  db:
+    includeImport: "TRUE"
+    includePublish: "TRUE"
+    insertTestData: "TRUE"
+
+isapi-db-deploy:
+  enabled: true
+
+ordapi-db-deploy:
+  enabled: true
+    
+bapi:  
+  enabled: true  
+  replicaCount: 1
+
+isapi:
+  enabled: true  
+  replicaCount: 1  
+  clients: 
+    - clientId: "NodeClient"
+      clientName: "Main Node Client"
+      allowedGrantTypes: "Code"
+      allowOfflineAccess : false
+      requireClientSecret : true
+      secret: 
+        name: "bc-buyingcatalogue"
+        key: oidc-client-secret 
+      requirePkce: true
+      requireConsent: false
+      redirectUrls:         
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/oauth/callback
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/admin/oauth/callback
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/order/oauth/callback
+      postLogoutRedirectUrls: 
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/signout-callback-oidc
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/admin/signout-callback-oidc
+        - https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk/order/signout-callback-oidc
+
+  allowInvalidCertificate: false
+  serviceDependencies:
+    email:
+      allowInvalidCertificate: true
+  dataProtection:
+    applicationName: "ISAPI Development"
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"    
+    hosts:
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+        paths: 
+          - /identity/health/*
+          - /identity/css/*  
+          - /identity/nhsuk-frontend/*          
+          - /identity/account/*          
+          - /identity/consent*          
+          - /identity/error/*
+          - /identity/connect/*
+          - /identity/.well-known/*
+
+oapi:
+  enabled: true  
+  replicaCount: 1
+  allowInvalidCertificate: false
+    
+ordapi:
+  enabled: true  
+  replicaCount: 1
+  allowInvalidCertificate: false
+
+email:
+  enabled: true 
+  replicaCount: 1
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+        paths: 
+          - /email*
+
+file-loader:
+  enabled: true
+  replicaCount: 1
+
+mp:
+  enabled: true
+  replicaCount: 1
+  serviceDependencies:
+    redis:
+      port: "6380"
+      tls: true
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+        paths: 
+          - /marketing/*
+
+pb: 
+  enabled: true
+  replicaCount: 1
+  serviceDependencies:
+    redis:
+      port: "6380"
+      tls: true
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+        paths: 
+          - /
+    tls: []
+  baseUri: https://<namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+  featureFlags:
+    loginEnabled : "true"
+    useCapabilitiesSelector: "true"
+    showCovid19: "true"
+
+admin: 
+  enabled: true
+  replicaCount: 1
+  serviceDependencies:
+    redis:
+      port: "6380"
+      tls: true
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+        paths: 
+          - /admin/*
+    tls: []      
+
+of: 
+  enabled: true
+  replicaCount: 1
+  serviceDependencies:
+    redis:
+      port: "6380"
+      tls: true
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+        paths: 
+          - /order/*
+    tls: []  
+  baseUri: "/order"  
+
+redis:
+  enabled: false
+  disabledUrl:
+  cluster:
+    enabled: false
+  usePassword: false
+
+redis-commander:
+  enabled: false
+  urlPrefix: redis-commander
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: <namespace>.dynamic.buyingcatalogue.digital.nhs.uk
+        paths: 
+          - /redis-commander/*
+
+pb-ac-tests:
+  enabled: false
+  testFilter: SmokeTest
+
+mp-ac-tests:
+  enabled: false
+  testFilter: SmokeTest
+
+admin-ac-tests:
+  enabled: false
+  testFilter: SmokeTest
+
+of-ac-tests:
+  enabled: false
+  testFilter: SmokeTest
+
+allure:  
+  enabled: false
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: azure/application-gateway
+      appgw.ingress.kubernetes.io/appgw-ssl-certificate: dyn-buying-catalogue-digital-nhs-uk 
+      appgw.ingress.kubernetes.io/ssl-redirect: "true"    
+    hosts:
+      - paths: 
+          - /allure-docker-service/*

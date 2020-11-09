@@ -9,9 +9,7 @@ resource "azurerm_key_vault_secret" "kv-sqluser" {
   }
 
   depends_on = [
-    azurerm_key_vault_access_policy.keyvault_devops_access,
-    azurerm_key_vault_access_policy.keyvault_access,
-    azurerm_key_vault_access_policy.keyvault_current_access
+    azurerm_management_lock.keyvault_lock
   ]
 }
 
@@ -20,7 +18,6 @@ resource "random_password" "password1" {
   special = true
   override_special = "$_%@"
 }
-#random_password.password1.result
 
 resource "azurerm_key_vault_secret" "kv-sqlpass" {
   name         = "${var.pjtcode}${local.shortEnv}sqladminpassword"
@@ -33,9 +30,7 @@ resource "azurerm_key_vault_secret" "kv-sqlpass" {
   }
 
   depends_on = [
-    azurerm_key_vault_access_policy.keyvault_devops_access,
-    azurerm_key_vault_access_policy.keyvault_access,
-    azurerm_key_vault_access_policy.keyvault_current_access
+    azurerm_management_lock.keyvault_lock
   ]
 }
 
@@ -50,9 +45,7 @@ resource "azurerm_key_vault_secret" "kv_addrprefix" {
   }
 
   depends_on = [
-    azurerm_key_vault_access_policy.keyvault_devops_access,
-    azurerm_key_vault_access_policy.keyvault_access,
-    azurerm_key_vault_access_policy.keyvault_current_access
+    azurerm_management_lock.keyvault_lock
   ]
 }
 
@@ -67,8 +60,6 @@ resource "azurerm_key_vault_secret" "kv_coreurl" {
   }
 
   depends_on = [
-    azurerm_key_vault_access_policy.keyvault_devops_access,
-    azurerm_key_vault_access_policy.keyvault_access,
-    azurerm_key_vault_access_policy.keyvault_current_access
+    azurerm_management_lock.keyvault_lock
   ]
 }

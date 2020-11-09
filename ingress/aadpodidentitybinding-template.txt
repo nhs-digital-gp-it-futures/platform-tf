@@ -5,4 +5,3 @@ metadata:
 spec:
   AzureIdentity: ${name}
   Selector: ${clientID}
-

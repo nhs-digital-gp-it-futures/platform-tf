@@ -49,3 +49,19 @@ variable "kv_sqladmins" {
 variable "kv_tfsakey" {
   type = string
 }
+
+variable "kv_srtcookiesecret" {
+  type = string
+}
+
+variable "kv_srtclientsecret" {
+  type = string
+}
+
+variable "kv_sqldevdbpass" {
+  type = string
+}
+
+variable "kv_bjssvpn" {
+  type = string
+}

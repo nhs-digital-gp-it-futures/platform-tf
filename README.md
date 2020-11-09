@@ -5,6 +5,8 @@ Repository for Platform Terraform code
 
 This environment is still being assembled - at each major milestone (Azure build complete, Agic complete, code deployed) a PR will be raised and the code changes will be merged.
 
+Phase 3
+
 # Description
 
 This code base deploys a fully functioning standalone Azure environment with AGIC configured and deploys the GP IT Futures Catalogue to the standalone Kubernetes environment for testing of Environmental changes (e.g. Kubernetes versions) or invasive changes to the application. 
