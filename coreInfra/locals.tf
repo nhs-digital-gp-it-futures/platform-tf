@@ -1,7 +1,7 @@
 locals {
-  shortEnv = replace("${var.environment}", "-", "")
+  shortEnv = replace(var.environment, "-", "")
 }
 
 locals {
-  coreEnv = "${local.shortEnv}"
+  coreEnv = local.shortEnv
 }

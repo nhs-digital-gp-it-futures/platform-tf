@@ -28,7 +28,7 @@ jobs:
   variables:
     - group: dev-core-secrets
     - name: tfVersion
-      value: 0.12.24
+      value: 0.13.5
 
   steps:
 
@@ -90,7 +90,7 @@ jobs:
   variables:
     - group: dev-core-secrets
     - name: tfVersion
-      value: 0.12.24
+      value: 0.13.5
 
   steps:
 
@@ -327,7 +327,7 @@ jobs:
   dependsOn: 
   - buildBranchEnvironment
   - prepareAKSEnvironment
-  condition: in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning')
+  condition: and(eq(dependencies.buildBranchEnvironment.result, 'Succeeded'), in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning'))
   variables:
     - group: dev-core-secrets
     - name: acr
