@@ -24,6 +24,7 @@ pool:
 
 jobs:
 - job: buildBranchKeyVault
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
   displayName: Build Branch Key Vault
   variables:
     - group: dev-core-secrets
@@ -86,6 +87,7 @@ jobs:
 
 - job: buildBranchEnvironment
   dependsOn: buildBranchKeyVault
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
   displayName: Build Branch Environment
   variables:
     - group: dev-core-secrets
@@ -149,6 +151,7 @@ jobs:
 - job: checkIfFirstRun 
 
   dependsOn: buildBranchEnvironment
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
   displayName: Check if first run on new Cluster
 
   steps:
@@ -183,7 +186,7 @@ jobs:
 - job: prepareAKSEnvironment
   displayName: Prepare AKS Environment
   dependsOn: checkIfFirstRun
-  condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
+  condition: and(eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     - group: dev-core-secrets
 
@@ -325,8 +328,8 @@ jobs:
 - job: deployBCApplication
   displayName: Deploy BC Application
   dependsOn: 
-  - buildBranchEnvironment
-  - prepareAKSEnvironment
+    - buildBranchEnvironment
+    - prepareAKSEnvironment
   condition: and(eq(dependencies.buildBranchEnvironment.result, 'Succeeded'), in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning'))
   variables:
     - group: dev-core-secrets
@@ -420,14 +423,6 @@ jobs:
       artifact: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)'
 
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (ArtifactsDirectory)
-  #   workingDirectory: '$(System.ArtifactsDirectory)'
-
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (WorkingDirectory)
-  #   workingDirectory: '$(System.DefaultWorkingDirectory)'
-
   - task: DownloadSecureFile@1
     displayName: Download Dynamic yaml File
     name: azuredyn
@@ -491,9 +486,72 @@ jobs:
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
             --helm-upgrade-args "--set timeout=20m0s"
-
+            
 # Required for next task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
 # srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
 # srtcookiesecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-cookiesecret" --query value -o tsv)
+
+- job: cleanUpEnvironment
+  displayName: Clean Up Environment
+  dependsOn: 
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  variables:
+    - group: dev-core-secrets
+    - name: tfVersion
+      value: 0.13.5
+    
+  steps:
+    - bash: |
+        shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+        echo "##vso[task.setvariable variable=release]$shortBranchName"
+        echo Calculated branch name is: $shortBranchName
+      displayName: Get Branch Name
+      env:
+        BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+
+    - task: CopyFiles@2
+      displayName: Copy Branch Environment Config Files
+      inputs:
+        SourceFolder: 'terraform'
+        Contents: '**'
+        TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+        CleanTargetFolder: false
+        OverWrite: true
+      
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+      displayName: Install Terraform $(tfVersion)
+      inputs:
+        terraformVersion: $(tfVersion)
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Initialise (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
+        backendAzureRmStorageAccountName: 'gpitfuturessatf'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'gpit.$(release).terraform.tfstate'
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Plan (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      
+    # - task: TerraformTaskV1@0
+    #   displayName: 'Terraform Destroy (Branch Environment)'
+    #   inputs:
+    #     provider: 'azurerm'
+    #     command: 'destroy'
+    #     workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+    #     commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+    #     environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
+    
