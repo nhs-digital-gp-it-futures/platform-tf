@@ -73,7 +73,7 @@ jobs:
         provider: 'azurerm'
         command: 'plan'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
     - task: TerraformTaskV1@0
@@ -82,7 +82,7 @@ jobs:
         provider: 'azurerm'
         command: 'apply'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
 - job: buildBranchEnvironment
@@ -295,7 +295,7 @@ jobs:
   - bash: |
         release=$(release)
         agicshared="true"
-        agicnamespaces="$(release)"
+        agicnamespaces="$release"
         cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" | sed -e "s*\${shared}*$agicshared*" | sed -e "s*\${namespaces}*$agicnamespaces*" > ./ingress/$release-helm-config.yaml
     name: generateHelmTemplates
     displayName: Agic - Generate Templates 
@@ -304,19 +304,17 @@ jobs:
       kubectl apply -f https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/ae695ef9bd05c8b708cedf6ff545595d0b7022dc/crds/AzureIngressProhibitedTarget.yaml
       helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
       helm repo update
-      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw
+      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw --version 1.2.0-rc3
     displayName: 'Agic - Install'
 
   - bash: |
       release=$(release)
       agicCrdURL="www.$release.dynamic.buyingcatalogue.digital.nhs.uk"
       agicCrdName=$(echo $agicCrdURL | tr "." -)
-      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${name}*$(agicCrdName)*" | sed -e "s*\${URL}*$(agicCrdURL)*" > ./ingress/$(release)-azureingressprohibitedtarget.yaml
-      kubectl apply -f ./ingress/$(release)-azureingressprohibitedtarget.yaml -n ingress-appgw
+      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/$release-azureingressprohibitedtarget.yaml
+      kubectl apply -f ./ingress/$release-azureingressprohibitedtarget.yaml -n ingress-appgw
       kubectl delete AzureIngressProhibitedTarget prohibit-all-targets -n ingress-appgw
     displayName: 'Agic - Prohibited Targets' 
-
-    # www.feature-10279.dynamic.buyingcatalogue.digital.nhs.uk
 
   # - bash: |
   #     # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
