@@ -16,6 +16,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     max_count                     = 2
     min_count                     = 1
     node_count                    = 1
+    availability_zones            = [1,2,3]
     tags = {
       environment                 = var.environment
     }
