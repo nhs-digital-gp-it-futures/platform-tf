@@ -208,16 +208,6 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
-  # - task: AzureCLI@2
-  #   name: kubectlInstallAAD
-  #   displayName: Install AAD Pod Identity
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
-  #   enabled: false  ##### Duplicate ####
-
   - task: AzureCLI@2
     name: kubectlCreateIngressNamespace
     displayName: Create Ingress Namespace
@@ -315,6 +305,24 @@ jobs:
       helm repo update
       helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw
     displayName: 'Agic - Install'
+
+  - bash: |
+      # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
+      
+      helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+      kubectl create namespace cattle-system
+      
+      #CertManager
+      kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
+      kubectl create namespace cert-manager
+      helm repo add jetstack https://charts.jetstack.io
+      helm repo update
+      helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.0.4
+
+      # rancher
+      helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.my.org
+
+    displayName: 'Rancher - Install'
 
   # - bash: |
   #     kubectl apply -f https://raw.githubusercontent.com/sparebankenvest/azure-key-vault-to-kubernetes/crd-1.1.0/crds/AzureKeyVaultSecret.yaml
