@@ -294,8 +294,8 @@ jobs:
 
   - bash: |
         release=$(release)
-        agicshared="false"
-        agicnamespaces=""
+        agicshared="true"
+        agicnamespaces="$(release)"
         cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" | sed -e "s*\${shared}*$agicshared*" | sed -e "s*\${namespaces}*$agicnamespaces*" > ./ingress/$release-helm-config.yaml
     name: generateHelmTemplates
     displayName: Agic - Generate Templates 
@@ -306,23 +306,22 @@ jobs:
       helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw
     displayName: 'Agic - Install'
 
-  - bash: |
-      # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
+  # - bash: |
+  #     # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
       
-      helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
-      kubectl create namespace cattle-system
+  #     helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+  #     kubectl create namespace cattle-system
       
-      #CertManager
-      kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
-      kubectl create namespace cert-manager
-      helm repo add jetstack https://charts.jetstack.io
-      helm repo update
-      helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.0.4
+  #     #CertManager
+  #     kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
+  #     kubectl create namespace cert-manager
+  #     helm repo add jetstack https://charts.jetstack.io
+  #     helm repo update
+  #     helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.0.4
 
-      # rancher
-      helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.my.org
-
-    displayName: 'Rancher - Install'
+  #     # rancher
+  #     helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.my.org
+  #   displayName: 'Rancher - Install'
 
   # - bash: |
   #     kubectl apply -f https://raw.githubusercontent.com/sparebankenvest/azure-key-vault-to-kubernetes/crd-1.1.0/crds/AzureKeyVaultSecret.yaml
