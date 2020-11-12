@@ -317,11 +317,12 @@ jobs:
       kubectl delete AzureIngressProhibitedTarget prohibit-all-targets -n ingress-appgw
     displayName: 'Agic - Prohibited Targets' 
 
-  # - bash: |
-  #     # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
-      
-  #     helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
-  #     kubectl create namespace cattle-system
+  - bash: |
+      # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
+      helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+      helm repo update
+      kubectl create namespace cattle-system
+      helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher-feature-10279.dynamic.buyingcatalogue.digital.nhs.uk --set tls=external
       
   #     #CertManager
   #     kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
