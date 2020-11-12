@@ -295,16 +295,17 @@ jobs:
   - bash: |
         release=$(release)
         agicshared="true"
-        agicnamespaces="$release"
+        agicnamespaces=""
         cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" | sed -e "s*\${shared}*$agicshared*" | sed -e "s*\${namespaces}*$agicnamespaces*" > ./ingress/$release-helm-config.yaml
     name: generateHelmTemplates
     displayName: Agic - Generate Templates 
 
   - bash: |
-      kubectl apply -f https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/ae695ef9bd05c8b708cedf6ff545595d0b7022dc/crds/AzureIngressProhibitedTarget.yaml
       helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
       helm repo update
       helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw --version 1.2.0-rc3
+      kubectl apply -f https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/ae695ef9bd05c8b708cedf6ff545595d0b7022dc/crds/AzureIngressProhibitedTarget.yaml
+
     displayName: 'Agic - Install'
 
   - bash: |
@@ -389,7 +390,7 @@ jobs:
     displayName: Check if BC Namespace exists
   
   - task: AzureCLI@2
-    condition: and(succeeded(), eq(variables.firstRunBC, 'Yes'))
+    condition: eq(variables.firstRunBC, 'Yes')
     name: kubectlCreateAppNamespace
     displayName: Create App Namespace
     inputs:
