@@ -120,26 +120,59 @@ resource "azurerm_application_gateway" "AppGate" {
     redirect_configuration_name   = "${var.project}-${var.environment}-appgw-rdrcfg"
   }
   
-  # Issue https://github.com/terraform-providers/terraform-provider-azurerm/issues/4408 - fixed but not resolved
-  # Issue https://github.com/terraform-providers/terraform-provider-azurerm/issues/6188 - can't set unversioned secret id
-  # ssl_certificate {
-  #   name = local.gateway_certificate_name
-  #   key_vault_secret_id = local.gateway_certificate_key_vault_secret_id   
-  # }
-
   ssl_certificate {
-     #name = "${var.project}-${var.environment}-cert"
      name = "dyn-buying-catalogue-digital-nhs-uk"
      key_vault_secret_id = data.azurerm_key_vault_secret.ssl_cert.id   
   }
 
-
-
   identity {
     type = "UserAssigned"
-    #identity_ids = [data.azurerm_user_assigned_identity.managed_identity_aad.id]
     identity_ids = [azurerm_user_assigned_identity.managed_id.id]
   }
+
+  # Rancher Config
+
+  http_listener {
+    name                           = "rancher"
+    frontend_ip_configuration_name = "${var.project}-${var.environment}-appgw-feip"
+    frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
+    protocol                       = "HTTPS"
+    host_name                      = "rancher-${data.azurerm_key_vault_secret.coreurl.value}" 
+    ssl_certificate_name           = "dyn-buying-catalogue-digital-nhs-uk"
+  }
+
+  backend_address_pool {
+    name = "rancher"
+  } 
+
+  backend_http_settings {
+    name                  = "rancher"
+    cookie_based_affinity = "Disabled"
+    path                  = "/"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 20
+    probe_name            = "rancher"
+  }
+
+  request_routing_rule {
+    name                       = "rancher"
+    rule_type                  = "Basic"
+    http_listener_name         = "rancher"
+    backend_address_pool_name  = "rancher"
+    backend_http_settings_name = "rancher"
+  }
+
+  probe {
+    name                = "rancher"
+    host                = "rancher-${data.azurerm_key_vault_secret.coreurl.value}"
+    interval            = "30"
+    timeout             = "30"
+    unhealthy_threshold = "3"
+    path                = "/"
+    protocol            = "Http"
+  }
+
 
   # waf_configuration {
   #   enabled                  = true
