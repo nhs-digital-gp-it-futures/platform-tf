@@ -509,10 +509,6 @@ jobs:
   dependsOn: 
     - deployBCApplication
   condition: and(eq(dependencies.deployBCApplication.result, 'Succeeded'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
-  # variables:
-  #   - group: dev-core-secrets
-  #   - name: acr
-  #     value: "gpitfuturesdevacr"
 
   steps:
   - bash: |
@@ -542,8 +538,7 @@ jobs:
       inlineScript: |
         ipArr=()
         ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
-        echo $ipArr
-# az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
+        az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
 
 # Required for next task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
@@ -604,6 +599,8 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       
+  ### can't test this until I actually destroy a branch - I will do more on this after the merge
+    #
     # - task: TerraformTaskV1@0
     #   displayName: 'Terraform Destroy (Branch Environment)'
     #   inputs:
