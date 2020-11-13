@@ -549,8 +549,8 @@ jobs:
 - job: cleanUpEnvironment
   displayName: Clean Up Environment
   dependsOn: postDeploymentConfig
-  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
-  #condition: eq(variables['Build.SourceBranch'], 'refs/heads/feature/10281-update-k8s-add-rancher')
+  #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/feature/10281-update-k8s-add-rancher')
   variables:
     - name: tfVersion
       value: 0.13.5
