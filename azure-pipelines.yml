@@ -2,7 +2,7 @@ trigger:
   batch: true
   branches:
     include:
-#      - master # Not deploying to master branch yet
+      - master
       - feature/*
 
 pr:
@@ -549,10 +549,9 @@ jobs:
 - job: cleanUpEnvironment
   displayName: Clean Up Environment
   dependsOn: postDeploymentConfig
-  #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/feature/10281-update-k8s-add-rancher')
+  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  #condition: eq(variables['Build.SourceBranch'], 'refs/heads/feature/10281-update-k8s-add-rancher')
   variables:
-    - group: dev-core-secrets
     - name: tfVersion
       value: 0.13.5
     
