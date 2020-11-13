@@ -347,7 +347,7 @@ jobs:
   dependsOn: 
     - buildBranchEnvironment
     - prepareAKSEnvironment
-  condition: and(eq(dependencies.buildBranchEnvironment.result, 'Succeeded'), in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning'))
+  condition: and(eq(dependencies.buildBranchEnvironment.result, 'Succeeded'), in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     - group: dev-core-secrets
     - name: acr
@@ -503,7 +503,48 @@ jobs:
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
             --helm-upgrade-args "--set timeout=20m0s"
-            
+
+- job: postDeploymentConfig
+  displayName: Post Deployment Config
+  dependsOn: 
+    - deployBCApplication
+  condition: and(eq(dependencies.deployBCApplication.result, 'Succeeded'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  # variables:
+  #   - group: dev-core-secrets
+  #   - name: acr
+  #     value: "gpitfuturesdevacr"
+
+  steps:
+  - bash: |
+      shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+      echo "##vso[task.setvariable variable=release]$shortBranchName"
+      echo Calculated branch name is: $shortBranchName
+    displayName: Get Branch Name
+    env:
+      BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+  
+  - task: AzureCLI@2
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
+ 
+  - task: AzureCLI@2
+    name: addRancherBackendNodes
+    displayName: Add Rancher Backend Nodes 
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        ipArr=()
+        ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
+        echo ipArr
+# az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
+
 # Required for next task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
