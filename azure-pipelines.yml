@@ -312,10 +312,18 @@ jobs:
       release=$(release)
       agicCrdURL="www.$release.dynamic.buyingcatalogue.digital.nhs.uk"
       agicCrdName=$(echo $agicCrdURL | tr "." -)
-      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/$release-azureingressprohibitedtarget.yaml
-      kubectl apply -f ./ingress/$release-azureingressprohibitedtarget.yaml -n ingress-appgw
+      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/www-$release-azureingressprohibitedtarget.yaml
+      kubectl apply -f ./ingress/www-$release-azureingressprohibitedtarget.yaml -n ingress-appgw
       kubectl delete AzureIngressProhibitedTarget prohibit-all-targets -n ingress-appgw
-    displayName: 'Agic - Prohibited Targets' 
+    displayName: 'Agic - Prohibited Targets - www' 
+
+  - bash: |
+      release=$(release)
+      agicCrdURL="rancher-$release.dynamic.buyingcatalogue.digital.nhs.uk"
+      agicCrdName=$(echo $agicCrdURL | tr "." -)
+      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/rancher-$release-azureingressprohibitedtarget.yaml
+      kubectl apply -f ./ingress/rancher-$release-azureingressprohibitedtarget.yaml -n ingress-appgw
+    displayName: 'Agic - Prohibited Targets - Rancher' 
 
   - bash: |
       # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
