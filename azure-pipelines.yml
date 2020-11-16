@@ -333,6 +333,7 @@ jobs:
       helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher-$(release).dynamic.buyingcatalogue.digital.nhs.uk --set tls=external
     displayName: 'Rancher - Install'
 
+  ### Needed for future task - full key vault integration
   # - bash: |
   #     kubectl apply -f https://raw.githubusercontent.com/sparebankenvest/azure-key-vault-to-kubernetes/crd-1.1.0/crds/AzureKeyVaultSecret.yaml
   #     kubectl create ns akv2k8s
@@ -599,7 +600,6 @@ jobs:
   displayName: Clean Up Environment
   dependsOn: postDeploymentConfig
   condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
-  #condition: eq(variables['Build.SourceBranch'], 'refs/heads/feature/10281-update-k8s-add-rancher')
   variables:
     - name: tfVersion
       value: 0.13.5
