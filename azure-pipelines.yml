@@ -456,6 +456,56 @@ jobs:
       OverWrite: true  
   
   - task: AzureCLI@2
+    name: initialDeployBCHelmChart
+    displayName: Initial Deploy BC Helm Chart
+    condition: eq(variables.firstRunBC, 'Yes')
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      workingDirectory: '$(System.ArtifactsDirectory)'
+      scriptLocation: 'inlineScript'
+      failOnStandardError: false
+      inlineScript: |
+          helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+          echo "Helm Chart version is: $helmChartVersion"
+          chmod +x ./launch-or-update-azure.sh
+
+          release=$(release)
+          releaseNoPunct=$(echo $release | sed -e 's/-//g')
+
+          sqlDbSvrFqdn=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].fullyQualifiedDomainName" -o tsv)
+          sqlDbAdminUser=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].administratorLogin" -o tsv)
+          sqlDbAdminPass=$(az keyvault secret show --vault-name gpit-$release-kv --name "gpit${releaseNoPunct}sqladminpassword" --query value -o tsv)
+          saConnectionString=$(az storage account show-connection-string --name gpitfutures${releaseNoPunct} --resource-group gpitfutures-$release-rg-sa --query connectionString -o tsv)
+          appgwPip=$(az network public-ip show --name gpitfutures-$release-pip --resource-group gpitfutures-$release-rg-appgw --query ipAddress -o tsv)
+          redisHost=$(az redis show --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query hostName -o tsv)
+          redisPass=$(az redis list-keys --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query primaryKey -o tsv)
+          
+          # From Core Keyvault
+          srtcookiesecret="$(srt-cookiesecret)" 
+          srtclientsecret="$(srt-clientsecret)"
+          srtsqldevdbpass="$(srt-sqldevdbpass)"
+
+          ./launch-or-update-azure.sh \
+            -c remote \
+            -n $release \
+            -d $sqlDbSvrFqdn \
+            -u $sqlDbAdminUser \
+            -p $sqlDbAdminPass \
+            -w true \
+            -v $helmChartVersion \
+            -s "/p:DatabaseEdition=Basic /p:DatabaseServiceObjective=Basic" \
+            -a $saConnectionString \
+            -i $appgwPip \
+            -r $redisHost \
+            -q $redisPass \
+            --cookie-secret "$srtcookiesecret" \
+            --client-secret "$srtclientsecret" \
+            --db-user-pass "$srtsqldevdbpass" \
+            -f "azure-dyn.yaml" \
+            --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
+
+  - task: AzureCLI@2
     name: deployBCHelmChart
     displayName: Deploy BC Helm Chart
     inputs:
@@ -501,8 +551,7 @@ jobs:
             --client-secret "$srtclientsecret" \
             --db-user-pass "$srtsqldevdbpass" \
             -f "azure-dyn.yaml" \
-            --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
-            --helm-upgrade-args "--set timeout=20m0s"
+            --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
 
 - job: postDeploymentConfig
   displayName: Post Deployment Config
@@ -540,7 +589,7 @@ jobs:
         ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
 
-# Required for next task - enabling key vault             
+# Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
 # srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
