@@ -152,7 +152,7 @@ jobs:
 
   dependsOn: buildBranchEnvironment
   condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
-  displayName: Check if first run on new Cluster
+  displayName: Check if first run on new AKS Cluster
 
   steps:
   - bash: | 
@@ -184,7 +184,7 @@ jobs:
     name: DetermineResult
     
 - job: prepareAKSEnvironment
-  displayName: Prepare AKS Environment
+  displayName: Prepare AKS Cluster
   dependsOn: checkIfFirstRun
   condition: and(eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
