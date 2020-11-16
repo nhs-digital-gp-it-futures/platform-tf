@@ -12,3 +12,21 @@ resource "azurerm_dns_cname_record" "dyn_cname" {
     ttl                 = 60
     record              = azurerm_public_ip.PipAppGw[0].fqdn
 }
+
+resource "azurerm_dns_cname_record" "rancher_cname" {
+    count               = local.shortenv != "test" && local.shortenv != "prod" ? 1 : 0
+    name                = "rancher-${var.environment}"
+    zone_name           = data.azurerm_dns_zone.dyn_zone[0].name
+    resource_group_name = "gpitfutures-dynamic-rg"
+    ttl                 = 60
+    record              = azurerm_public_ip.PipAppGw[0].fqdn
+}
+
+resource "azurerm_dns_cname_record" "www_cname" {
+    count               = local.shortenv != "test" && local.shortenv != "prod" ? 1 : 0
+    name                = "www.${var.environment}"
+    zone_name           = data.azurerm_dns_zone.dyn_zone[0].name
+    resource_group_name = "gpitfutures-dynamic-rg"
+    ttl                 = 60
+    record              = azurerm_public_ip.PipAppGw[0].fqdn
+}

@@ -2,7 +2,7 @@ trigger:
   batch: true
   branches:
     include:
-#      - master # Not deploying to master branch yet
+      - master
       - feature/*
 
 pr:
@@ -24,6 +24,7 @@ pool:
 
 jobs:
 - job: buildBranchKeyVault
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
   displayName: Build Branch Key Vault
   variables:
     - group: dev-core-secrets
@@ -72,7 +73,7 @@ jobs:
         provider: 'azurerm'
         command: 'plan'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
     - task: TerraformTaskV1@0
@@ -81,11 +82,12 @@ jobs:
         provider: 'azurerm'
         command: 'apply'
         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
 - job: buildBranchEnvironment
   dependsOn: buildBranchKeyVault
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
   displayName: Build Branch Environment
   variables:
     - group: dev-core-secrets
@@ -149,7 +151,8 @@ jobs:
 - job: checkIfFirstRun 
 
   dependsOn: buildBranchEnvironment
-  displayName: Check if first run on new Cluster
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
+  displayName: Check if first run on new AKS Cluster
 
   steps:
   - bash: | 
@@ -181,9 +184,9 @@ jobs:
     name: DetermineResult
     
 - job: prepareAKSEnvironment
-  displayName: Prepare AKS Environment
+  displayName: Prepare AKS Cluster
   dependsOn: checkIfFirstRun
-  condition: eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes')
+  condition: and(eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     - group: dev-core-secrets
 
@@ -204,16 +207,6 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
-
-  # - task: AzureCLI@2
-  #   name: kubectlInstallAAD
-  #   displayName: Install AAD Pod Identity
-  #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: 'kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml'
-  #   enabled: false  ##### Duplicate ####
 
   - task: AzureCLI@2
     name: kubectlCreateIngressNamespace
@@ -301,18 +294,45 @@ jobs:
 
   - bash: |
         release=$(release)
-        agicshared="false"
-        agicnamespaces=""
-        cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" | sed -e "s*\${shared}*$agicshared*" | sed -e "s*\${namespaces}*$agicnamespaces*" > ./ingress/$release-helm-config.yaml
+        agicshared="true"
+        cat ./ingress/helm-agic-config-template.txt | sed -e "s*\${subId}*$(subId)*" | sed -e "s*\${appgwRg}*$(appgwRgName)*" | sed -e "s*\${appgwName}*gpitfutures-$release-appgw*" | sed -e "s*\${aadId}*$(aadIdPath)*" | sed -e "s*\${clientId}*$(aadClientId)*" | sed -e "s*\${apiAddress}*$(aksFqdn)*" | sed -e "s*\${shared}*$agicshared*" > ./ingress/$release-helm-config.yaml
     name: generateHelmTemplates
     displayName: Agic - Generate Templates 
 
   - bash: |
       helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
       helm repo update
-      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw
+      helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw --version 1.2.0-rc3
+      kubectl apply -f https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/ae695ef9bd05c8b708cedf6ff545595d0b7022dc/crds/AzureIngressProhibitedTarget.yaml
+
     displayName: 'Agic - Install'
 
+  - bash: |
+      release=$(release)
+      agicCrdURL="www.$release.dynamic.buyingcatalogue.digital.nhs.uk"
+      agicCrdName=$(echo $agicCrdURL | tr "." -)
+      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/www-$release-azureingressprohibitedtarget.yaml
+      kubectl apply -f ./ingress/www-$release-azureingressprohibitedtarget.yaml -n ingress-appgw
+      kubectl delete AzureIngressProhibitedTarget prohibit-all-targets -n ingress-appgw
+    displayName: 'Agic - Prohibited Targets - www' 
+
+  - bash: |
+      release=$(release)
+      agicCrdURL="rancher-$release.dynamic.buyingcatalogue.digital.nhs.uk"
+      agicCrdName=$(echo $agicCrdURL | tr "." -)
+      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/rancher-$release-azureingressprohibitedtarget.yaml
+      kubectl apply -f ./ingress/rancher-$release-azureingressprohibitedtarget.yaml -n ingress-appgw
+    displayName: 'Agic - Prohibited Targets - Rancher' 
+
+  - bash: |
+      # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
+      helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+      helm repo update
+      kubectl create namespace cattle-system
+      helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher-$(release).dynamic.buyingcatalogue.digital.nhs.uk --set tls=external
+    displayName: 'Rancher - Install'
+
+  ### Needed for future task - full key vault integration
   # - bash: |
   #     kubectl apply -f https://raw.githubusercontent.com/sparebankenvest/azure-key-vault-to-kubernetes/crd-1.1.0/crds/AzureKeyVaultSecret.yaml
   #     kubectl create ns akv2k8s
@@ -325,9 +345,9 @@ jobs:
 - job: deployBCApplication
   displayName: Deploy BC Application
   dependsOn: 
-  - buildBranchEnvironment
-  - prepareAKSEnvironment
-  condition: and(eq(dependencies.buildBranchEnvironment.result, 'Succeeded'), in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning'))
+    - buildBranchEnvironment
+    - prepareAKSEnvironment
+  condition: and(eq(dependencies.buildBranchEnvironment.result, 'Succeeded'), in(dependencies.prepareAKSEnvironment.result, 'Succeeded', 'Skipped', 'Warning'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     - group: dev-core-secrets
     - name: acr
@@ -369,7 +389,7 @@ jobs:
     displayName: Check if BC Namespace exists
   
   - task: AzureCLI@2
-    condition: and(succeeded(), eq(variables.firstRunBC, 'Yes'))
+    condition: eq(variables.firstRunBC, 'Yes')
     name: kubectlCreateAppNamespace
     displayName: Create App Namespace
     inputs:
@@ -406,7 +426,7 @@ jobs:
         acr=${{ variables.acr }}
       
         helm repo add $acr https://$(acrLoginSvr)/helm/v1/repo --username $(acrUsername) --password $(acrPassword)
-        helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+        helm repo add stable https://charts.helm.sh/stable/
         helm repo update
 
   - task: DownloadPipelineArtifact@2
@@ -419,14 +439,6 @@ jobs:
       runVersion: 'latestFromBranch'
       artifact: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)'
-
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (ArtifactsDirectory)
-  #   workingDirectory: '$(System.ArtifactsDirectory)'
-
-  # - bash: 'ls -R'
-  #   displayName: Get Folders (WorkingDirectory)
-  #   workingDirectory: '$(System.DefaultWorkingDirectory)'
 
   - task: DownloadSecureFile@1
     displayName: Download Dynamic yaml File
@@ -443,6 +455,56 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true  
   
+  - task: AzureCLI@2
+    name: initialDeployBCHelmChart
+    displayName: Initial Deploy BC Helm Chart
+    condition: eq(variables.firstRunBC, 'Yes')
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      workingDirectory: '$(System.ArtifactsDirectory)'
+      scriptLocation: 'inlineScript'
+      failOnStandardError: false
+      inlineScript: |
+          helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+          echo "Helm Chart version is: $helmChartVersion"
+          chmod +x ./launch-or-update-azure.sh
+
+          release=$(release)
+          releaseNoPunct=$(echo $release | sed -e 's/-//g')
+
+          sqlDbSvrFqdn=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].fullyQualifiedDomainName" -o tsv)
+          sqlDbAdminUser=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].administratorLogin" -o tsv)
+          sqlDbAdminPass=$(az keyvault secret show --vault-name gpit-$release-kv --name "gpit${releaseNoPunct}sqladminpassword" --query value -o tsv)
+          saConnectionString=$(az storage account show-connection-string --name gpitfutures${releaseNoPunct} --resource-group gpitfutures-$release-rg-sa --query connectionString -o tsv)
+          appgwPip=$(az network public-ip show --name gpitfutures-$release-pip --resource-group gpitfutures-$release-rg-appgw --query ipAddress -o tsv)
+          redisHost=$(az redis show --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query hostName -o tsv)
+          redisPass=$(az redis list-keys --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query primaryKey -o tsv)
+          
+          # From Core Keyvault
+          srtcookiesecret="$(srt-cookiesecret)" 
+          srtclientsecret="$(srt-clientsecret)"
+          srtsqldevdbpass="$(srt-sqldevdbpass)"
+
+          ./launch-or-update-azure.sh \
+            -c remote \
+            -n $release \
+            -d $sqlDbSvrFqdn \
+            -u $sqlDbAdminUser \
+            -p $sqlDbAdminPass \
+            -w true \
+            -v $helmChartVersion \
+            -s "/p:DatabaseEdition=Basic /p:DatabaseServiceObjective=Basic" \
+            -a $saConnectionString \
+            -i $appgwPip \
+            -r $redisHost \
+            -q $redisPass \
+            --cookie-secret "$srtcookiesecret" \
+            --client-secret "$srtclientsecret" \
+            --db-user-pass "$srtsqldevdbpass" \
+            -f "azure-dyn.yaml" \
+            --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
+
   - task: AzureCLI@2
     name: deployBCHelmChart
     displayName: Deploy BC Helm Chart
@@ -489,11 +551,146 @@ jobs:
             --client-secret "$srtclientsecret" \
             --db-user-pass "$srtsqldevdbpass" \
             -f "azure-dyn.yaml" \
-            --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk" \
-            --helm-upgrade-args "--set timeout=20m0s"
+            --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
 
-# Required for next task - enabling key vault             
+- job: postDeploymentConfig
+  displayName: Post Deployment Config
+  dependsOn: 
+    - deployBCApplication
+  condition: and(eq(dependencies.deployBCApplication.result, 'Succeeded'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+  steps:
+  - bash: |
+      shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+      echo "##vso[task.setvariable variable=release]$shortBranchName"
+      echo Calculated branch name is: $shortBranchName
+    displayName: Get Branch Name
+    env:
+      BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+  
+  - task: AzureCLI@2
+    name: kubectlContext
+    displayName: Get Kubernetes Context
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
+ 
+  - task: AzureCLI@2
+    name: addRancherBackendNodes
+    displayName: Add Rancher Backend Nodes 
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        ipArr=()
+        ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
+        az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
+
+# Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
 # srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
 # srtcookiesecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-cookiesecret" --query value -o tsv)
+
+- job: cleanUpEnvironment
+  displayName: Clean Up Environment
+  dependsOn: postDeploymentConfig
+  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  variables:
+    - name: tfVersion
+      value: 0.13.5
+    
+  steps:
+    - bash: |
+        shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+        echo "##vso[task.setvariable variable=release]$shortBranchName"
+        echo Calculated branch name is: $shortBranchName
+      displayName: Get Branch Name
+      env:
+        BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+
+    - task: CopyFiles@2
+      displayName: Copy Branch Environment Config Files
+      inputs:
+        SourceFolder: 'terraform'
+        Contents: '**'
+        TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+        CleanTargetFolder: false
+        OverWrite: true
+      
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+      displayName: Install Terraform $(tfVersion)
+      inputs:
+        terraformVersion: $(tfVersion)
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Initialise (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
+        backendAzureRmStorageAccountName: 'gpitfuturessatf'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'gpit.$(release).terraform.tfstate'
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Plan (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Destroy (Branch Environment)'
+      inputs:
+        provider: 'azurerm'
+        command: 'destroy'
+        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
+    
+    - task: CopyFiles@2
+      displayName: Copy KeyVault Config Files
+      inputs:
+        SourceFolder: 'generateKeyVault'
+        Contents: '**'
+        TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
+        CleanTargetFolder: false
+        OverWrite: true
+
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Initialise (Key Vault)'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
+        backendAzureRmStorageAccountName: 'gpitfuturessatf'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'gpit.$(release).keyvault.terraform.tfstate'
+
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Plan (Key Vault)'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Destroy (Key Vault)'
+      inputs:
+        provider: 'azurerm'
+        command: 'destroy'
+        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'

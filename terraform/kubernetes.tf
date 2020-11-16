@@ -13,9 +13,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type                          = "VirtualMachineScaleSets"
     enable_auto_scaling           = "true"
     max_pods                      = 110
-    max_count                     = 2
-    min_count                     = 1
-    node_count                    = 1
+    max_count                     = local.kv_aksmaxnodes
+    min_count                     = local.kv_aksminnodes
+    node_count                    = local.kv_aksinitnodes
+    availability_zones            = [1,2,3]
     tags = {
       environment                 = var.environment
     }
