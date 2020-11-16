@@ -27,8 +27,8 @@ appgw:
 # Leaving this variable out or setting it to blank or empty string would
 # result in Ingress Controller observing all acessible namespaces.
 #
-#kubernetes:
-#    watchNamespace: ${namespaces}
+# kubernetes:
+#    watchNamespace: 
 
 ################################################################################
 # Specify the authentication with Azure Resource Manager
@@ -49,7 +49,3 @@ armAuth:
 # Specify if the cluster is RBAC enabled or not
 rbac:
     enabled: true # true/false
-
-# Specify aks cluster related information. THIS IS BEING DEPRECATED.
-#aksClusterConfiguration:
-#    apiServerAddress: ${apiAddress}

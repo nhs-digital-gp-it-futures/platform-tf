@@ -13,7 +13,7 @@ This code base deploys a fully functioning standalone Azure environment with AGI
 
 # Goal
 
-The goal is that all Infrastructure changes can be tested and then  be propegated into Development -> Test -> Production. 
+The goal is that all Infrastructure changes can be tested and then be propegated into Development -> Test -> Production. 
 
 # Improvements:
 1) Cert name in z_imported_certs.tf

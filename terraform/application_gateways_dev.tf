@@ -173,7 +173,6 @@ resource "azurerm_application_gateway" "AppGate" {
     protocol            = "Http"
   }
 
-
   # waf_configuration {
   #   enabled                  = true
   #   file_upload_limit_mb     = 100
