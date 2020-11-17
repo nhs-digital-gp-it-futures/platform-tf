@@ -19,6 +19,6 @@ data "azurerm_key_vault_secret" "coreurl" {
 }
 
 data "azurerm_key_vault_secret" "certname" {
-  name         = "${var.pjtcode}${local.shortEnv}certname"
+  name         = "${var.pjtcode}${local.shortenv}certname"
   key_vault_id = local.kv_id
 }
