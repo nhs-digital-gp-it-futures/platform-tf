@@ -386,6 +386,7 @@ jobs:
         echo "##vso[task.setvariable variable=firstRunBC;isOutput=true]Yes" #set variable firstRunBC to Yes
       else
         echo "Not First Run"
+        echo "##vso[task.setvariable variable=firstRunBC;isOutput=true]No" #set variable firstRunBC to No
       fi 
     name: firstRunBC
     displayName: Check if BC Namespace exists
@@ -601,7 +602,7 @@ jobs:
   displayName: Completion Tasks
   dependsOn: postDeploymentConfig
   #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
-  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/10347-deploy-new-development-env'), eq(dependencies.postDeploymentConfig.result, 'Success'))
+  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/10347-deploy-new-development-env'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
     
   steps:
   - task: CopyFiles@2
