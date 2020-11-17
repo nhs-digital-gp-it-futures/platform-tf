@@ -588,6 +588,33 @@ jobs:
         ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
 
+  # - task: CopyFiles@2
+  #   displayName: Build Artifact - KeyVault
+  #   inputs:
+  #     SourceFolder: 'generateKeyVault'
+  #     Contents: '**'
+  #     TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
+  #     CleanTargetFolder: true
+  #     OverWrite: true
+
+  # - task: CopyFiles@2
+  #   displayName: Build Artifact - Infrastructure
+  #   inputs:
+  #     SourceFolder: 'terraform'
+  #     Contents: '**'
+  #     TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+  #     CleanTargetFolder: false
+  #     OverWrite: true
+
+  # - task: CopyFiles@2
+  #   displayName: Build Artifact - Ingress
+  #   inputs:
+  #     SourceFolder: 'terraform'
+  #     Contents: '**'
+  #     TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+  #     CleanTargetFolder: false
+  #     OverWrite: true
+
 # Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
