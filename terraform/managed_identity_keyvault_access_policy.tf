@@ -56,31 +56,6 @@ resource "azurerm_key_vault_access_policy" "keyvault_aad_access" {
 
   ]
 
-  # key_permissions = [
-  # ]
-
-  # secret_permissions = [
-
-  #   # "get",
-  #   # "list",
-  #   "backup",
-  # #  "delete",
-  #   "get",
-  #   "list",
-  # #  "purge",
-  #   "recover",
-  #   "restore",
-  #   "set"
-  # ]
-
-  # certificate_permissions = [
-
-  #   "get",
-  #   "getissuers",
-  #   "list",
-  #   "listissuers"
-  # ]
-
   depends_on = [
     azurerm_user_assigned_identity.managed_id,
     data.azurerm_key_vault.keyvault_core,

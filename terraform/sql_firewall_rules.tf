@@ -24,7 +24,7 @@ resource "azurerm_sql_virtual_network_rule" "sql-pri-net" {
 }
 
 resource "azurerm_sql_firewall_rule" "sql-sec" {
-  count               = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
+  count               = local.shortenv == "testing" || local.shortenv == "production" ? 1 : 0 
 
   name                = "azure_services"
   resource_group_name = azurerm_resource_group.sql-sec[0].name

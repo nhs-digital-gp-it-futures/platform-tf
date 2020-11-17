@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "PipAppGw" {
-  count               = local.shortenv != "test" && local.shortenv != "prod" ? 1 : 0 
+  count               = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
   
   name                = "${var.project}-${var.environment}-pip"
   location            = var.region
@@ -13,8 +13,8 @@ resource "azurerm_public_ip" "PipAppGw" {
   }
 }
 
-resource "azurerm_application_gateway" "AppGate" {
-  count                            = local.shortenv != "test" && local.shortenv != "prod" ? 1 : 0 
+resource "azurerm_application_gateway" "AppGateDev" {
+  count                            = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
 
   name                             = "${var.project}-${var.environment}-appgw"
   location                         = var.region

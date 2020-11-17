@@ -85,7 +85,8 @@ resource "azurerm_key_vault_secret" "kv_certname_other" {
   count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.shortEnv}certname"
-  value        = "buying-catalogue-digital-nhs-uk"###CHANGEME###
+  value        = "dyn-buying-catalogue-digital-nhs-uk" ###CHANGEME###
+  #value        = "buying-catalogue-digital-nhs-uk"
   content_type = "${var.project}-cert-name"
   key_vault_id = azurerm_key_vault.keyvault.id
   

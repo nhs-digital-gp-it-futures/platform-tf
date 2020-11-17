@@ -1,5 +1,5 @@
 resource "azurerm_sql_server" "sql-sec-live" {
-  count                        = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
+  count                        = local.shortenv == "testing" || local.shortenv == "production" ? 1 : 0 
 
   name                         = "${var.project}-${var.environment}-sql-sec"
   resource_group_name          = azurerm_resource_group.sql-sec[0].name
