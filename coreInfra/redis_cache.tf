@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "redis" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0    
+  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
 
   name                            = "${var.project}-${local.coreEnv}-core-rg-redis"
   location                        = var.region
@@ -10,7 +10,7 @@ resource "azurerm_resource_group" "redis" {
 
 
 resource "azurerm_redis_cache" "redis_core" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
 
   name                = "${var.project}-${local.coreEnv}-core-redis"
   location            = var.region

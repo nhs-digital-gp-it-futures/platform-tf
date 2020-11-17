@@ -1,5 +1,5 @@
 resource "azurerm_key_vault" "keyvault_core" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
   
   name                            = "${var.project}-${local.coreEnv}-core-kv"
   resource_group_name             = "${var.project}-${local.coreEnv}-rg-kv"

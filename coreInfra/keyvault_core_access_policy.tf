@@ -1,5 +1,5 @@
 resource "azurerm_key_vault_access_policy" "keyvault_core_access" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
 
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   tenant_id    = var.tenant_id
@@ -64,7 +64,7 @@ resource "azurerm_key_vault_access_policy" "keyvault_core_access" {
 }
 
 resource "azurerm_key_vault_access_policy" "keyvault_devops_access" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
 
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   tenant_id    = var.tenant_id
@@ -90,7 +90,7 @@ data "azurerm_client_config" "current" {
 }
 
 resource "azurerm_key_vault_access_policy" "keyvault_current_access" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
 
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   tenant_id    = var.tenant_id

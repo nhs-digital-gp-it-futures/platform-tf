@@ -1,5 +1,5 @@
 resource "azurerm_management_lock" "redis_core_lock" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
 
   name       = "delete-lock-redis"
   scope      = azurerm_redis_cache.redis_core[0].id
