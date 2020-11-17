@@ -1,5 +1,5 @@
 resource "azurerm_key_vault_secret" "kv-tenant" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}tenantid"
   value        = var.tenant_id
@@ -16,7 +16,7 @@ resource "azurerm_key_vault_secret" "kv-tenant" {
 }
 
 resource "azurerm_key_vault_secret" "kv-subscription" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}subscriptionid"
   value        = var.subscription_id
@@ -33,7 +33,7 @@ resource "azurerm_key_vault_secret" "kv-subscription" {
 }
 
 resource "azurerm_key_vault_secret" "kv-spn" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}spn"
   value        = var.kv_spn
@@ -50,7 +50,7 @@ resource "azurerm_key_vault_secret" "kv-spn" {
 }
 
 resource "azurerm_key_vault_secret" "kv-spnappid" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}spnapplicationid"
   value        = var.kv_appid
@@ -67,7 +67,7 @@ resource "azurerm_key_vault_secret" "kv-spnappid" {
 }
 
 resource "azurerm_key_vault_secret" "kv-spnsecret" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}spnsecret"
   value        = var.kv_spnsecret
@@ -84,7 +84,7 @@ resource "azurerm_key_vault_secret" "kv-spnsecret" {
 }
 
 resource "azurerm_key_vault_secret" "kv-sg-sql" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}SG-SQLAdmins"
   value        = var.kv_sgsql
@@ -101,7 +101,7 @@ resource "azurerm_key_vault_secret" "kv-sg-sql" {
 }
 
 resource "azurerm_key_vault_secret" "kv-sqladmins" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}-SQL-admins"
   value        = var.kv_sqladmins
@@ -118,7 +118,7 @@ resource "azurerm_key_vault_secret" "kv-sqladmins" {
 }
 
 resource "azurerm_key_vault_secret" "kv-kv-access-dl" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}KV-AccessGrp"
   value        = var.keyvault_access_grp
@@ -135,7 +135,7 @@ resource "azurerm_key_vault_secret" "kv-kv-access-dl" {
 }
 
 resource "azurerm_key_vault_secret" "kv-tfstoragekey" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}tf-storagekey"
   value        = var.kv_tfsakey
@@ -152,7 +152,7 @@ resource "azurerm_key_vault_secret" "kv-tfstoragekey" {
 }
 
 resource "azurerm_key_vault_secret" "kv-srtcookiesecret" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "srt-cookiesecret"
   value        = var.kv_srtcookiesecret
@@ -169,7 +169,7 @@ resource "azurerm_key_vault_secret" "kv-srtcookiesecret" {
 }
 
 resource "azurerm_key_vault_secret" "kv_srtclientsecret" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "srt-clientsecret"
   value        = var.kv_srtclientsecret
@@ -186,7 +186,7 @@ resource "azurerm_key_vault_secret" "kv_srtclientsecret" {
 }
 
 resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "srt-sqldevdbpass"
   value        = var.kv_sqldevdbpass
@@ -203,7 +203,7 @@ resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {
 }
 
 resource "azurerm_key_vault_secret" "kv_bjssvpn" {
-  count = local.coreEnv == "development" || local.coreEnv == "testing" || local.coreEnv == "production" ? 1 : 0  
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.coreEnv}bjssvpn"
   value        = var.kv_bjssvpn

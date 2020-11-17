@@ -2,7 +2,6 @@ trigger:
   batch: true
   branches:
     include:
-      - master
       - feature/*
 
 pr:
@@ -595,102 +594,103 @@ jobs:
 # srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
 # srtcookiesecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-cookiesecret" --query value -o tsv)
 
-- job: cleanUpEnvironment
-  displayName: Clean Up Environment
-  dependsOn: postDeploymentConfig
-  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
-  variables:
-    - name: tfVersion
-      value: 0.13.5
+# MOVE TO HOUSEKEEPING TASK
+# - job: cleanUpEnvironment
+#   displayName: Clean Up Environment
+#   dependsOn: postDeploymentConfig
+#   condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+#   variables:
+#     - name: tfVersion
+#       value: 0.13.5
     
-  steps:
-    - bash: |
-        shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
-        echo "##vso[task.setvariable variable=release]$shortBranchName"
-        echo Calculated branch name is: $shortBranchName
-      displayName: Get Branch Name
-      env:
-        BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+#   steps:
+#     - bash: |
+#         shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
+#         echo "##vso[task.setvariable variable=release]$shortBranchName"
+#         echo Calculated branch name is: $shortBranchName
+#       displayName: Get Branch Name
+#       env:
+#         BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
-    - task: CopyFiles@2
-      displayName: Copy Branch Environment Config Files
-      inputs:
-        SourceFolder: 'terraform'
-        Contents: '**'
-        TargetFolder: '$(build.artifactStagingDirectory)/terraform'
-        CleanTargetFolder: false
-        OverWrite: true
+#     - task: CopyFiles@2
+#       displayName: Copy Branch Environment Config Files
+#       inputs:
+#         SourceFolder: 'terraform'
+#         Contents: '**'
+#         TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+#         CleanTargetFolder: false
+#         OverWrite: true
       
-    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-      displayName: Install Terraform $(tfVersion)
-      inputs:
-        terraformVersion: $(tfVersion)
+#     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+#       displayName: Install Terraform $(tfVersion)
+#       inputs:
+#         terraformVersion: $(tfVersion)
       
-    - task: TerraformTaskV1@0
-      displayName: 'Terraform Initialise (Branch Environment)'
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
-        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-        backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
-        backendAzureRmStorageAccountName: 'gpitfuturessatf'
-        backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'gpit.$(release).terraform.tfstate'
+#     - task: TerraformTaskV1@0
+#       displayName: 'Terraform Initialise (Branch Environment)'
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'init'
+#         workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+#         backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#         backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
+#         backendAzureRmStorageAccountName: 'gpitfuturessatf'
+#         backendAzureRmContainerName: 'tfstate'
+#         backendAzureRmKey: 'gpit.$(release).terraform.tfstate'
       
-    - task: TerraformTaskV1@0
-      displayName: 'Terraform Plan (Branch Environment)'
-      inputs:
-        provider: 'azurerm'
-        command: 'plan'
-        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
-        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#     - task: TerraformTaskV1@0
+#       displayName: 'Terraform Plan (Branch Environment)'
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'plan'
+#         workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+#         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+#         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       
-    - task: TerraformTaskV1@0
-      displayName: 'Terraform Destroy (Branch Environment)'
-      inputs:
-        provider: 'azurerm'
-        command: 'destroy'
-        workingDirectory: '$(build.artifactStagingDirectory)/terraform'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
-        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
+#     - task: TerraformTaskV1@0
+#       displayName: 'Terraform Destroy (Branch Environment)'
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'destroy'
+#         workingDirectory: '$(build.artifactStagingDirectory)/terraform'
+#         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+#         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
     
-    - task: CopyFiles@2
-      displayName: Copy KeyVault Config Files
-      inputs:
-        SourceFolder: 'generateKeyVault'
-        Contents: '**'
-        TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
-        CleanTargetFolder: false
-        OverWrite: true
+#     - task: CopyFiles@2
+#       displayName: Copy KeyVault Config Files
+#       inputs:
+#         SourceFolder: 'generateKeyVault'
+#         Contents: '**'
+#         TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
+#         CleanTargetFolder: false
+#         OverWrite: true
 
-    - task: TerraformTaskV1@0
-      displayName: 'Terraform Initialise (Key Vault)'
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-        backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
-        backendAzureRmStorageAccountName: 'gpitfuturessatf'
-        backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'gpit.$(release).keyvault.terraform.tfstate'
+#     - task: TerraformTaskV1@0
+#       displayName: 'Terraform Initialise (Key Vault)'
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'init'
+#         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+#         backendServiceArm: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#         backendAzureRmResourceGroupName: 'gpitfutures-rg-sa'
+#         backendAzureRmStorageAccountName: 'gpitfuturessatf'
+#         backendAzureRmContainerName: 'tfstate'
+#         backendAzureRmKey: 'gpit.$(release).keyvault.terraform.tfstate'
 
-    - task: TerraformTaskV1@0
-      displayName: 'Terraform Plan (Key Vault)'
-      inputs:
-        provider: 'azurerm'
-        command: 'plan'
-        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
-        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#     - task: TerraformTaskV1@0
+#       displayName: 'Terraform Plan (Key Vault)'
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'plan'
+#         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+#         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+#         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
 
-    - task: TerraformTaskV1@0
-      displayName: 'Terraform Destroy (Key Vault)'
-      inputs:
-        provider: 'azurerm'
-        command: 'destroy'
-        workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
-        commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
-        environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+#     - task: TerraformTaskV1@0
+#       displayName: 'Terraform Destroy (Key Vault)'
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'destroy'
+#         workingDirectory: '$(build.artifactStagingDirectory)/generateKeyVault'
+#         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="kv_addrprefix=10.201" -var="kv_sqlusername=gpitfbcadmin" -var="kv_coreurl=$(release).dynamic.buyingcatalogue.digital.nhs.uk" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
+#         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'
