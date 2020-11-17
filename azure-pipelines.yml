@@ -351,6 +351,8 @@ jobs:
     - group: dev-core-secrets
     - name: acr
       value: "gpitfuturesdevacr"
+    - name: firstRun
+      value: $[ dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'] ]
 
   steps:
   - bash: |
@@ -387,15 +389,15 @@ jobs:
     name: firstRunBC
     displayName: Check if BC Namespace exists
   
-  - task: AzureCLI@2
-    condition: eq(variables.firstRunBC, 'Yes')
-    name: kubectlCreateAppNamespace
-    displayName: Create App Namespace
-    inputs:
-      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'kubectl create namespace $(release)'  
+  # - task: AzureCLI@2
+  #   condition: eq(variables.firstRunBC, 'Yes')
+  #   name: kubectlCreateAppNamespace
+  #   displayName: Create App Namespace
+  #   inputs:
+  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+  #     scriptType: 'bash'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: 'kubectl create namespace $(release)'  
 
   - task: AzureCLI@2
     name: getACRCredentials
@@ -588,49 +590,50 @@ jobs:
         ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
 
-  # - task: CopyFiles@2
-  #   displayName: Build Artifact - KeyVault
-  #   inputs:
-  #     SourceFolder: 'generateKeyVault'
-  #     Contents: '**'
-  #     TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
-  #     CleanTargetFolder: true
-  #     OverWrite: true
-
-  # - task: CopyFiles@2
-  #   displayName: Build Artifact - Infrastructure
-  #   inputs:
-  #     SourceFolder: 'terraform'
-  #     Contents: '**'
-  #     TargetFolder: '$(build.artifactStagingDirectory)/terraform'
-  #     CleanTargetFolder: false
-  #     OverWrite: true
-
-  # - task: CopyFiles@2
-  #   displayName: Build Artifact - Ingress
-  #   inputs:
-  #     SourceFolder: 'terraform'
-  #     Contents: '**'
-  #     TargetFolder: '$(build.artifactStagingDirectory)/terraform'
-  #     CleanTargetFolder: false
-  #     OverWrite: true
-
 # Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
 # srtsqldevdbpass=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-sqldevdbpass" --query value -o tsv)
 # srtclientsecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-clientsecret" --query value -o tsv)
 # srtcookiesecret=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "srt-cookiesecret" --query value -o tsv)
 
-# MOVE TO HOUSEKEEPING TASK
-# - job: cleanUpEnvironment
-#   displayName: Clean Up Environment
-#   dependsOn: postDeploymentConfig
-#   condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
-#   variables:
-#     - name: tfVersion
-#       value: 0.13.5
+- job: completionTasks
+  displayName: Completion Tasks
+  dependsOn: postDeploymentConfig
+  #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/feature/10347-deploy-new-development-env')
     
-#   steps:
+  steps:
+  - task: CopyFiles@2
+    displayName: Build Artifact - KeyVault
+    inputs:
+      SourceFolder: 'generateKeyVault'
+      Contents: '**'
+      TargetFolder: '$(build.artifactStagingDirectory)/generateKeyVault'
+      CleanTargetFolder: true
+      OverWrite: true
+
+  - task: CopyFiles@2
+    displayName: Build Artifact - Infrastructure
+    inputs:
+      SourceFolder: 'terraform'
+      Contents: '**'
+      TargetFolder: '$(build.artifactStagingDirectory)/terraform'
+      CleanTargetFolder: false
+      OverWrite: true
+
+  - task: CopyFiles@2
+    displayName: Build Artifact - Ingress
+    inputs:
+      SourceFolder: 'ingress'
+      Contents: '**'
+      TargetFolder: '$(build.artifactStagingDirectory)/ingress'
+      CleanTargetFolder: false
+      OverWrite: true
+
+  - publish: $(build.artifactStagingDirectory)
+    artifact: build-artifact 
+    
+# MOVE TO HOUSEKEEPING TASK?
 #     - bash: |
 #         shortBranchName=$(echo $BUILD_SOURCEBRANCH | cut -d'-' -f 1 | cut -d'/' -f 3-5 | sed 's!/!-!g')
 #         echo "##vso[task.setvariable variable=release]$shortBranchName"
