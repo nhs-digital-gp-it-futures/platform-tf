@@ -179,6 +179,7 @@ jobs:
         echo "##vso[task.setvariable variable=firstRun;isOutput=true]Yes" #set variable firstRun to Yes
       else
         echo "Not First Run"
+        echo "##vso[task.setvariable variable=firstRun;isOutput=true]No" #set variable firstRun to No
       fi 
     name: DetermineResult
     
