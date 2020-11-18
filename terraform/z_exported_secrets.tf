@@ -6,6 +6,10 @@ resource "azurerm_key_vault_secret" "kv_aksusernamedev" {
   content_type = "${var.project}-AKS-username"
   key_vault_id = local.kv_id
   
+  depends_on = [
+    azurerm_kubernetes_cluster.aksdev
+  ] 
+
   tags = {
     environment = var.environment
   }
@@ -19,6 +23,10 @@ resource "azurerm_key_vault_secret" "kv_akspassworddev" {
   content_type = "${var.project}-AKS-password"
   key_vault_id = local.kv_id
   
+  depends_on = [
+    azurerm_kubernetes_cluster.aksdev
+  ] 
+
   tags = {
     environment = var.environment
   }
@@ -32,6 +40,10 @@ resource "azurerm_key_vault_secret" "kv_aksclientcertdev" {
   content_type = "${var.project}-AKS-client-certificate-(Base64)"
   key_vault_id = local.kv_id
   
+  depends_on = [
+    azurerm_kubernetes_cluster.aksdev
+  ] 
+
   tags = {
     environment = var.environment
   }
@@ -42,7 +54,11 @@ resource "azurerm_key_vault_secret" "kv_aksclientkeydev" {
   value        = azurerm_kubernetes_cluster.aksdev[0].kube_config.0.client_key
   content_type = "${var.project}-AKS-client-key-(Base64)"
   key_vault_id = local.kv_id
-  
+    
+  depends_on = [
+    azurerm_kubernetes_cluster.aksdev
+  ] 
+
   tags = {
     environment = var.environment
   }
@@ -55,6 +71,10 @@ resource "azurerm_key_vault_secret" "kv_aksclustercacertdev" {
   value        = azurerm_kubernetes_cluster.aksdev[0].kube_config.0.cluster_ca_certificate
   content_type = "${var.project}-AKS-Cluster-CA-Certificate-(Base64)"
   key_vault_id = local.kv_id
+      
+  depends_on = [
+    azurerm_kubernetes_cluster.aksdev
+  ] 
   
   tags = {
     environment = var.environment
