@@ -24,6 +24,10 @@ resource "azurerm_kubernetes_cluster" "aksdev" {
     }
   }
 
+  azure_policy {
+    enabled = "true"
+  }
+
   service_principal {
     client_id                     = data.azurerm_key_vault_secret.spnappid.value
     client_secret                 = data.azurerm_key_vault_secret.spnsecret.value
