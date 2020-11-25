@@ -433,70 +433,32 @@ jobs:
       artifact: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)'
 
-  - task: DownloadSecureFile@1
-    displayName: Download Dynamic yaml File
-    name: azuredyn
-    inputs:
-      secureFile: azure-dyn.yaml
-
-  - task: CopyFiles@2
-    displayName: Copy Dynamic yaml File
-    inputs:
-      SourceFolder: '$(Agent.TempDirectory)'
-      Contents: 'azure-dyn.yaml'
-      TargetFolder: '$(System.ArtifactsDirectory)/environments'
-      CleanTargetFolder: false
-      OverWrite: true  
-  
-  # - task: AzureCLI@2
-  #   name: initialDeployBCHelmChart
-  #   displayName: Initial Deploy BC Helm Chart
-  #   condition: eq(variables.firstRunBC, 'Yes')
+  # - task: DownloadSecureFile@1
+  #   displayName: Download Dynamic yaml File
+  #   name: azuredyn
   #   inputs:
-  #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-  #     scriptType: 'bash'
-  #     workingDirectory: '$(System.ArtifactsDirectory)'
-  #     scriptLocation: 'inlineScript'
-  #     failOnStandardError: false
-  #     inlineScript: |
-  #         helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
-  #         echo "Helm Chart version is: $helmChartVersion"
-  #         chmod +x ./launch-or-update-azure.sh
+  #     secureFile: azure-dyn.yaml
 
-  #         release=$(release)
-  #         releaseNoPunct=$(echo $release | sed -e 's/-//g')
+  # - task: CopyFiles@2
+  #   displayName: Copy Dynamic yaml File
+  #   inputs:
+  #     SourceFolder: '$(Agent.TempDirectory)'
+  #     Contents: 'azure-dyn.yaml'
+  #     TargetFolder: '$(System.ArtifactsDirectory)/environments'
+  #     CleanTargetFolder: false
+  #     OverWrite: true  
 
-  #         sqlDbSvrFqdn=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].fullyQualifiedDomainName" -o tsv)
-  #         sqlDbAdminUser=$(az sql server list --query "[?name=='gpitfutures-$release-sql-pri'].administratorLogin" -o tsv)
-  #         sqlDbAdminPass=$(az keyvault secret show --vault-name gpit-$release-kv --name "gpit${releaseNoPunct}sqladminpassword" --query value -o tsv)
-  #         saConnectionString=$(az storage account show-connection-string --name gpitfutures${releaseNoPunct} --resource-group gpitfutures-$release-rg-sa --query connectionString -o tsv)
-  #         appgwPip=$(az network public-ip show --name gpitfutures-$release-pip --resource-group gpitfutures-$release-rg-appgw --query ipAddress -o tsv)
-  #         redisHost=$(az redis show --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query hostName -o tsv)
-  #         redisPass=$(az redis list-keys --resource-group gpitfutures-dev-core-rg-redis --name gpitfutures-dev-core-redis --query primaryKey -o tsv)
-          
-  #         # From Core Keyvault
-  #         srtcookiesecret="$(srt-cookiesecret)" 
-  #         srtclientsecret="$(srt-clientsecret)"
-  #         srtsqldevdbpass="$(srt-sqldevdbpass)"
+  - bash: |
+        cd selenium-grid 
+        release=$(release)
+        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk"
+    name: setupSeleniumGrid
+    displayName: Setup Selenium Grid
 
-  #         ./launch-or-update-azure.sh \
-  #           -c remote \
-  #           -n $release \
-  #           -d $sqlDbSvrFqdn \
-  #           -u $sqlDbAdminUser \
-  #           -p $sqlDbAdminPass \
-  #           -w true \
-  #           -v $helmChartVersion \
-  #           -s "/p:DatabaseEdition=Basic /p:DatabaseServiceObjective=Basic" \
-  #           -a $saConnectionString \
-  #           -i $appgwPip \
-  #           -r $redisHost \
-  #           -q $redisPass \
-  #           --cookie-secret "$srtcookiesecret" \
-  #           --client-secret "$srtclientsecret" \
-  #           --db-user-pass "$srtsqldevdbpass" \
-  #           -f "azure-dyn.yaml" \
-  #           --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
+  - bash: |
+      ping -c 30 127.0.0.1
+    name: delayNextStep
+    displayName: Delay Next Step
 
   - task: AzureCLI@2
     name: deployBCHelmChart
@@ -545,6 +507,26 @@ jobs:
             --db-user-pass "$srtsqldevdbpass" \
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
+
+  - bash: |
+      ping -c 240 127.0.0.1
+    name: delayNextStep2
+    displayName: Delay Next Step again
+      
+  - bash: |
+      release=$(release)
+      helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+      './get-test-results.sh -v $helmChartVersion -n $release'
+    displayName: Grab test results
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '**/*.trx' 
+      mergeTestResults: true
+      failTaskOnFailedTests: false
+      testRunTitle: 'Acceptance test results ($(release))'
+      publishRunAttachments: true
 
 - job: postDeploymentConfig
   displayName: Post Deployment Config
