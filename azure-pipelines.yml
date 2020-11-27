@@ -514,8 +514,10 @@ jobs:
     displayName: Delay Next Step again
       
   - bash: |
+      ls -R
       release=$(release)
       helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+      chmod +x ./get-test-results.sh
       './get-test-results.sh -v $helmChartVersion -n $release'
     displayName: Grab test results
     workingDirectory: '$(System.ArtifactsDirectory)'
@@ -533,7 +535,7 @@ jobs:
   displayName: Post Deployment Config
   dependsOn: 
     - deployBCApplication
-  condition: and(eq(dependencies.deployBCApplication.result, 'Succeeded'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  # condition: and(eq(dependencies.deployBCApplication.result, 'Succeeded'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   steps:
   - bash: |
