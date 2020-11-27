@@ -7,7 +7,7 @@ This environment is still being assembled - at each major milestone (Azure build
 
 Status: A fully fledged standalone Dynamic environment can be created by branching this code base. This will fully deploy the BC infrastructure, set up the environment and then deploy the Buying Catalogue to it. 
 
-The code used to generate the Dynamic Environemnt will then (upon a successful merge to master) be propegated to the Development Environment.
+Once the branch above has been merged, the pipeline will deploy the code to the Development environment.
 
 # Description
 
