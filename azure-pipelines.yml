@@ -525,12 +525,12 @@ jobs:
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'VSTest'
-      testResultsFiles: '**/*.trx' 
+      testResultsFiles: 'results/*.trx' 
       mergeTestResults: true
       failTaskOnFailedTests: false
       testRunTitle: 'Acceptance test results ($(release))'
       publishRunAttachments: true
-      searchFolder: $(System.DefaultWorkingDirectory)
+      searchFolder: '$(System.ArtifactsDirectory)'
 
 - job: postDeploymentConfig
   displayName: Post Deployment Config
