@@ -20,6 +20,7 @@ resources:
 
 pool:
   vmImage: 'ubuntu-latest'
+  #vmImage: 'ubuntu-20.04'
 
 jobs:
 - job: buildBranchKeyVault
@@ -536,7 +537,7 @@ jobs:
   displayName: Post Deployment Config
   dependsOn: 
     - deployBCApplication
-  # condition: and(eq(dependencies.deployBCApplication.result, 'Succeeded'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(eq(dependencies.deployBCApplication.result, 'Succeeded'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   steps:
   - bash: |
@@ -576,10 +577,11 @@ jobs:
 
 - job: completionTasks
   displayName: Completion Tasks
-  dependsOn: postDeploymentConfig
-  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  dependsOn: postDeploymentConfig, deployBCApplication
+  #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
   # --> left in code for future testing: condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/xyz'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
-    
+  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/10347-deploy-new-development-env'), eq(dependencies.deployBCApplication.result, 'Succeeded'))
+  
   steps:
   - task: CopyFiles@2
     displayName: Build Artifact - KeyVault
