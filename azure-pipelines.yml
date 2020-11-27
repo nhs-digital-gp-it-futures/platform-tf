@@ -577,10 +577,10 @@ jobs:
 
 - job: completionTasks
   displayName: Completion Tasks
-  dependsOn: postDeploymentConfig, deployBCApplication
+  dependsOn: postDeploymentConfig
   #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
   # --> left in code for future testing: condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/xyz'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
-  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/10347-deploy-new-development-env'), eq(dependencies.deployBCApplication.result, 'Succeeded'))
+  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/10347-deploy-new-development-env'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
   
   steps:
   - task: CopyFiles@2
