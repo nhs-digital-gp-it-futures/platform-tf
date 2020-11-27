@@ -5,7 +5,9 @@ Repository for Platform Terraform code
 
 This environment is still being assembled - at each major milestone (Azure build complete, Agic complete, code deployed) a PR will be raised and the code changes will be merged.
 
-Status: A fully fledged standalone Dynamic environment can be created by branching this code base. This will fully deploy the BC infrastructure, set up the environment and then deploy the Buying Catalogue to it.  
+Status: A fully fledged standalone Dynamic environment can be created by branching this code base. This will fully deploy the BC infrastructure, set up the environment and then deploy the Buying Catalogue to it. 
+
+The code used to generate the Dynamic Environemnt will then (upon a successful merge to master) be propegated to the Development Environment.
 
 # Description
 
@@ -16,6 +18,5 @@ This code base deploys a fully functioning standalone Azure environment with AGI
 The goal is that all Infrastructure changes can be tested and then be propegated into Development -> Test -> Production. 
 
 # Improvements:
-1) Cert name in z_imported_certs.tf
-2) Cert manually imported into core key vault - needs coding
-3) Trigger pipeline on Key Vault change (as per https://stackoverflow.com/questions/61541156/how-to-trigger-a-azure-devops-pipeline-whenever-there-is-azure-keyvault-secret-c)
+1) Cert manually imported into core key vault - needs coding
+2) Trigger pipeline on Key Vault change (as per https://stackoverflow.com/questions/61541156/how-to-trigger-a-azure-devops-pipeline-whenever-there-is-azure-keyvault-secret-c)

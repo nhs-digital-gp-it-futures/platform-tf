@@ -20,7 +20,6 @@ resources:
 
 pool:
   vmImage: 'ubuntu-latest'
-  #vmImage: 'ubuntu-20.04'
 
 jobs:
 - job: buildBranchKeyVault
@@ -434,21 +433,6 @@ jobs:
       artifact: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)'
 
-  # - task: DownloadSecureFile@1
-  #   displayName: Download Dynamic yaml File
-  #   name: azuredyn
-  #   inputs:
-  #     secureFile: azure-dyn.yaml
-
-  # - task: CopyFiles@2
-  #   displayName: Copy Dynamic yaml File
-  #   inputs:
-  #     SourceFolder: '$(Agent.TempDirectory)'
-  #     Contents: 'azure-dyn.yaml'
-  #     TargetFolder: '$(System.ArtifactsDirectory)/environments'
-  #     CleanTargetFolder: false
-  #     OverWrite: true  
-
   - bash: |
         cd selenium-grid 
         release=$(release)
@@ -578,9 +562,8 @@ jobs:
 - job: completionTasks
   displayName: Completion Tasks
   dependsOn: postDeploymentConfig
-  #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
-  # --> left in code for future testing: condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/xyz'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
-  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/10347-deploy-new-development-env'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
+  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  # --> left in code for future testing: condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/xyz-whatever'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
   
   steps:
   - task: CopyFiles@2
