@@ -516,13 +516,9 @@ jobs:
   - bash: |
       release=$(release)
       helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
-      echo "DEBUG"
-      ls -l
-      echo "version: $helmChartVersion"
-      echo "release: $release"
       chmod +x ./get-test-results.sh
-      ls -l
       ./get-test-results.sh -v $helmChartVersion -n $release
+      ls -R
     displayName: Grab test results
     workingDirectory: '$(System.ArtifactsDirectory)'
 
@@ -534,6 +530,7 @@ jobs:
       failTaskOnFailedTests: false
       testRunTitle: 'Acceptance test results ($(release))'
       publishRunAttachments: true
+      searchFolder: $(System.DefaultWorkingDirectory)
 
 - job: postDeploymentConfig
   displayName: Post Deployment Config
