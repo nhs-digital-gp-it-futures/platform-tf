@@ -514,11 +514,15 @@ jobs:
     displayName: Delay Next Step again
       
   - bash: |
-      ls -R
       release=$(release)
       helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+      echo "DEBUG"
+      ls -l
+      echo "version: $helmChartVersion"
+      echo "release: $release"
       chmod +x ./get-test-results.sh
-      './get-test-results.sh -v $helmChartVersion -n $release'
+      ls -l
+      ./get-test-results.sh -v $helmChartVersion -n $release
     displayName: Grab test results
     workingDirectory: '$(System.ArtifactsDirectory)'
 
