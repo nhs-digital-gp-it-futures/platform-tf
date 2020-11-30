@@ -595,4 +595,3 @@ jobs:
 
   - publish: $(build.artifactStagingDirectory)
     artifact: build-artifact 
-    
