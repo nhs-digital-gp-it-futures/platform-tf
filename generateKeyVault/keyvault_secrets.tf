@@ -63,3 +63,54 @@ resource "azurerm_key_vault_secret" "kv_coreurl" {
     azurerm_management_lock.keyvault_lock
   ]
 }
+
+resource "azurerm_key_vault_secret" "kv_certname_dynamic" {
+  count = local.shortEnv != "development" && local.shortEnv != "testing" && local.shortEnv != "production" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.shortEnv}certname"
+  value        = "dyn-buying-catalogue-digital-nhs-uk"
+  content_type = "${var.project}-cert-name"
+  key_vault_id = azurerm_key_vault.keyvault.id
+  
+  tags = {
+    environment = var.environment
+  }
+
+  depends_on = [
+    azurerm_management_lock.keyvault_lock
+  ]
+}
+
+resource "azurerm_key_vault_secret" "kv_certname_dev" {
+  count = local.shortEnv == "development" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.shortEnv}certname"
+  value        = "dev-buying-catalogue-digital-nhs-uk"
+  content_type = "${var.project}-cert-name"
+  key_vault_id = azurerm_key_vault.keyvault.id
+  
+  tags = {
+    environment = var.environment
+  }
+
+  depends_on = [
+    azurerm_management_lock.keyvault_lock
+  ]
+}
+
+resource "azurerm_key_vault_secret" "kv_certname_live" {
+  count = local.shortEnv == "testing" || local.shortEnv == "production" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.shortEnv}certname"
+  value        = "buying-catalogue-digital-nhs-uk"
+  content_type = "${var.project}-cert-name"
+  key_vault_id = azurerm_key_vault.keyvault.id
+  
+  tags = {
+    environment = var.environment
+  }
+
+  depends_on = [
+    azurerm_management_lock.keyvault_lock
+  ]
+}

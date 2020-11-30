@@ -39,7 +39,7 @@ resource "azurerm_resource_group" "sql-pri" {
 }
 
 resource "azurerm_resource_group" "sql-sec" {
-  count         = local.shortenv == "test" || local.shortenv == "prod" ? 1 : 0 
+  count         = local.shortenv == "testing" || local.shortenv == "production" ? 1 : 0 
 
   name          = "${var.project}-${var.environment}-rg-sql-sec"
   location      = local.sql_region2

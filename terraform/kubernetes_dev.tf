@@ -1,4 +1,6 @@
-resource "azurerm_kubernetes_cluster" "aks" {
+resource "azurerm_kubernetes_cluster" "aksdev" {
+  count                           = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
+
   name                            = "${var.project}-${var.environment}-aks"
   resource_group_name             = azurerm_resource_group.aks.name
   kubernetes_version              = local.kv_aksversion
@@ -7,7 +9,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   node_resource_group             = "${var.project}-${var.environment}-rg-aks-nodes"
 
   default_node_pool {
-    name                          = "nodepool"
+    name                          = "devnodepool"
     vm_size                       = local.kv_aksvmsize
     vnet_subnet_id                = azurerm_subnet.aks.id
     type                          = "VirtualMachineScaleSets"
@@ -21,6 +23,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
       environment                 = var.environment
     }
   }
+
+  # azure_policy {
+  #   enabled = "true"
+  # }
 
   service_principal {
     client_id                     = data.azurerm_key_vault_secret.spnappid.value

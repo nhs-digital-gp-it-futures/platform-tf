@@ -25,7 +25,8 @@ data "azurerm_key_vault_secret" "sqladmins" {
 }
 
 data "azurerm_key_vault_secret" "ssl_cert" {
-  name         = "dynamic-buying-catalogue-digital-nhs-uk-star"
+  #name         = "dyn-buying-catalogue-digital-nhs-uk-star"
+  name         = "${data.azurerm_key_vault_secret.certname.value}-star"
   key_vault_id = data.azurerm_key_vault.keyvault_core.id
 }
 

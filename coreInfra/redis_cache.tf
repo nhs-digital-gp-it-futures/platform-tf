@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "redis" {
-  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0    
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name                            = "${var.project}-${local.coreEnv}-core-rg-redis"
   location                        = var.region

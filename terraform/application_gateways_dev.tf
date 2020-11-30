@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "PipAppGw" {
-  count               = local.shortenv != "test" && local.shortenv != "prod" ? 1 : 0 
+  count               = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
   
   name                = "${var.project}-${var.environment}-pip"
   location            = var.region
@@ -13,8 +13,8 @@ resource "azurerm_public_ip" "PipAppGw" {
   }
 }
 
-resource "azurerm_application_gateway" "AppGate" {
-  count                            = local.shortenv != "test" && local.shortenv != "prod" ? 1 : 0 
+resource "azurerm_application_gateway" "AppGateDev" {
+  count                            = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
 
   name                             = "${var.project}-${var.environment}-appgw"
   location                         = var.region
@@ -87,7 +87,7 @@ resource "azurerm_application_gateway" "AppGate" {
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
     protocol                       = "HTTPS"
     host_name                      = "www.${data.azurerm_key_vault_secret.coreurl.value}" 
-    ssl_certificate_name           = "dyn-buying-catalogue-digital-nhs-uk"
+    ssl_certificate_name           = data.azurerm_key_vault_secret.certname.value
   }
 
   http_listener {
@@ -121,7 +121,7 @@ resource "azurerm_application_gateway" "AppGate" {
   }
   
   ssl_certificate {
-     name = "dyn-buying-catalogue-digital-nhs-uk"
+     name = data.azurerm_key_vault_secret.certname.value
      key_vault_secret_id = data.azurerm_key_vault_secret.ssl_cert.id   
   }
 
@@ -138,7 +138,7 @@ resource "azurerm_application_gateway" "AppGate" {
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
     protocol                       = "HTTPS"
     host_name                      = "rancher-${data.azurerm_key_vault_secret.coreurl.value}" 
-    ssl_certificate_name           = "dyn-buying-catalogue-digital-nhs-uk"
+    ssl_certificate_name           = data.azurerm_key_vault_secret.certname.value
   }
 
   backend_address_pool {
