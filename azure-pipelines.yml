@@ -172,6 +172,16 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
+  - task: AzureCLI@2
+    name: kubectlContext
+    displayName: Disable Enhanced Firewall Restrictions
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges ""
+
   - bash: |
       echo "Checking if this is first run..."
       agNamespace=$(kubectl get namespace ingress-appgw)
@@ -553,6 +563,17 @@ jobs:
         ipArr=()
         ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
+
+  - task: AzureCLI@2
+    name: kubectlContext
+    displayName: Enable Enhanced Firewall Restrictions
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          ipRange=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevbjssvpn" --query value -o tsv)
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange"
 
 # Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
