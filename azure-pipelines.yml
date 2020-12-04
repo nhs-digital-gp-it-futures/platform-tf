@@ -87,7 +87,7 @@ jobs:
 
 - job: buildBranchEnvironment
   dependsOn: buildBranchKeyVault
-  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Build Branch Environment
   variables:
     - group: dev-core-secrets
@@ -151,7 +151,7 @@ jobs:
 - job: checkIfFirstRun 
 
   dependsOn: buildBranchEnvironment
-  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Check if first run on new AKS Cluster
 
   steps:
@@ -187,7 +187,7 @@ jobs:
 - job: prepareAKSEnvironment
   displayName: Prepare AKS Cluster
   dependsOn: checkIfFirstRun
-  condition: and(eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     - group: dev-core-secrets
 
