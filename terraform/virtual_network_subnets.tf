@@ -11,5 +11,5 @@ resource "azurerm_subnet" "aks" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["${data.azurerm_key_vault_secret.addrprefix.value}.64.0/20"]
 
-  service_endpoints    = ["Microsoft.Sql"]
+  service_endpoints    = ["Microsoft.Sql","Microsoft.Storage"]
 }

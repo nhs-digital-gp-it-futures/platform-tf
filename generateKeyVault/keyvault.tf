@@ -9,6 +9,15 @@ resource "azurerm_key_vault" "keyvault" {
   purge_protection_enabled        = "false"
   soft_delete_enabled             = "true"
 
+  # network_acls {
+  #   default_action             = "Deny"
+  #   bypass                     = "AzureServices"
+  #   virtual_network_subnet_ids = [azurerm_subnet.aks.id]
+  #   ip_rules                   = [
+  #     data.azurerm_key_vault_secret.bjssvpn.value,
+  #     ]
+  # }
+
   tags = {
     environment = var.environment
   }
