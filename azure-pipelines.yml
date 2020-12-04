@@ -112,6 +112,22 @@ jobs:
         TargetFolder: '$(build.artifactStagingDirectory)/terraform'
         CleanTargetFolder: false
         OverWrite: true
+        
+    - task: AzureCLI@2
+      name: disableEnhancedStorageFirewall
+      displayName: Disable Enhanced SA Firewall Restrictions
+      inputs:
+        azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            release=$(release)
+            releaseNoPunct=$(echo $release | sed -e 's/-//g')
+            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
+
+            if [ -n "$storageAccount" ]; then  
+              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow
+            fi
       
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: Install Terraform $(tfVersion)
@@ -574,6 +590,22 @@ jobs:
       inlineScript: |
           ipRange=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevbjssvpn" --query value -o tsv)
           az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange" > /dev/null
+
+  - task: AzureCLI@2
+    name: disableEnhancedStorageFirewall
+    displayName: Disable Enhanced SA Firewall Restrictions
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          release=$(release)
+          releaseNoPunct=$(echo $release | sed -e 's/-//g')
+          storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
+
+          if [ -n "$storageAccount" ]; then  
+            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny
+          fi
 
 # Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
