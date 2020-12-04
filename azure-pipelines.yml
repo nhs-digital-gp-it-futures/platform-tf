@@ -189,8 +189,8 @@ jobs:
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
   - task: AzureCLI@2
-    name: disableEnhancedFirewall
-    displayName: Disable Enhanced Firewall Restrictions
+    name: disableEnhancedAKSFirewall
+    displayName: Disable Enhanced AKS Firewall Restrictions
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
@@ -581,8 +581,8 @@ jobs:
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
 
   - task: AzureCLI@2
-    name: enableEnhancedFirewall
-    displayName: Enable Enhanced Firewall Restrictions
+    name: enableEnhancedAKSFirewall
+    displayName: Enable Enhanced AKS Firewall Restrictions
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
@@ -592,8 +592,8 @@ jobs:
           az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange" > /dev/null
 
   - task: AzureCLI@2
-    name: disableEnhancedStorageFirewall
-    displayName: Disable Enhanced SA Firewall Restrictions
+    name: enableEnhancedStorageFirewall
+    displayName: Enable Enhanced SA Firewall Restrictions
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'

@@ -12,5 +12,6 @@ resource "azurerm_storage_account_network_rules" "data_gen_fw" {
   lifecycle {
     ignore_changes = [
       ip_rules, 
-      ]
+    ]
+  }
 }
