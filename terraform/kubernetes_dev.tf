@@ -54,7 +54,6 @@ resource "azurerm_kubernetes_cluster" "aksdev" {
 
   api_server_authorized_ip_ranges = [
     "${data.azurerm_key_vault_secret.bjssvpn.value}/32",
-    "AzureDevOps",
     ]
 
   enable_pod_security_policy      = "false"
