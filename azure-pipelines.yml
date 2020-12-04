@@ -173,7 +173,7 @@ jobs:
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
   - task: AzureCLI@2
-    name: kubectlContext
+    name: disableEnhancedFirewall
     displayName: Disable Enhanced Firewall Restrictions
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
@@ -565,7 +565,7 @@ jobs:
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
 
   - task: AzureCLI@2
-    name: kubectlContext
+    name: enableEnhancedFirewall
     displayName: Enable Enhanced Firewall Restrictions
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
