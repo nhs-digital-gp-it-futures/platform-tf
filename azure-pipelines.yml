@@ -604,7 +604,7 @@ jobs:
           storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
 
           if [ -n "$storageAccount" ]; then  
-            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny
+            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny > /dev/null
           fi
 
 # Required for future task - enabling key vault             
