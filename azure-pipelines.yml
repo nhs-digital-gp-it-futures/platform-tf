@@ -41,6 +41,20 @@ jobs:
       env:
         BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
+    - task: AzureCLI@2
+      name: disableEnhancedTFFirewall
+      displayName: Disable Enhanced Terraform Firewall Restrictions
+      inputs:
+        azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            storageAccount=$(az storage account show --resource-group gpitfutures-rg-sa --name gpitfuturessatf 2>/dev/null)
+
+            if [ -n "$storageAccount" ]; then  
+              az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow
+            fi
+
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
       inputs:
@@ -163,6 +177,20 @@ jobs:
         workingDirectory: '$(build.artifactStagingDirectory)/terraform'
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
+
+    - task: AzureCLI@2
+      name: enableEnhancedTFFirewall
+      displayName: Enable Enhanced Terraform Firewall Restrictions
+      inputs:
+        azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            storageAccount=$(az storage account show --resource-group gpitfutures-rg-sa --name gpitfuturessatf 2>/dev/null)
+
+            if [ -n "$storageAccount" ]; then  
+              az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny
+            fi
 
 - job: checkIfFirstRun 
 
