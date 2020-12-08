@@ -42,20 +42,27 @@ jobs:
         BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
     - task: AzureCLI@2
-      name: disableEnhancedTFFirewall
-      displayName: Disable Enhanced Terraform Firewall Restrictions
+      name: disableEnhancedStorageFirewall
+      displayName: Disable Enhanced Storage Firewall Restrictions
       inputs:
         azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-            storageAccount=$(az storage account show --resource-group gpitfutures-rg-sa --name gpitfuturessatf 2>/dev/null)
+            # Disable Terraform firewall
+            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow 2>/dev/null
+
+            # Check and Disable storage account firewall
+            release=$(release)
+            releaseNoPunct=$(echo $release | sed -e 's/-//g')
+            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
 
             if [ -n "$storageAccount" ]; then  
-              az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow
+              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow 2>/dev/null
             fi
 
-            ping -c 60 127.0.0.1
+            echo "wait  60 seconds to apply SA Firewall Disables"
+            ping -c 60 127.0.0.1 2>/dev/null
 
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
@@ -129,21 +136,24 @@ jobs:
         CleanTargetFolder: false
         OverWrite: true
         
-    - task: AzureCLI@2
-      name: disableEnhancedStorageFirewall
-      displayName: Disable Enhanced SA Firewall Restrictions
-      inputs:
-        azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-            release=$(release)
-            releaseNoPunct=$(echo $release | sed -e 's/-//g')
-            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
+    # - task: AzureCLI@2
+    #   name: disableEnhancedStorageFirewall
+    #   displayName: Disable Enhanced SA Firewall Restrictions
+    #   inputs:
+    #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #         release=$(release)
+    #         releaseNoPunct=$(echo $release | sed -e 's/-//g')
+    #         storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
 
-            if [ -n "$storageAccount" ]; then  
-              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow
-            fi
+    #         if [ -n "$storageAccount" ]; then  
+    #           az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow 2>/dev/null
+    #         fi
+  
+    #         echo "wait for 30 seconds to apply"
+    #         ping -c 30 127.0.0.1 2>/dev/null
       
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: Install Terraform $(tfVersion)
@@ -187,12 +197,7 @@ jobs:
         azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: |
-            storageAccount=$(az storage account show --resource-group gpitfutures-rg-sa --name gpitfuturessatf 2>/dev/null)
-
-            if [ -n "$storageAccount" ]; then  
-              az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny
-            fi
+        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny 2>/dev/null
 
 - job: checkIfFirstRun 
 
@@ -493,7 +498,7 @@ jobs:
   - bash: |
         cd selenium-grid 
         release=$(release)
-        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk" --helm-upgrade-args "-f azure-dyn-sel.yaml --set hub.ingress.hosts=$release.dynamic.buyingcatalogue.digital.nhs.uk"
+        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk" --helm-upgrade-args "-f azure-dyn-sel.yaml --set "hub.ingress.hosts={$release.dynamic.buyingcatalogue.digital.nhs.uk}"
     name: setupSeleniumGrid
     displayName: Setup Selenium Grid
 
