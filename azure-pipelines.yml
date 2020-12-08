@@ -460,17 +460,17 @@ jobs:
       artifact: 'build-artifact'
       downloadPath: '$(System.ArtifactsDirectory)'
 
-  # - bash: |
-  #       cd selenium-grid 
-  #       release=$(release)
-  #       ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk" --helm-upgrade-args "-f azure-dyn-sel.yaml"
-  #   name: setupSeleniumGrid
-  #   displayName: Setup Selenium Grid
+  - bash: |
+        cd selenium-grid 
+        release=$(release)
+        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk" --helm-upgrade-args "-f azure-dyn-sel.yaml"
+    name: setupSeleniumGrid
+    displayName: Setup Selenium Grid
 
-  # - bash: |
-  #     ping -c 30 127.0.0.1
-  #   name: delayNextStep
-  #   displayName: Delay Next Step
+  - bash: |
+      ping -c 30 127.0.0.1
+    name: delayNextStep
+    displayName: Delay Next Step
 
   - task: AzureCLI@2
     name: deployBCHelmChart
@@ -520,29 +520,29 @@ jobs:
             -f "azure-dyn.yaml" \
             --base-path "$release.dynamic.buyingcatalogue.digital.nhs.uk"
 
-  # - bash: |
-  #     ping -c 240 127.0.0.1
-  #   name: delayNextStep2
-  #   displayName: Delay Next Step again
+  - bash: |
+      ping -c 240 127.0.0.1
+    name: delayNextStep2
+    displayName: Delay Next Step again
       
-  # - bash: |
-  #     release=$(release)
-  #     helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
-  #     chmod +x ./get-test-results.sh
-  #     ./get-test-results.sh -v $helmChartVersion -n $release
-  #     ls -R
-  #   displayName: Grab test results
-  #   workingDirectory: '$(System.ArtifactsDirectory)'
+  - bash: |
+      release=$(release)
+      helmChartVersion=$(jq .helmChartVersion ./variables.json -r)
+      chmod +x ./get-test-results.sh
+      ./get-test-results.sh -v $helmChartVersion -n $release
+      ls -R
+    displayName: Grab test results
+    workingDirectory: '$(System.ArtifactsDirectory)'
 
-  # - task: PublishTestResults@2
-  #   inputs:
-  #     testResultsFormat: 'VSTest'
-  #     testResultsFiles: 'results/*.trx' 
-  #     mergeTestResults: true
-  #     failTaskOnFailedTests: false
-  #     testRunTitle: 'Acceptance test results ($(release))'
-  #     publishRunAttachments: true
-  #     searchFolder: '$(System.ArtifactsDirectory)'
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: 'results/*.trx' 
+      mergeTestResults: true
+      failTaskOnFailedTests: false
+      testRunTitle: 'Acceptance test results ($(release))'
+      publishRunAttachments: true
+      searchFolder: '$(System.ArtifactsDirectory)'
 
 - job: postDeploymentConfig
   displayName: Post Deployment Config
