@@ -50,18 +50,20 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
             # Disable Terraform firewall
+            echo "Disabling Terraform Firewall"
             az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow >/dev/null
 
             # Check and Disable storage account firewall
             release=$(release)
             releaseNoPunct=$(echo $release | sed -e 's/-//g')
-            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct >/dev/null)
+            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
 
             if [ -n "$storageAccount" ]; then  
+              echo "Disabling Storage Firewall"
               az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow >/dev/null
             fi
 
-            echo "wait  60 seconds to apply SA Firewall Disables"
+            echo "wait 60 seconds to apply SA Firewall Disables"
             ping -c 60 127.0.0.1 >/dev/null
 
     - task: CopyFiles@2
@@ -636,7 +638,7 @@ jobs:
       inlineScript: |
           release=$(release)
           releaseNoPunct=$(echo $release | sed -e 's/-//g')
-          storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct >/dev/null)
+          storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
 
           if [ -n "$storageAccount" ]; then  
             az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny > /dev/null
