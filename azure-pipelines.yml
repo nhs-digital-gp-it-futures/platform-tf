@@ -498,7 +498,7 @@ jobs:
   - bash: |
         cd selenium-grid 
         release=$(release)
-        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk" --helm-upgrade-args "-f azure-dyn-sel.yaml --set "hub.ingress.hosts={$release.dynamic.buyingcatalogue.digital.nhs.uk}"
+        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk" --helm-upgrade-args "-f azure-dyn-sel.yaml --set hub.ingress.hosts={$release.dynamic.buyingcatalogue.digital.nhs.uk}"
     name: setupSeleniumGrid
     displayName: Setup Selenium Grid
 
