@@ -50,19 +50,19 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
             # Disable Terraform firewall
-            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow 2>/dev/null
+            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow >/dev/null
 
             # Check and Disable storage account firewall
             release=$(release)
             releaseNoPunct=$(echo $release | sed -e 's/-//g')
-            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
+            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct >/dev/null)
 
             if [ -n "$storageAccount" ]; then  
-              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow 2>/dev/null
+              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow >/dev/null
             fi
 
             echo "wait  60 seconds to apply SA Firewall Disables"
-            ping -c 60 127.0.0.1 2>/dev/null
+            ping -c 60 127.0.0.1 >/dev/null
 
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
@@ -197,7 +197,7 @@ jobs:
         azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny 2>/dev/null
+        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny >/dev/null
 
 - job: checkIfFirstRun 
 
@@ -636,15 +636,15 @@ jobs:
       inlineScript: |
           release=$(release)
           releaseNoPunct=$(echo $release | sed -e 's/-//g')
-          storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
+          storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct >/dev/null)
 
           if [ -n "$storageAccount" ]; then  
             az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny > /dev/null
           fi
 
-  # - bash: |
-  #     helm uninstall sel-grid -n selenium-grid
-  #   displayName: Uninstall Selenium Grid    
+  - bash: |
+      helm uninstall sel-grid -n selenium-grid
+    displayName: Uninstall Selenium Grid    
 
 # Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
