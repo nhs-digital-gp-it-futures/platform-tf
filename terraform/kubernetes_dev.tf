@@ -44,10 +44,14 @@ resource "azurerm_kubernetes_cluster" "aksdev" {
 
   addon_profile {
     kube_dashboard {
-      enabled                     = "true"
+      enabled                     = true
     }
 
     oms_agent {
+      enabled                     = false
+    }
+
+    http_application_routing {
       enabled                     = false
     }
   }
