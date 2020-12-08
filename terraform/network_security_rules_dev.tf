@@ -57,3 +57,18 @@ resource "azurerm_network_security_rule" "Azure" {
   priority                    = "500"
   description                 = "Allow incoming Azure Gateway Manager and inbound virtual network traffic (VirtualNetwork tag) on the NSG."
 }
+
+resource "azurerm_network_security_rule" "selenium_deny" {
+  name                        = "selenium_deny"
+  resource_group_name         = azurerm_resource_group.aks.name
+  network_security_group_name = azurerm_network_security_group.aks.name
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  source_port_range           = "*"
+  destination_port_ranges     = [ "4444" ]
+  direction                   = "Inbound"
+  access                      = "Deny"
+  protocol                    = "*"
+  priority                    = 499
+  description                 = "Stops Selenium Grid advertising externally on TCP 4444"
+}

@@ -44,15 +44,21 @@ resource "azurerm_kubernetes_cluster" "aksdev" {
 
   addon_profile {
     kube_dashboard {
-      enabled                     = "true"
+      enabled                     = true
     }
 
     oms_agent {
       enabled                     = false
     }
+
+    http_application_routing {
+      enabled                     = false
+    }
   }
 
-  api_server_authorized_ip_ranges = []
+  api_server_authorized_ip_ranges = [
+    "${data.azurerm_key_vault_secret.bjssvpn.value}/32",
+    ]
 
   enable_pod_security_policy      = "false"
 

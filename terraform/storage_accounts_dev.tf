@@ -17,7 +17,7 @@ resource "azurerm_storage_account" "data_gen" {
 resource "azurerm_storage_container" "documents_gen" {
   count                 = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
 
-  name                  = "documents"
+  name                  = "${var.environment}-documents"
   storage_account_name  = azurerm_storage_account.data_gen[0].name
   container_access_type = "blob"
 }

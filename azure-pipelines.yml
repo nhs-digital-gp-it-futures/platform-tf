@@ -41,6 +41,31 @@ jobs:
       env:
         BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
+    - task: AzureCLI@2
+      name: disableEnhancedStorageFirewall
+      displayName: Disable Enhanced Storage Firewall Restrictions
+      inputs:
+        azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            # Disable Terraform firewall
+            echo "Disabling Terraform Firewall"
+            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow >/dev/null
+
+            # Check and Disable storage account firewall
+            release=$(release)
+            releaseNoPunct=$(echo $release | sed -e 's/-//g')
+            storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
+
+            if [ -n "$storageAccount" ]; then  
+              echo "Disabling Storage Firewall"
+              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow >/dev/null
+            fi
+
+            echo "wait 60 seconds to apply SA Firewall Disables"
+            ping -c 60 127.0.0.1 >/dev/null
+
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
       inputs:
@@ -87,7 +112,7 @@ jobs:
 
 - job: buildBranchEnvironment
   dependsOn: buildBranchKeyVault
-  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Build Branch Environment
   variables:
     - group: dev-core-secrets
@@ -148,10 +173,19 @@ jobs:
         commandOptions: '-var="environment=$(release)" -var="keyvault=gpit-$(release)-kv" -var="keyvaultrg=$(release)-kv-rg" -var="region=uksouth" -var="subscription_id=7b12a8a2-f06f-456f-b6f9-aa2d92e0b2ec" -var="tenant_id=50f6071f-bbfe-401a-8803-673748e629e2" -var="pjtcode=gpit" -var="project=gpitfutures"'
         environmentServiceNameAzureRM: 'NHSAPP-BuyingCatalogue (Non-Prod)'   
 
+    - task: AzureCLI@2
+      name: enableEnhancedTFFirewall
+      displayName: Enable Enhanced Terraform Firewall Restrictions
+      inputs:
+        azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny >/dev/null
+
 - job: checkIfFirstRun 
 
   dependsOn: buildBranchEnvironment
-  condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Check if first run on new AKS Cluster
 
   steps:
@@ -172,6 +206,16 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
+  - task: AzureCLI@2
+    name: disableEnhancedAKSFirewall
+    displayName: Disable Enhanced AKS Firewall Restrictions
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "" > /dev/null
+
   - bash: |
       echo "Checking if this is first run..."
       agNamespace=$(kubectl get namespace ingress-appgw)
@@ -187,7 +231,7 @@ jobs:
 - job: prepareAKSEnvironment
   displayName: Prepare AKS Cluster
   dependsOn: checkIfFirstRun
-  condition: and(eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(dependencies.checkIfFirstRun.outputs['DetermineResult.firstRun'], 'Yes'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     - group: dev-core-secrets
 
@@ -437,7 +481,7 @@ jobs:
   - bash: |
         cd selenium-grid 
         release=$(release)
-        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk"
+        ./launch-selenium-grid.sh --add "$release.dynamic.buyingcatalogue.digital.nhs.uk" --helm-upgrade-args "-f azure-dyn-sel.yaml --set hub.ingress.hosts={$release.dynamic.buyingcatalogue.digital.nhs.uk}"
     name: setupSeleniumGrid
     displayName: Setup Selenium Grid
 
@@ -553,6 +597,37 @@ jobs:
         ipArr=()
         ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
+
+  - task: AzureCLI@2
+    name: enableEnhancedAKSFirewall
+    displayName: Enable Enhanced AKS Firewall Restrictions
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          ipRange=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevbjssvpn" --query value -o tsv)
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange" > /dev/null
+
+  - task: AzureCLI@2
+    name: enableEnhancedStorageFirewall
+    displayName: Enable Enhanced SA Firewall Restrictions
+    inputs:
+      azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+          release=$(release)
+          releaseNoPunct=$(echo $release | sed -e 's/-//g')
+          storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
+
+          if [ -n "$storageAccount" ]; then  
+            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny > /dev/null
+          fi
+
+  - bash: |
+      helm uninstall sel-grid -n selenium-grid
+    displayName: Uninstall Selenium Grid    
 
 # Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 
