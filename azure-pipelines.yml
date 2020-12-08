@@ -137,25 +137,6 @@ jobs:
         TargetFolder: '$(build.artifactStagingDirectory)/terraform'
         CleanTargetFolder: false
         OverWrite: true
-        
-    # - task: AzureCLI@2
-    #   name: disableEnhancedStorageFirewall
-    #   displayName: Disable Enhanced SA Firewall Restrictions
-    #   inputs:
-    #     azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: |
-    #         release=$(release)
-    #         releaseNoPunct=$(echo $release | sed -e 's/-//g')
-    #         storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
-
-    #         if [ -n "$storageAccount" ]; then  
-    #           az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow 2>/dev/null
-    #         fi
-  
-    #         echo "wait for 30 seconds to apply"
-    #         ping -c 30 127.0.0.1 2>/dev/null
       
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
       displayName: Install Terraform $(tfVersion)
