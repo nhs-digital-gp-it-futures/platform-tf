@@ -55,6 +55,8 @@ jobs:
               az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow
             fi
 
+            ping -c 60 127.0.0.1
+
     - task: CopyFiles@2
       displayName: Copy KeyVault Config Files
       inputs:
