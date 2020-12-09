@@ -10,10 +10,4 @@ resource "azurerm_storage_account_network_rules" "data_gen_fw" {
     ]
   virtual_network_subnet_ids = [azurerm_subnet.aks.id]
   bypass                     = ["AzureServices"]
-
-  # lifecycle {
-  #   ignore_changes = [
-  #     ip_rules, 
-  #   ]
-  # }
 }
