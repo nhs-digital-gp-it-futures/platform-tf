@@ -5,6 +5,8 @@ resource "azurerm_storage_account_network_rules" "data_gen_fw" {
   default_action             = "Deny"
   ip_rules                   = [
     data.azurerm_key_vault_secret.bjssvpn.value,
+    data.azurerm_key_vault_secret.nhsdvdi1.value, 
+    data.azurerm_key_vault_secret.nhsdvdi2.value,
     ]
   virtual_network_subnet_ids = [azurerm_subnet.aks.id]
   bypass                     = ["AzureServices"]

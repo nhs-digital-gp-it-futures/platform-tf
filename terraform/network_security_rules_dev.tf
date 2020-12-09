@@ -32,8 +32,10 @@ resource "azurerm_network_security_rule" "NHSD_VDI_Access" {
   name                        = "AllowNHSDVDI"
   resource_group_name         = azurerm_resource_group.appgw.name
   network_security_group_name = azurerm_network_security_group.gateway.name
-  #source_address_prefixes     = [ "${data.azurerm_key_vault_secret.nhsdvdi1.value}", "${data.azurerm_key_vault_secret.nhsdvdi2.value}" ]
-  source_address_prefixes     = [ data.azurerm_key_vault_secret.nhsdvdi1.value, data.azurerm_key_vault_secret.nhsdvdi2.value ]
+  source_address_prefixes     = [ 
+    data.azurerm_key_vault_secret.nhsdvdi1.value, 
+    data.azurerm_key_vault_secret.nhsdvdi2.value 
+    ]
   destination_address_prefix  = "*"
   source_port_range           = "*"
   destination_port_ranges     = [ "80", "443" ]
