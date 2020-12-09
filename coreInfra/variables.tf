@@ -65,3 +65,7 @@ variable "kv_sqldevdbpass" {
 variable "kv_bjssvpn" {
   type = string
 }
+
+variable "kv_nhdsvdi" {
+  type = string
+}

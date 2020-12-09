@@ -218,3 +218,21 @@ resource "azurerm_key_vault_secret" "kv_bjssvpn" {
     environment = local.coreEnv
   }
 }
+
+resource "azurerm_key_vault_secret" "kv_nhdsvdi" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.coreEnv}nhsdvdi"
+  value        = var.kv_nhdsvdi
+  content_type = "NHS Digital VDI IP Ranges"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+

@@ -34,3 +34,8 @@ data "azurerm_key_vault_secret" "bjssvpn" {
   name         = "${var.pjtcode}${local.coreEnv}bjssvpn"
   key_vault_id = data.azurerm_key_vault.keyvault_core.id
 }
+
+data "azurerm_key_vault_secret" "nhsdvdi" {
+  name         = "${var.pjtcode}${local.coreEnv}nhsdvdi"
+  key_vault_id = data.azurerm_key_vault.keyvault_core.id
+}
