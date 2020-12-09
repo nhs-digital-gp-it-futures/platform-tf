@@ -66,6 +66,10 @@ variable "kv_bjssvpn" {
   type = string
 }
 
-variable "kv_nhdsvdi" {
+variable "kv_nhdsvdi1" {
+  type = string
+}
+
+variable "kv_nhdsvdi2" {
   type = string
 }

@@ -219,12 +219,12 @@ resource "azurerm_key_vault_secret" "kv_bjssvpn" {
   }
 }
 
-resource "azurerm_key_vault_secret" "kv_nhdsvdi" {
+resource "azurerm_key_vault_secret" "kv_nhdsvdi1" {
   count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
-  name         = "${var.pjtcode}${local.coreEnv}nhsdvdi"
-  value        = var.kv_nhdsvdi
-  content_type = "NHS Digital VDI IP Ranges"
+  name         = "${var.pjtcode}${local.coreEnv}nhsdvdi1"
+  value        = var.kv_nhdsvdi1
+  content_type = "NHS Digital VDI IP Range 1"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
   depends_on = [
@@ -236,3 +236,19 @@ resource "azurerm_key_vault_secret" "kv_nhdsvdi" {
   }
 }
 
+resource "azurerm_key_vault_secret" "kv_nhdsvdi2" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.coreEnv}nhsdvdi2"
+  value        = var.kv_nhdsvdi2
+  content_type = "NHS Digital VDI IP Range 2"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
