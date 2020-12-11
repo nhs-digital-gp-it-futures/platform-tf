@@ -28,6 +28,24 @@ resource "azurerm_network_security_rule" "VPN_Access" {
   description                 = "Allow staff access who are connect to the BJSS VPN"
 }
 
+resource "azurerm_network_security_rule" "NHSD_VDI_Access" {
+  name                        = "AllowNHSDVDI"
+  resource_group_name         = azurerm_resource_group.appgw.name
+  network_security_group_name = azurerm_network_security_group.gateway.name
+  source_address_prefixes     = [ 
+    data.azurerm_key_vault_secret.nhsdvdi1.value, 
+    data.azurerm_key_vault_secret.nhsdvdi2.value 
+    ]
+  destination_address_prefix  = "*"
+  source_port_range           = "*"
+  destination_port_ranges     = [ "80", "443" ]
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  priority                    = "170"
+  description                 = "Allow NHSD staff access who are using NHSD VDI"
+}
+
 resource "azurerm_network_security_rule" "DevOps" {
   name                        = "AllowAzureDevOps"
   resource_group_name         = azurerm_resource_group.appgw.name
@@ -62,7 +80,7 @@ resource "azurerm_network_security_rule" "selenium_deny" {
   name                        = "selenium_deny"
   resource_group_name         = azurerm_resource_group.aks.name
   network_security_group_name = azurerm_network_security_group.aks.name
-  source_address_prefix       = "*"
+  source_address_prefix       = "Internet"
   destination_address_prefix  = "*"
   source_port_range           = "*"
   destination_port_ranges     = [ "4444" ]
