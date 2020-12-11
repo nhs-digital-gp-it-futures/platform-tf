@@ -58,8 +58,6 @@ resource "azurerm_kubernetes_cluster" "aksdev" {
 
   api_server_authorized_ip_ranges = [
     "${data.azurerm_key_vault_secret.bjssvpn.value}/32",
-    #data.azurerm_key_vault_secret.nhsdvdi1.value, # AZ commands not installed at this time on VDI
-    #data.azurerm_key_vault_secret.nhsdvdi2.value, # AZ commands not installed at this time on VDI
     ]
 
   enable_pod_security_policy      = "false"
