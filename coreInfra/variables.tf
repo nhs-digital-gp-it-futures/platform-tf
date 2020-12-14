@@ -1,24 +1,4 @@
-variable "subscription_id" {
-  type = string
-}
-
-variable "tenant_id" {
-  type = string
-}
-
 variable "environment" {
-  type = string
-}
-
-variable "region" {
-  type = string
-}
-
-variable "pjtcode" {
-  type = string
-}
-
-variable "project" {
   type = string
 }
 
@@ -73,3 +53,44 @@ variable "kv_nhdsvdi1" {
 variable "kv_nhdsvdi2" {
   type = string
 }
+
+variable "pjtcode" {
+  type      = string
+  default   = null
+}
+
+variable "project" {
+  type      = string
+  default   = null
+}
+
+variable "region" {
+  type      = string
+  default   = null
+}
+
+variable "subscription_id" {
+  type      = string
+  default   = null
+}
+
+variable "tenant_id" {
+  type      = string
+  default   = null
+}
+
+variable "kv_addrprefix" {
+  type = string
+  default   = null
+}
+
+variable "kv_sqlusername" {
+  type = string
+  default   = null
+}
+
+variable "kv_coreurl" {
+  type = string
+  default   = null
+}
+
