@@ -1,8 +1,3 @@
-### RENAMEME
-
-#resource "azurerm_kubernetes_cluster" "aksdev" { ### RENAMEME
-#  count                           = local.shortenv != "" ? 1 : 0 ### REMOVEME
-
 resource "azurerm_kubernetes_cluster" "aks" {
   name                            = "${var.project}-${var.environment}-aks"
   resource_group_name             = azurerm_resource_group.aks.name

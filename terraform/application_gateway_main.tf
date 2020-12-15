@@ -1,6 +1,4 @@
 resource "azurerm_public_ip" "PipAppGw" {
-#  count                            = local.shortenv != "" ? 1 : 0 ### REMOVEME
-
   name                = "${var.project}-${var.environment}-pip"
   location            = var.region
   domain_name_label   = "buyingcatalogue${local.shortenv}"
@@ -12,10 +10,6 @@ resource "azurerm_public_ip" "PipAppGw" {
     environment       = var.environment
   }
 }
-
-### RENAMEME - AppGatePub
-#resource "azurerm_application_gateway" "AppGateDev" {
-#  count                            = local.shortenv != "" ? 1 : 0 ### REMOVEME
 
 resource "azurerm_application_gateway" "AppGw" {
   name                             = "${var.project}-${var.environment}-appgw"
