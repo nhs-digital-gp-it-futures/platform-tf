@@ -1,5 +1,6 @@
 resource "azurerm_storage_account" "data_gen" {
-  count                     = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
+  #count                     = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
+  count                     = local.shortenv != "" ? 1 : 0 ### REMOVEME
 
   name                      = "${var.project}${local.shortenv}"
   location                  = var.region
@@ -15,7 +16,8 @@ resource "azurerm_storage_account" "data_gen" {
 }
 
 resource "azurerm_storage_container" "documents_gen" {
-  count                 = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
+  #count                 = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
+  count                 = local.shortenv != "" ? 1 : 0 ### REMOVEME
 
   name                  = "${var.environment}-documents"
   storage_account_name  = azurerm_storage_account.data_gen[0].name

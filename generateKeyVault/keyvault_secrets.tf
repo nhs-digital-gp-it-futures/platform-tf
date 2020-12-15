@@ -69,7 +69,7 @@ resource "azurerm_key_vault_secret" "kv_coreurl" {
 }
 
 resource "azurerm_key_vault_secret" "kv_certname_dynamic" {
-  count = local.shortEnv != "development" && local.shortEnv != "testing" && local.shortEnv != "production" ? 1 : 0  
+  count = local.shortEnv != "development" && local.shortEnv != "preprod" && local.shortEnv != "production" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.shortEnv}certname"
   value        = "dyn-buying-catalogue-digital-nhs-uk"
@@ -103,7 +103,7 @@ resource "azurerm_key_vault_secret" "kv_certname_dev" {
 }
 
 resource "azurerm_key_vault_secret" "kv_certname_live" {
-  count = local.shortEnv == "testing" || local.shortEnv == "production" ? 1 : 0  
+  count = local.shortEnv == "preprod" || local.shortEnv == "production" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.shortEnv}certname"
   value        = "buying-catalogue-digital-nhs-uk"

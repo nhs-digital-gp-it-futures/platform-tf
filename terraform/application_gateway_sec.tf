@@ -1,9 +1,9 @@
-resource "azurerm_public_ip" "PipAppGw" {
-  count               = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
+resource "azurerm_public_ip" "PipAppGwPri" {
+  count               = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0
   
-  name                = "${var.project}-${var.environment}-pip"
+  name                = "${var.project}-${var.environment}-pip-pri"
   location            = var.region
-  domain_name_label   = "buyingcatalogue${local.shortenv}"
+  domain_name_label   = "buyingcatalogue${local.shortenv}pri"
   resource_group_name = azurerm_resource_group.appgw.name
   allocation_method   = "Static"
   sku                 = "Standard"
@@ -13,10 +13,11 @@ resource "azurerm_public_ip" "PipAppGw" {
   }
 }
 
-resource "azurerm_application_gateway" "AppGateDev" {
-  count                            = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
+### RENAMEME - AppGatePub
+resource "azurerm_application_gateway" "AppGatePri" {
+  count                            = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0
 
-  name                             = "${var.project}-${var.environment}-appgw"
+  name                             = "${var.project}-${var.environment}-appgw-pri"
   location                         = var.region
   resource_group_name              = azurerm_resource_group.appgw.name
 
@@ -86,7 +87,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
     frontend_ip_configuration_name = "${var.project}-${var.environment}-appgw-feip"
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
     protocol                       = "HTTPS"
-    host_name                      = "www.${data.azurerm_key_vault_secret.coreurl.value}" 
+    host_name                      = "www.private.${data.azurerm_key_vault_secret.coreurl.value}" 
     ssl_certificate_name           = data.azurerm_key_vault_secret.certname.value
   }
 
@@ -95,7 +96,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
     frontend_ip_configuration_name = "${var.project}-${var.environment}-appgw-feip"
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feport"
     protocol                       = "HTTP"
-    host_name                      = "www.${data.azurerm_key_vault_secret.coreurl.value}"
+    host_name                      = "www.private.${data.azurerm_key_vault_secret.coreurl.value}"
   }
 
   redirect_configuration {
@@ -137,7 +138,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
     frontend_ip_configuration_name = "${var.project}-${var.environment}-appgw-feip"
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
     protocol                       = "HTTPS"
-    host_name                      = "rancher-${data.azurerm_key_vault_secret.coreurl.value}" 
+    host_name                      = "rancher-private-${data.azurerm_key_vault_secret.coreurl.value}" 
     ssl_certificate_name           = data.azurerm_key_vault_secret.certname.value
   }
 
@@ -165,7 +166,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
 
   probe {
     name                = "rancher"
-    host                = "rancher-${data.azurerm_key_vault_secret.coreurl.value}"
+    host                = "rancher-private-${data.azurerm_key_vault_secret.coreurl.value}"
     interval            = "30"
     timeout             = "30"
     unhealthy_threshold = "3"
