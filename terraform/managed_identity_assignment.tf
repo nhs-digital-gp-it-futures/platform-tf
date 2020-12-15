@@ -1,6 +1,6 @@
 resource "azurerm_role_assignment" "managed_AG_Dev_Access" {
   count               = local.shortenv != "" ? 1 : 0 ### REMOVEME
-  scope                = azurerm_application_gateway.AppGateDev[0].id
+  scope                = azurerm_application_gateway.AppGw.id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.managed_id.principal_id
 }

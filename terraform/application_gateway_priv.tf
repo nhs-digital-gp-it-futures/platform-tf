@@ -13,8 +13,7 @@ resource "azurerm_public_ip" "PipAppGwPri" {
   }
 }
 
-### RENAMEME - AppGatePub
-resource "azurerm_application_gateway" "AppGatePri" {
+resource "azurerm_application_gateway" "AppGwPri" {
   count                            = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0
 
   name                             = "${var.project}-${var.environment}-appgw-pri"
@@ -34,7 +33,7 @@ resource "azurerm_application_gateway" "AppGatePri" {
 
   frontend_ip_configuration {
     name                           = "${var.project}-${var.environment}-appgw-feip"
-    public_ip_address_id           = azurerm_public_ip.PipAppGw[0].id
+    public_ip_address_id           = azurerm_public_ip.PipAppGwPri[0].id
   }
 
   backend_address_pool {

@@ -1,6 +1,6 @@
 resource "azurerm_public_ip" "PipAppGw" {
-  count               = local.shortenv != "" ? 1 : 0 ### REMOVEME
-  
+#  count                            = local.shortenv != "" ? 1 : 0 ### REMOVEME
+
   name                = "${var.project}-${var.environment}-pip"
   location            = var.region
   domain_name_label   = "buyingcatalogue${local.shortenv}"
@@ -14,9 +14,10 @@ resource "azurerm_public_ip" "PipAppGw" {
 }
 
 ### RENAMEME - AppGatePub
-resource "azurerm_application_gateway" "AppGateDev" {
-  count                            = local.shortenv != "" ? 1 : 0 ### REMOVEME
+#resource "azurerm_application_gateway" "AppGateDev" {
+#  count                            = local.shortenv != "" ? 1 : 0 ### REMOVEME
 
+resource "azurerm_application_gateway" "AppGw" {
   name                             = "${var.project}-${var.environment}-appgw"
   location                         = var.region
   resource_group_name              = azurerm_resource_group.appgw.name
@@ -34,7 +35,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
 
   frontend_ip_configuration {
     name                           = "${var.project}-${var.environment}-appgw-feip"
-    public_ip_address_id           = azurerm_public_ip.PipAppGw[0].id
+    public_ip_address_id           = azurerm_public_ip.PipAppGw.id
   }
 
   backend_address_pool {
