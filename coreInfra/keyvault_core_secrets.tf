@@ -178,6 +178,12 @@ resource "azurerm_key_vault_secret" "kv-srtcookiesecret" {
   tags = {
     environment = local.coreEnv
   }
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+    ]
+  }
 }
 
 resource "random_password" "password2" {
@@ -206,6 +212,12 @@ resource "azurerm_key_vault_secret" "kv_srtclientsecret" {
   
   tags = {
     environment = local.coreEnv
+  }
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+    ]
   }
 }
 
@@ -236,6 +248,12 @@ resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {
   tags = {
     environment = local.coreEnv
   }
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv_bjssvpn" {
@@ -244,6 +262,23 @@ resource "azurerm_key_vault_secret" "kv_bjssvpn" {
   name         = "${var.pjtcode}${local.coreEnv}bjssvpn"
   value        = var.kv_bjssvpn
   content_type = "BJSS VPN"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+
+resource "azurerm_key_vault_secret" "kv_nhsdoffice1" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.coreEnv}nhsdoffice1"
+  value        = var.kv_nhsdoffice1
+  content_type = "NHSD Office Network Range"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
   depends_on = [

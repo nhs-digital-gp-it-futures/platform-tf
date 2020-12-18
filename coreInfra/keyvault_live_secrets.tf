@@ -41,6 +41,12 @@ resource "azurerm_key_vault_secret" "kv-sqlpass" {
   depends_on = [
     azurerm_key_vault_access_policy.keyvault_core_access[0],
   ]
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv_addrprefix" {
@@ -92,4 +98,28 @@ resource "azurerm_key_vault_secret" "kv_certname_live" {
   depends_on = [
     azurerm_key_vault_access_policy.keyvault_core_access[0],
   ]
+}
+
+resource "azurerm_key_vault_secret" "kv_nhsdwfh" {
+  count        = local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0 
+
+  name         = "${var.pjtcode}${local.shortEnv}nhsdwfh"
+  value        = ""
+  content_type = "Allow specific NHS staff access\nWR, \nLH, \nKW, \nDE,"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  tags = {
+    environment = var.environment
+  }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+      content_type,
+    ]
+  }
 }
