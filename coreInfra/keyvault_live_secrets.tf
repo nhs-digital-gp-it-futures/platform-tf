@@ -105,7 +105,7 @@ resource "azurerm_key_vault_secret" "kv_nhsdwfh" {
 
   name         = "${var.pjtcode}${local.shortEnv}nhsdwfh"
   value        = ""
-  content_type = "Allow specific NHS staff access\nWR, \nLH, \nKW, \nDE,"
+  content_type = "Specify IP Addresses (order: WR,LH,KW,DE,others)"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
   tags = {
@@ -119,7 +119,6 @@ resource "azurerm_key_vault_secret" "kv_nhsdwfh" {
   lifecycle {
     ignore_changes = [
       value, 
-      content_type,
     ]
   }
 }
