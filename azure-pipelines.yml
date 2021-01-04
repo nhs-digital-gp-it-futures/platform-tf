@@ -638,7 +638,8 @@ jobs:
 - job: completionTasks
   displayName: Completion Tasks
   dependsOn: postDeploymentConfig
-  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  #condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(dependencies.postDeploymentConfig.result, 'Skipped'))
+  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/10771-deploy-new-test'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
   # --> left in code for future testing: condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/feature/xyz-whatever'), eq(dependencies.postDeploymentConfig.result, 'Succeeded'))
   
   steps:
