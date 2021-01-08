@@ -17,7 +17,7 @@ resource "azurerm_role_assignment" "managed_AAD_Access" {
 }
 
 resource "azurerm_role_assignment" "managed_AAD_routing_tables" {
-  scope                = azurerm_resource_group.aks_nodes
+  scope                = azurerm_resource_group.aks_nodes.id
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_user_assigned_identity.managed_id.principal_id
 }
