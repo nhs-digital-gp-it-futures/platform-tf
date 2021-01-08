@@ -15,3 +15,11 @@ resource "azurerm_role_assignment" "managed_AAD_Access" {
   role_definition_name = "Managed Identity Operator"
   principal_id         = azurerm_user_assigned_identity.managed_id.principal_id
 }
+
+resource "azurerm_role_assignment" "managed_AGPri_Dev_Access" {
+  count                = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0
+
+  scope                = azurerm_application_gateway.AppGwPri[0].id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.managed_id.principal_id
+}
