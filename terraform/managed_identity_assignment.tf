@@ -16,12 +16,6 @@ resource "azurerm_role_assignment" "managed_AAD_Access" {
   principal_id         = azurerm_user_assigned_identity.managed_id.principal_id
 }
 
-resource "azurerm_role_assignment" "managed_AAD_routing_tables" {
-  scope                = azurerm_resource_group.aks_nodes.id
-  role_definition_name = "Network Contributor"
-  principal_id         = azurerm_user_assigned_identity.managed_id.principal_id
-}
-
 resource "azurerm_role_assignment" "managed_AGPri_Dev_Access" {
   count                = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0
 
