@@ -156,11 +156,17 @@ resource "random_password" "password1" {
 
   length            = 16
   special           = true
-  override_special  = "$_%@"
+  override_special  = ".!-@"
   min_upper         = 1
   min_lower         = 1
   min_numeric       = 1
   min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv-srtcookiesecret" {
@@ -191,11 +197,17 @@ resource "random_password" "password2" {
 
   length            = 16
   special           = true
-  override_special  = "$_%@"
+  override_special  = ".!-@"
   min_upper         = 1
   min_lower         = 1
   min_numeric       = 1
   min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv_srtclientsecret" {
@@ -226,11 +238,17 @@ resource "random_password" "password3" {
 
   length            = 16
   special           = true
-  override_special  = "$_%@"
+  override_special  = ".!-@"
   min_upper         = 1
   min_lower         = 1
   min_numeric       = 1
   min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {

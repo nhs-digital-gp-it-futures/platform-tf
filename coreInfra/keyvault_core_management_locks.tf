@@ -18,8 +18,8 @@ resource "azurerm_management_lock" "keyvault_core_lock_live" {
 
   name       = "write-lock-keyvault"
   scope      = azurerm_key_vault.keyvault_core[0].id
-  lock_level = "ReadOnly"
-  notes      = "No write to Live Key Vaults"
+  lock_level = "CanNotDelete"
+  notes      = "To prevent deletion on Live Key Vaults"
 
   depends_on = [
     azurerm_key_vault_access_policy.keyvault_current_access,

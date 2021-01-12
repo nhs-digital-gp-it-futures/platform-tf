@@ -16,11 +16,17 @@ resource "azurerm_key_vault_secret" "kv-sqluser" {
 resource "random_password" "password1" {
   length            = 16
   special           = true
-  override_special  = "$_%@"
+  override_special  = ".!-@"
   min_upper         = 1
   min_lower         = 1
   min_numeric       = 1
   min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special,
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv-sqlpass" {

@@ -19,11 +19,17 @@ resource "random_password" "password11" {
   count             = local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0
   length            = 16
   special           = true
-  override_special  = "$_%@"
+  override_special  = ".!-@"
   min_upper         = 1
   min_lower         = 1
   min_numeric       = 1
   min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv-sqlpass" {
@@ -119,6 +125,7 @@ resource "azurerm_key_vault_secret" "kv_nhsdwfh" {
   lifecycle {
     ignore_changes = [
       value, 
+      content_type,
     ]
   }
 }
