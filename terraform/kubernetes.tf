@@ -1,23 +1,22 @@
-resource "azurerm_kubernetes_cluster" "aksdev" {
-  count                           = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
-
+resource "azurerm_kubernetes_cluster" "aks" {
   name                            = "${var.project}-${var.environment}-aks"
   resource_group_name             = azurerm_resource_group.aks.name
-  kubernetes_version              = local.kv_aksversion
+  kubernetes_version              = local.aksversion
   location                        = var.region
   dns_prefix                      = "${var.project}${var.environment}aksdns"
   node_resource_group             = "${var.project}-${var.environment}-rg-aks-nodes"
+  sku_tier                        = local.aksskutier
 
   default_node_pool {
-    name                          = "devnodepool"
-    vm_size                       = local.kv_aksvmsize
+    name                          = "${local.coreEnv}nodepool"
+    vm_size                       = local.aksvmsize
     vnet_subnet_id                = azurerm_subnet.aks.id
     type                          = "VirtualMachineScaleSets"
     enable_auto_scaling           = "true"
     max_pods                      = 110
-    max_count                     = local.kv_aksmaxnodes
-    min_count                     = local.kv_aksminnodes
-    node_count                    = local.kv_aksinitnodes
+    max_count                     = local.aksmaxnodes
+    min_count                     = local.aksminnodes
+    node_count                    = local.aksinitnodes
     availability_zones            = [1,2,3]
     tags = {
       environment                 = var.environment

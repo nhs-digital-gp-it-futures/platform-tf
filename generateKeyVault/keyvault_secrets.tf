@@ -16,11 +16,17 @@ resource "azurerm_key_vault_secret" "kv-sqluser" {
 resource "random_password" "password1" {
   length            = 16
   special           = true
-  override_special  = "$_%@"
+  override_special  = ".!-@"
   min_upper         = 1
   min_lower         = 1
   min_numeric       = 1
   min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special,
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv-sqlpass" {
@@ -69,7 +75,7 @@ resource "azurerm_key_vault_secret" "kv_coreurl" {
 }
 
 resource "azurerm_key_vault_secret" "kv_certname_dynamic" {
-  count = local.shortEnv != "development" && local.shortEnv != "testing" && local.shortEnv != "production" ? 1 : 0  
+  count = local.shortEnv != "development" && local.shortEnv != "preprod" && local.shortEnv != "production" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.shortEnv}certname"
   value        = "dyn-buying-catalogue-digital-nhs-uk"
@@ -103,7 +109,7 @@ resource "azurerm_key_vault_secret" "kv_certname_dev" {
 }
 
 resource "azurerm_key_vault_secret" "kv_certname_live" {
-  count = local.shortEnv == "testing" || local.shortEnv == "production" ? 1 : 0  
+  count = local.shortEnv == "preprod" || local.shortEnv == "production" ? 1 : 0  
 
   name         = "${var.pjtcode}${local.shortEnv}certname"
   value        = "buying-catalogue-digital-nhs-uk"

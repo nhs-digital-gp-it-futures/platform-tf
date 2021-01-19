@@ -22,13 +22,3 @@ resource "azurerm_sql_virtual_network_rule" "sql-pri-net" {
   server_name         = azurerm_sql_server.sql-pri.name
   subnet_id           = azurerm_subnet.aks.id
 }
-
-resource "azurerm_sql_firewall_rule" "sql-sec" {
-  count               = local.shortenv == "testing" || local.shortenv == "production" ? 1 : 0 
-
-  name                = "azure_services"
-  resource_group_name = azurerm_resource_group.sql-sec[0].name
-  server_name         = azurerm_sql_server.sql-sec-live[0].name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
-}

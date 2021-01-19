@@ -1,17 +1,18 @@
-# resource "azurerm_network_security_rule" "CorpAccess" {
-#   name                        = "AllowCorpIp"
-#   resource_group_name         = azurerm_resource_group.vnet.name
-#   network_security_group_name = azurerm_network_security_group.gateway.name
-#   destination_address_prefix  = "*"
-#   source_address_prefix       = var.corp_office_add
-#   source_port_range           = "*"
-#   destination_port_ranges     = [ "80", "443" ]
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "*"
-#   priority                    = "150"
-#   description                 = "Allow staff access who work within approved offices"
-# }
+resource "azurerm_network_security_rule" "CorpAccess" {
+  name                        = "AllowNHSDCorpIp"
+  resource_group_name         = azurerm_resource_group.appgw.name
+  network_security_group_name = azurerm_network_security_group.gateway.name
+  source_address_prefixes     = [data.azurerm_key_vault_secret.nhsdoffice1.value]
+  destination_address_prefix  = "*"
+  source_port_range           = "*"
+  destination_port_ranges     = [ "80", "443" ]
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  priority                    = "150"
+  description                 = "Allow staff access who work within approved offices"
+}
+# nhsdoffice1
 
 resource "azurerm_network_security_rule" "VPN_Access" {
   name                        = "AllowBjssVpn"
@@ -44,6 +45,30 @@ resource "azurerm_network_security_rule" "NHSD_VDI_Access" {
   protocol                    = "*"
   priority                    = "170"
   description                 = "Allow NHSD staff access who are using NHSD VDI"
+}
+
+resource "azurerm_network_security_rule" "NHSD_wfh_Access" {
+  count                       = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0 
+
+  name                        = "AllowNHSDwfh"
+  resource_group_name         = azurerm_resource_group.appgw.name
+  network_security_group_name = azurerm_network_security_group.gateway.name
+  source_address_prefixes     = ["127.0.0.1"]
+  destination_address_prefix  = "*"
+  source_port_range           = "*"
+  destination_port_ranges     = [ "80", "443" ]
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  priority                    = "180"
+  description                 = "List should include: ${data.azurerm_key_vault_secret.nhsdwfh[0].value}"
+
+  lifecycle {
+    ignore_changes = [
+      source_address_prefixes, 
+      description
+    ]
+  }
 }
 
 resource "azurerm_network_security_rule" "DevOps" {

@@ -151,11 +151,29 @@ resource "azurerm_key_vault_secret" "kv-tfstoragekey" {
   }
 }
 
+resource "random_password" "password1" {
+  count             = local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  length            = 16
+  special           = true
+  override_special  = ".!-@"
+  min_upper         = 1
+  min_lower         = 1
+  min_numeric       = 1
+  min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special, 
+    ]
+  }
+}
+
 resource "azurerm_key_vault_secret" "kv-srtcookiesecret" {
   count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "srt-cookiesecret"
-  value        = var.kv_srtcookiesecret
+  value        = var.kv_srtcookiesecret != "" ? var.kv_srtcookiesecret : random_password.password1[0].result
   content_type = "The secret needed for encoding and decoding the cookie"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
@@ -166,14 +184,38 @@ resource "azurerm_key_vault_secret" "kv-srtcookiesecret" {
   tags = {
     environment = local.coreEnv
   }
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+    ]
+  }
+}
+
+resource "random_password" "password2" {
+  count             = local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  length            = 16
+  special           = true
+  override_special  = ".!-@"
+  min_upper         = 1
+  min_lower         = 1
+  min_numeric       = 1
+  min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv_srtclientsecret" {
   count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "srt-clientsecret"
-  value        = var.kv_srtclientsecret
-  content_type = "Client secret for dev"
+  value        = var.kv_srtclientsecret != "" ? var.kv_srtclientsecret : random_password.password2[0].result
+  content_type = "Client secret for ${local.coreEnv}"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
   depends_on = [
@@ -183,13 +225,37 @@ resource "azurerm_key_vault_secret" "kv_srtclientsecret" {
   tags = {
     environment = local.coreEnv
   }
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+    ]
+  }
+}
+
+resource "random_password" "password3" {
+  count             = local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  length            = 16
+  special           = true
+  override_special  = ".!-@"
+  min_upper         = 1
+  min_lower         = 1
+  min_numeric       = 1
+  min_special       = 1
+
+  lifecycle {
+    ignore_changes = [
+      override_special, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {
   count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 
   name         = "srt-sqldevdbpass"
-  value        = var.kv_sqldevdbpass
+  value        = var.kv_sqldevdbpass != "" ? var.kv_sqldevdbpass : random_password.password3[0].result
   content_type = "Dev DB Password"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
@@ -200,6 +266,12 @@ resource "azurerm_key_vault_secret" "kv_sqldevdbpass" {
   tags = {
     environment = local.coreEnv
   }
+
+  lifecycle {
+    ignore_changes = [
+      value, 
+    ]
+  }
 }
 
 resource "azurerm_key_vault_secret" "kv_bjssvpn" {
@@ -208,6 +280,23 @@ resource "azurerm_key_vault_secret" "kv_bjssvpn" {
   name         = "${var.pjtcode}${local.coreEnv}bjssvpn"
   value        = var.kv_bjssvpn
   content_type = "BJSS VPN"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+
+resource "azurerm_key_vault_secret" "kv_nhsdoffice1" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.coreEnv}nhsdoffice1"
+  value        = var.kv_nhsdoffice1
+  content_type = "NHSD Office Network Range"
   key_vault_id = azurerm_key_vault.keyvault_core[0].id
   
   depends_on = [

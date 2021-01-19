@@ -1,6 +1,4 @@
 resource "azurerm_public_ip" "PipAppGw" {
-  count               = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
-  
   name                = "${var.project}-${var.environment}-pip"
   location            = var.region
   domain_name_label   = "buyingcatalogue${local.shortenv}"
@@ -13,9 +11,7 @@ resource "azurerm_public_ip" "PipAppGw" {
   }
 }
 
-resource "azurerm_application_gateway" "AppGateDev" {
-  count                            = local.shortenv != "testing" && local.shortenv != "production" ? 1 : 0 
-
+resource "azurerm_application_gateway" "AppGw" {
   name                             = "${var.project}-${var.environment}-appgw"
   location                         = var.region
   resource_group_name              = azurerm_resource_group.appgw.name
@@ -33,7 +29,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
 
   frontend_ip_configuration {
     name                           = "${var.project}-${var.environment}-appgw-feip"
-    public_ip_address_id           = azurerm_public_ip.PipAppGw[0].id
+    public_ip_address_id           = azurerm_public_ip.PipAppGw.id
   }
 
   backend_address_pool {
@@ -137,7 +133,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
     frontend_ip_configuration_name = "${var.project}-${var.environment}-appgw-feip"
     frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
     protocol                       = "HTTPS"
-    host_name                      = "rancher-${data.azurerm_key_vault_secret.coreurl.value}" 
+    host_name                      = "rancher-${var.environment}.${data.azurerm_key_vault_secret.coreurl.value}" 
     ssl_certificate_name           = data.azurerm_key_vault_secret.certname.value
   }
 
@@ -165,7 +161,7 @@ resource "azurerm_application_gateway" "AppGateDev" {
 
   probe {
     name                = "rancher"
-    host                = "rancher-${data.azurerm_key_vault_secret.coreurl.value}"
+    host                = "rancher-${var.environment}.${data.azurerm_key_vault_secret.coreurl.value}"
     interval            = "30"
     timeout             = "30"
     unhealthy_threshold = "3"
