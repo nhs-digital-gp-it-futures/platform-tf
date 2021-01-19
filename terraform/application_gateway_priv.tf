@@ -101,7 +101,7 @@ resource "azurerm_application_gateway" "AppGwPri" {
   redirect_configuration {
     name                          = "${var.project}-${var.environment}-appgw-rdrcfg"
     redirect_type                 = "Permanent"
-    target_url                    = "https://${data.azurerm_key_vault_secret.coreurl.value}"
+    target_url                    = "https://private.${data.azurerm_key_vault_secret.coreurl.value}"
     include_path                  = true
     include_query_string          = true
   }
@@ -130,86 +130,6 @@ resource "azurerm_application_gateway" "AppGwPri" {
     identity_ids = [azurerm_user_assigned_identity.managed_id.id]
   }
 
-  # Rancher Config
-
-  # http_listener {
-  #   name                           = "rancher"
-  #   frontend_ip_configuration_name = "${var.project}-${var.environment}-appgw-feip"
-  #   frontend_port_name             = "${var.project}-${var.environment}-appgw-feporthttps"
-  #   protocol                       = "HTTPS"
-  #   host_name                      = "rancher-private-${data.azurerm_key_vault_secret.coreurl.value}" 
-  #   ssl_certificate_name           = data.azurerm_key_vault_secret.certname.value
-  # }
-
-  # backend_address_pool {
-  #   name = "rancher"
-  # } 
-
-  # backend_http_settings {
-  #   name                  = "rancher"
-  #   cookie_based_affinity = "Disabled"
-  #   path                  = "/"
-  #   port                  = 80
-  #   protocol              = "Http"
-  #   request_timeout       = 20
-  #   probe_name            = "rancher"
-  # }
-
-  # request_routing_rule {
-  #   name                       = "rancher"
-  #   rule_type                  = "Basic"
-  #   http_listener_name         = "rancher"
-  #   backend_address_pool_name  = "rancher"
-  #   backend_http_settings_name = "rancher"
-  # }
-
-  # probe {
-  #   name                = "rancher"
-  #   host                = "rancher-private-${data.azurerm_key_vault_secret.coreurl.value}"
-  #   interval            = "30"
-  #   timeout             = "30"
-  #   unhealthy_threshold = "3"
-  #   path                = "/"
-  #   protocol            = "Http"
-  # }
-
-  # waf_configuration {
-  #   enabled                  = true
-  #   file_upload_limit_mb     = 100
-  #   firewall_mode            = "Prevention"
-  #   max_request_body_size_kb = 128
-  #   request_body_check       = true
-  #   rule_set_type            = "OWASP"
-  #   rule_set_version         = "3.1"
-
-  #   disabled_rule_group {
-  #     rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
-  #     rules           = [
-  #       942430,
-  #       942130,
-  #       942450,
-  #       942440,
-  #       942210,
-  #       942380,
-  #       942200,
-  #       942220,
-  #       942400
-  #     ]
-  #   }
-  #   disabled_rule_group {
-  #     rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
-  #     rules           = [ 920230 ]
-  #   }
-  #   disabled_rule_group {
-  #     rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
-  #     rules           = [ 931130 ]
-  #   }
-  #   disabled_rule_group {
-  #     rule_group_name = "REQUEST-932-APPLICATION-ATTACK-RCE"
-  #     rules           = [ 932115 ]
-  #   }
-  # }
-
   tags = {
     environment       = var.environment
   }
@@ -232,7 +152,7 @@ resource "azurerm_application_gateway" "AppGwPri" {
       probe,
       redirect_configuration,      
       url_path_map,     
-      tags, # AGIC adds tags which need to be ignored. Can't seem to ignore the individual tags
+      tags,
       #ssl_certificate # see issue above
     ]
   }
