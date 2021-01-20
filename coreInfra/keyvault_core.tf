@@ -9,7 +9,7 @@ resource "azurerm_key_vault" "keyvault_core" {
   sku_name                        = "standard"
   enabled_for_template_deployment = "true"
   purge_protection_enabled        = "true"
-  soft_delete_enabled             = "true"
+  #soft_delete_enabled             = "true"
 
   tags = {
     environment = local.coreEnv
