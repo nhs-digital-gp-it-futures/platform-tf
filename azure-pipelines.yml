@@ -20,7 +20,6 @@ resources:
     endpoint: nhs-digital-gp-it-futures
 
 pool:
-  #vmImage: 'ubuntu-latest'
   vmImage: 'Ubuntu-20.04'
 
 jobs:
@@ -30,7 +29,7 @@ jobs:
   variables:
     - group: dev-core-secrets
     - name: tfVersion
-      value: 0.14.4 #0.13.5
+      value: 0.14.4
 
   steps:
 
@@ -118,7 +117,7 @@ jobs:
   variables:
     - group: dev-core-secrets
     - name: tfVersion
-      value: 0.14.4 #0.13.5
+      value: 0.14.4
 
   steps:
 
