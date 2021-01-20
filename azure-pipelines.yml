@@ -363,7 +363,7 @@ jobs:
 
   - bash: |
       release=$(release)
-      agicCrdURL="rancher-$release.dynamic.buyingcatalogue.digital.nhs.uk"
+      agicCrdURL="rancher.$release.dynamic.buyingcatalogue.digital.nhs.uk"
       agicCrdName=$(echo $agicCrdURL | tr "." -)
       cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/rancher-$release-azureingressprohibitedtarget.yaml
       kubectl apply -f ./ingress/rancher-$release-azureingressprohibitedtarget.yaml -n ingress-appgw
@@ -374,7 +374,7 @@ jobs:
       helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
       helm repo update
       kubectl create namespace cattle-system
-      helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher-$(release).dynamic.buyingcatalogue.digital.nhs.uk --set tls=external
+      helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher.$(release).dynamic.buyingcatalogue.digital.nhs.uk --set tls=external
     displayName: 'Rancher - Install'
 
   ### Needed for future task - full key vault integration
