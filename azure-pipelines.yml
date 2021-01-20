@@ -20,7 +20,8 @@ resources:
     endpoint: nhs-digital-gp-it-futures
 
 pool:
-  vmImage: 'ubuntu-latest'
+  #vmImage: 'ubuntu-latest'
+  vmImage: 'Ubuntu-20.04'
 
 jobs:
 - job: buildBranchKeyVault
