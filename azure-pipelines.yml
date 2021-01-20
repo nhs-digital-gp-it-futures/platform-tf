@@ -20,7 +20,7 @@ resources:
     endpoint: nhs-digital-gp-it-futures
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'Ubuntu-20.04'
 
 jobs:
 - job: buildBranchKeyVault
@@ -29,7 +29,7 @@ jobs:
   variables:
     - group: dev-core-secrets
     - name: tfVersion
-      value: 0.13.5
+      value: 0.14.4
 
   steps:
 
@@ -117,7 +117,7 @@ jobs:
   variables:
     - group: dev-core-secrets
     - name: tfVersion
-      value: 0.13.5
+      value: 0.14.4
 
   steps:
 
@@ -589,6 +589,7 @@ jobs:
   - task: AzureCLI@2
     name: addRancherBackendNodes
     displayName: Add Rancher Backend Nodes 
+    continueOnError: true
     inputs:
       azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
       scriptType: 'bash'
@@ -597,6 +598,10 @@ jobs:
         ipArr=()
         ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
         az network application-gateway address-pool update -g gpitfutures-$(release)-rg-appgw --gateway-name gpitfutures-$(release)-appgw -n rancher --servers $ipArr  
+
+  - bash: |
+        helm uninstall sel-grid -n selenium-grid
+    displayName: Uninstall Selenium Grid    
 
   - task: AzureCLI@2
     name: enableEnhancedAKSFirewall
@@ -624,10 +629,6 @@ jobs:
           if [ -n "$storageAccount" ]; then  
             az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny > /dev/null
           fi
-
-  - bash: |
-      helm uninstall sel-grid -n selenium-grid
-    displayName: Uninstall Selenium Grid    
 
 # Required for future task - enabling key vault             
 #--helm-upgrade-args "--set keyVault.enabled=true --set keyVault.name=gpit-$releaseNoPunct-kv --set keyVault.isapiCertificateSecretName=buyingcatalogue$releaseNoPunct" 

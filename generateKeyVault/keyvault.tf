@@ -7,7 +7,6 @@ resource "azurerm_key_vault" "keyvault" {
   sku_name                        = "standard"
   enabled_for_template_deployment = "true"
   purge_protection_enabled        = "false"
-  soft_delete_enabled             = "true"
 
   # network_acls {
   #   default_action             = "Deny"
