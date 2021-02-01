@@ -73,41 +73,44 @@ resource "azurerm_key_vault_secret" "kv_aksclustercacert" {
   }
 }
 
-resource "azurerm_key_vault_secret" "kv_devsa" {
-  count        = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
+# resource "azurerm_key_vault_secret" "kv_devsa" {
+#   count        = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
 
-  name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstring"
-  value        = azurerm_storage_account.data_gen[0].primary_connection_string
-  content_type = "${var.project}-Connection-String"
-  key_vault_id = local.kv_id
+#   name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstring"
+#   #value        = azurerm_storage_account.data_gen[0].primary_connection_string
+#   value        = module.storage_account_gen[0].primary_connection_string
+#   content_type = "${var.project}-Connection-String"
+#   key_vault_id = local.kv_id
   
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
-resource "azurerm_key_vault_secret" "kv_pubsa" {
-  count        = local.shortenv == "preprod" && local.shortenv == "production" ? 1 : 0 
+# resource "azurerm_key_vault_secret" "kv_pubsa" {
+#   count        = local.shortenv == "preprod" && local.shortenv == "production" ? 1 : 0 
 
-  name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpub"
-  value        = azurerm_storage_account.data_pub[0].primary_connection_string
-  content_type = "${var.project}-Connection-String"
-  key_vault_id = local.kv_id
+#   name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpub"
+#   #value        = azurerm_storage_account.data_pub[0].primary_connection_string
+#   value        = module.storage_account_pub[0].primary_connection_string
+#   content_type = "${var.project}-Connection-String"
+#   key_vault_id = local.kv_id
   
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
-resource "azurerm_key_vault_secret" "kv_prisa" {
-  count        = local.shortenv == "preprod" && local.shortenv == "production" ? 1 : 0 
+# resource "azurerm_key_vault_secret" "kv_prisa" {
+#   count        = local.shortenv == "preprod" && local.shortenv == "production" ? 1 : 0 
 
-  name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpri"
-  value        = azurerm_storage_account.data_pri[0].primary_connection_string
-  content_type = "${var.project}-Connection-String"
-  key_vault_id = local.kv_id
+#   name         = "${var.pjtcode}${local.shortenv}storageaccountconnectionstringpri"
+#   #value        = azurerm_storage_account.data_pri[0].primary_connection_string
+#   value        = module.storage_account_pri[0].primary_connection_string
+#   content_type = "${var.project}-Connection-String"
+#   key_vault_id = local.kv_id
   
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
