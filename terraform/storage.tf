@@ -1,5 +1,5 @@
 module "storage_account_gen" {
-  source                = "../modules/bc_storage_account"
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_storage_account"
 
   count                 = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
   
@@ -21,7 +21,7 @@ module "storage_account_gen" {
 }
 
 module "storage_account_pri" {
-  source                = "../modules/bc_storage_account"
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_storage_account"
 
   count                 = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0 
   
@@ -43,7 +43,7 @@ module "storage_account_pri" {
 }
 
 module "storage_account_pub" {
-  source                = "../modules/bc_storage_account"
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_storage_account"
 
   count                 = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0 
   

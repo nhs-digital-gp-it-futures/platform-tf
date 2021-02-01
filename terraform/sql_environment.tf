@@ -1,5 +1,5 @@
 module "sql_server_pri" {
-  source                = "../modules/bc_sql_server"
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_sql_server"
   
   environment           = var.environment
   region                = var.region
@@ -16,7 +16,7 @@ module "sql_server_pri" {
 }
 
 module "sql_server_sec" {
-  source                = "../modules/bc_sql_server"
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_sql_server"
 
   count                 = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0 
   
@@ -35,7 +35,7 @@ module "sql_server_sec" {
 }
 
 module "sql_databases" {
-  source                = "../modules/bc_sql_databases"
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_sql_databases"
 
   count                 = local.shortenv == "preprod" || local.shortenv == "production" ? 1 : 0 
   
