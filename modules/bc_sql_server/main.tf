@@ -1,10 +1,10 @@
-resource "azurerm_sql_server" "sql-server" {
-  name                         = var.sql_name#"${var.project}-${var.environment}-sql-pri"
-  resource_group_name          = var.rg_name # azurerm_resource_group.sql-pri.name
+resource "azurerm_sql_server" "sql_server" {
+  name                         = var.sqlsvr_name
+  resource_group_name          = var.rg_name
   location                     = var.region
   version                      = var.sql_version
-  administrator_login          = data.azurerm_key_vault_secret.sqladminusername.value
-  administrator_login_password = data.azurerm_key_vault_secret.sqladminpassword.value
+  administrator_login          = var.sql_admin_username
+  administrator_login_password = var.sql_admin_password
 
   tags = {
     environment                = var.environment

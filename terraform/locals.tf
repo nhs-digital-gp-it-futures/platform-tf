@@ -9,4 +9,6 @@ locals {
   # Rancher URL calculator
   rancherEnv = local.shortenv != "preprod" && local.shortenv != "production" ? var.environment : local.liveEnv
   envURL = replace(data.azurerm_key_vault_secret.coreurl.value, "${local.rancherEnv}.","")
+  # SQL Alternate Region
+  sql_region2   = "ukwest"
 }

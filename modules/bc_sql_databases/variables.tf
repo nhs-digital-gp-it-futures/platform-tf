@@ -7,27 +7,30 @@ variable "project" {
 variable "region" {
   type = string
 }
+variable "db_name" {
+  type = string
+}
 variable "rg_name" {
   type = string
 }
-variable "storage_account_name" {
+variable "sqlsvr_name" {
   type = string
 }
-variable "replication_type" {
+variable "region_replica" {
   type = string
 }
-variable "container_name" {
+variable "rg_replica_name" {
   type = string
 }
-variable "ip_rules" {
-  type = list(string)
-}
-variable "aks_subnet_id" {
+variable "sqlsvr_replica_name" {
   type = string
 }
-variable "kv_id" {
+variable "sql_collation" {
   type = string
 }
-variable "kv_key" {
+variable "sql_edition" {
+  type = string
+}
+variable "sql_size" {
   type = string
 }
