@@ -12,7 +12,7 @@ module "appgw_public" {
   ag_subnet_id            = azurerm_subnet.gateway.id
   core_url                = data.azurerm_key_vault_secret.coreurl.value
   ssl_cert_name           = data.azurerm_key_vault_secret.certname.value
-  ssl_cert_secret_id      = data.azurerm_key_vault_secret.ssl_cert.id
+  ssl_cert_secret_id      = trimsuffix(data.azurerm_key_vault_secret.ssl_cert.id, data.azurerm_key_vault_secret.ssl_cert.version) # data.azurerm_key_vault_secret.ssl_cert.id
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "buyingcatalogue${local.shortenv}"
   pip_name                = "${var.project}-${var.environment}-pip"
@@ -37,7 +37,7 @@ module "appgw_private" {
   ag_subnet_id            = azurerm_subnet.gateway.id
   core_url                = "private.${data.azurerm_key_vault_secret.coreurl.value}"
   ssl_cert_name           = data.azurerm_key_vault_secret.certname.value
-  ssl_cert_secret_id      = data.azurerm_key_vault_secret.ssl_cert.id
+  ssl_cert_secret_id      = trimsuffix(data.azurerm_key_vault_secret.ssl_cert.id, data.azurerm_key_vault_secret.ssl_cert.version)
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "buyingcatalogue${local.shortenv}pri"
   pip_name                = "${var.project}-${var.environment}-pip-pri"
@@ -62,7 +62,7 @@ module "appgw_public_prod" {
   ag_subnet_id            = azurerm_subnet.gateway.id
   core_url                = data.azurerm_key_vault_secret.coreurl.value
   ssl_cert_name           = data.azurerm_key_vault_secret.certname.value
-  ssl_cert_secret_id      = data.azurerm_key_vault_secret.ssl_cert.id
+  ssl_cert_secret_id      = trimsuffix(data.azurerm_key_vault_secret.ssl_cert.id, data.azurerm_key_vault_secret.ssl_cert.version)
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "buyingcatalogue${local.shortenv}"
   pip_name                = "${var.project}-${var.environment}-pip"
@@ -87,7 +87,7 @@ module "appgw_private_prod" {
   ag_subnet_id            = azurerm_subnet.gateway.id
   core_url                = "private.${data.azurerm_key_vault_secret.coreurl.value}"
   ssl_cert_name           = data.azurerm_key_vault_secret.certname.value
-  ssl_cert_secret_id      = data.azurerm_key_vault_secret.ssl_cert.id
+  ssl_cert_secret_id      = trimsuffix(data.azurerm_key_vault_secret.ssl_cert.id, data.azurerm_key_vault_secret.ssl_cert.version)
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "buyingcatalogue${local.shortenv}pri"
   pip_name                = "${var.project}-${var.environment}-pip-pri"
