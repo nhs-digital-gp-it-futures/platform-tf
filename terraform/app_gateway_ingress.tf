@@ -1,6 +1,6 @@
 module "appgw_public" {
   source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress_rancher"
-  
+
   count                   = local.shortenv != "production" ? 1 : 0 
   
   environment             = var.environment
