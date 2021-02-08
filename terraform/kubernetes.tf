@@ -1,82 +1,26 @@
-resource "azurerm_kubernetes_cluster" "aks" {
-  name                            = "${var.project}-${var.environment}-aks"
-  resource_group_name             = azurerm_resource_group.aks.name
-  kubernetes_version              = local.aksversion
-  location                        = var.region
-  dns_prefix                      = "${var.project}${var.environment}aksdns"
-  node_resource_group             = "${var.project}-${var.environment}-rg-aks-nodes"
-  sku_tier                        = local.aksskutier
+module "kubernetes" {
+  source            = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_kubernetes"
 
-  default_node_pool {
-    name                          = "${local.coreEnv}nodepool"
-    vm_size                       = local.aksvmsize
-    vnet_subnet_id                = azurerm_subnet.aks.id
-    type                          = "VirtualMachineScaleSets"
-    enable_auto_scaling           = "true"
-    max_pods                      = 110
-    max_count                     = local.aksmaxnodes
-    min_count                     = local.aksminnodes
-    node_count                    = local.aksinitnodes
-    availability_zones            = [1,2,3]
-    tags = {
-      environment                 = var.environment
-    }
-  }
-
-  # azure_policy {
-  #   enabled = "true"
-  # }
-
-  service_principal {
-    client_id                     = data.azurerm_key_vault_secret.spnappid.value
-    client_secret                 = data.azurerm_key_vault_secret.spnsecret.value
-  }
-
-  network_profile {
-    load_balancer_sku             = "standard"
-    network_plugin                = "azure"
-    network_policy                = "azure"
-    service_cidr                  = "${data.azurerm_key_vault_secret.addrprefix.value}.128.0/24"
-    docker_bridge_cidr            = "${data.azurerm_key_vault_secret.addrprefix.value}.129.1/24"
-    dns_service_ip                = "${data.azurerm_key_vault_secret.addrprefix.value}.128.111"
-  }
-
-  addon_profile {
-    kube_dashboard {
-      enabled                     = true
-    }
-
-    oms_agent {
-      enabled                     = false
-    }
-
-    http_application_routing {
-      enabled                     = false
-    }
-  }
-
-  api_server_authorized_ip_ranges = [
+  environment       = var.environment
+  region            = var.region
+  project           = var.project
+  rg_name           = azurerm_resource_group.aks.name
+  ag_name_fragment  = "${var.project}-${var.environment}"
+  aks_version       = "1.18.10"
+  aks_sku_tier      = local.shortenv != "preprod" && local.shortenv != "production" ? "Free" : "Paid"
+  aks_nodepool      = "${local.coreEnv}nodepool"
+  aks_vmsize        = "Standard_F4s_v2"
+  aks_init_nodes    = local.shortenv != "development" && local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 2
+  aks_max_nodes     = local.shortenv != "development" && local.shortenv != "preprod" && local.shortenv != "production" ? 2 : 3
+  aks_min_nodes     = local.shortenv != "development" && local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 1
+  aks_subnet_id     = azurerm_subnet.aks.id
+  subnet_prefix     = data.azurerm_key_vault_secret.addrprefix.value
+  aks_dns_prefix    = "${var.project}${var.environment}aksdns"
+  ip_rules          = [
     "${data.azurerm_key_vault_secret.bjssvpn.value}/32",
-    ]
-
-  enable_pod_security_policy      = "false"
-
-  role_based_access_control {
-    enabled                       = "true"
-  }
-
-  # ### May be needed for key vault integration ###
-  # identity {
-  #   type = "SystemAssigned"
-  # } 
-
-  tags = {
-    environment                   = var.environment
-  }
-
-lifecycle {
-    ignore_changes = [
-      default_node_pool[0].node_count
-    ]
-  }
+  ]
+  spn_id            = data.azurerm_key_vault_secret.spnappid.value
+  spn_secret        = data.azurerm_key_vault_secret.spnsecret.value
+  kv_id             = local.kv_id
+  kv_key            = "${var.pjtcode}${local.shortenv}aks"
 }

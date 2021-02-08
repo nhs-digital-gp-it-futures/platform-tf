@@ -10,7 +10,7 @@ resource "azurerm_dns_cname_record" "dyn_cname" {
     zone_name           = data.azurerm_dns_zone.dyn_zone[0].name
     resource_group_name = "gpitfutures-dynamic-rg"
     ttl                 = 60
-    record              = azurerm_public_ip.PipAppGw.fqdn
+    record              = module.appgw_public[0].appgw_pip_fqdn
 }
 
 resource "azurerm_dns_cname_record" "rancher_cname" {
@@ -19,7 +19,7 @@ resource "azurerm_dns_cname_record" "rancher_cname" {
     zone_name           = data.azurerm_dns_zone.dyn_zone[0].name
     resource_group_name = "gpitfutures-dynamic-rg"
     ttl                 = 60
-    record              = azurerm_public_ip.PipAppGw.fqdn
+    record              = module.appgw_public[0].appgw_pip_fqdn
 }
 
 resource "azurerm_dns_cname_record" "www_cname" {
@@ -28,5 +28,5 @@ resource "azurerm_dns_cname_record" "www_cname" {
     zone_name           = data.azurerm_dns_zone.dyn_zone[0].name
     resource_group_name = "gpitfutures-dynamic-rg"
     ttl                 = 60
-    record              = azurerm_public_ip.PipAppGw.fqdn
+    record              = module.appgw_public[0].appgw_pip_fqdn
 }

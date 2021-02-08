@@ -7,7 +7,11 @@ This environment is still being assembled - at each major milestone (Azure build
 
 Status: A fully fledged standalone Dynamic environment can be created by branching this code base. This will fully deploy the BC infrastructure, set up the environment and then deploy the Buying Catalogue to it. 
 
-Once the branch above has been merged, the pipeline will deploy the code to the Development environment.
+Once the branch above has been merged, the pipeline will deploy the code to the Development environment and once approved onto the Preprod Test environment. 
+
+# Dependencies
+
+This code is dependent on the Platform Terraform Modules repository (https://github.com/nhs-digital-gp-it-futures/platform-tf-modules/) where most of the code has been modularised out to.
 
 # Description
 

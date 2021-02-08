@@ -65,6 +65,7 @@ resource "azurerm_network_security_rule" "NHSD_wfh_Access" {
 
   lifecycle {
     ignore_changes = [
+      source_address_prefix,
       source_address_prefixes, 
       description
     ]
