@@ -12,7 +12,15 @@ module "sql_server_pri" {
   sqladmins             = data.azurerm_key_vault_secret.sqladmins.value
   bjssvpn               = data.azurerm_key_vault_secret.bjssvpn.value
   mastekvpn             = "1.1.1.1"
-  aks_subnet_id         = azurerm_subnet.aks.id
+}
+
+# SQL Firewall rule to allow subnet access from aks network 
+# Note cannot be in module due to conditional syntax on creation
+resource "azurerm_sql_virtual_network_rule" "sql_aks_net" {
+  name                = "${var.project}-${var.environment}-aks-subnet-rule"
+  resource_group_name = azurerm_resource_group.sql-pri.name
+  server_name         = "${var.project}-${var.environment}-sql-pri"
+  subnet_id           = azurerm_subnet.aks.id
 }
 
 module "sql_server_sec" {
@@ -31,7 +39,6 @@ module "sql_server_sec" {
   sqladmins             = data.azurerm_key_vault_secret.sqladmins.value
   bjssvpn               = data.azurerm_key_vault_secret.bjssvpn.value
   mastekvpn             = "1.1.1.1"
-  aks_subnet_id         = ""
 }
 
 module "sql_databases" {
