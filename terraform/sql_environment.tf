@@ -21,6 +21,10 @@ resource "azurerm_sql_virtual_network_rule" "sql_aks_net" {
   resource_group_name = azurerm_resource_group.sql-pri.name
   server_name         = "${var.project}-${var.environment}-sql-pri"
   subnet_id           = azurerm_subnet.aks.id
+
+  depends_on = [
+      module.sql_server_pri
+  ]
 }
 
 module "sql_server_sec" {
