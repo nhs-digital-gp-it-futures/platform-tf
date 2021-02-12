@@ -291,6 +291,40 @@ resource "azurerm_key_vault_secret" "kv_bjssvpn" {
   }
 }
 
+resource "azurerm_key_vault_secret" "kv_mastekvpn1" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.coreEnv}mastekvpn1"
+  value        = var.kv_mastekvpn1
+  content_type = "MASTEK VPN PRIMARY IP"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+
+resource "azurerm_key_vault_secret" "kv_mastekvpn2" {
+  count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
+
+  name         = "${var.pjtcode}${local.coreEnv}mastekvpn2"
+  value        = var.kv_mastekvpn2
+  content_type = "MASTEK VPN SECONDARY IP"
+  key_vault_id = azurerm_key_vault.keyvault_core[0].id
+  
+  depends_on = [
+    azurerm_key_vault_access_policy.keyvault_core_access[0],
+  ]
+  
+  tags = {
+    environment = local.coreEnv
+  }
+}
+
 resource "azurerm_key_vault_secret" "kv_nhsdoffice1" {
   count = local.coreEnv == "dev" || local.coreEnv == "test" || local.coreEnv == "prod" ? 1 : 0  
 

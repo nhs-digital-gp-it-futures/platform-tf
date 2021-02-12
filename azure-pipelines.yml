@@ -215,6 +215,7 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
           az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "" > /dev/null
+          ping -c 60 127.0.0.1
 
   - bash: |
       echo "Checking if this is first run..."

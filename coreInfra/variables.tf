@@ -46,6 +46,14 @@ variable "kv_bjssvpn" {
   type = string
 }
 
+variable "kv_mastekvpn1" {
+  type = string
+}
+
+variable "kv_mastekvpn2" {
+  type = string
+}
+
 variable "kv_nhsdoffice1" {
   type = string
 }
