@@ -180,9 +180,7 @@ jobs:
         azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: |
-            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny | grep defaultAction
-            ping -c 60 127.0.0.1
+        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny | grep defaultAction
 
 - job: checkIfFirstRun 
 
@@ -216,7 +214,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "" > /dev/null
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "" | grep authorizedIpRanges
           ping -c 60 127.0.0.1
 
   - bash: |
@@ -615,7 +613,9 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
           ipRange=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevbjssvpn" --query value -o tsv)
-          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange" > /dev/null
+          ipRange+=",$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevmastekvpn1" --query value -o tsv)"
+          ipRange+=",$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevmastekvpn2" --query value -o tsv)"
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange" | grep authorizedIpRanges -A 3
 
   - task: AzureCLI@2
     name: enableEnhancedStorageFirewall
