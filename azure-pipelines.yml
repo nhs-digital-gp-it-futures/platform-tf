@@ -50,8 +50,8 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
             # Disable Terraform firewall
-            echo "Disabling Terraform Firewall"
-            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow | grep defaultAction
+            # echo "Disabling Terraform Firewall"
+            # az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow | grep defaultAction
 
             # Check and Disable storage account firewall
             release=$(release)
