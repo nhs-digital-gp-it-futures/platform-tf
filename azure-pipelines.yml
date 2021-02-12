@@ -51,7 +51,7 @@ jobs:
         inlineScript: |
             # Disable Terraform firewall
             echo "Disabling Terraform Firewall"
-            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow >/dev/null
+            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow | grep defaultAction
 
             # Check and Disable storage account firewall
             release=$(release)
@@ -60,7 +60,7 @@ jobs:
 
             if [ -n "$storageAccount" ]; then  
               echo "Disabling Storage Firewall"
-              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow >/dev/null
+              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow  | grep defaultAction
             fi
 
             echo "wait 60 seconds to apply SA Firewall Disables"
@@ -180,7 +180,9 @@ jobs:
         azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny >/dev/null
+        inlineScript: |
+            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny | grep defaultAction
+            ping -c 60 127.0.0.1
 
 - job: checkIfFirstRun 
 
@@ -628,7 +630,7 @@ jobs:
           storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
 
           if [ -n "$storageAccount" ]; then  
-            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny > /dev/null
+            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny | grep defaultAction
           fi
 
 # Required for future task - enabling key vault             
