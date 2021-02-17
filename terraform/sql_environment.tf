@@ -11,7 +11,7 @@ module "sql_server_pri" {
   sql_admin_password    = data.azurerm_key_vault_secret.sqladminpassword.value
   sqladmins             = data.azurerm_key_vault_secret.sqladmins.value
   bjssvpn               = data.azurerm_key_vault_secret.bjssvpn.value
-  mastekvpn             = "1.1.1.1"
+  mastekvpn             = data.azurerm_key_vault_secret.mastekvpn1.value
 }
 
 # SQL Firewall rule to allow subnet access from aks network 
@@ -42,7 +42,7 @@ module "sql_server_sec" {
   sql_admin_password    = data.azurerm_key_vault_secret.sqladminpassword.value
   sqladmins             = data.azurerm_key_vault_secret.sqladmins.value
   bjssvpn               = data.azurerm_key_vault_secret.bjssvpn.value
-  mastekvpn             = "1.1.1.1"
+  mastekvpn             = data.azurerm_key_vault_secret.mastekvpn1.value
 }
 
 module "sql_databases" {

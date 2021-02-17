@@ -18,6 +18,8 @@ module "kubernetes" {
   aks_dns_prefix    = "${var.project}${var.environment}aksdns"
   ip_rules          = [
     "${data.azurerm_key_vault_secret.bjssvpn.value}/32",
+    "${data.azurerm_key_vault_secret.mastekvpn1.value}/32",
+    "${data.azurerm_key_vault_secret.mastekvpn2.value}/32",
   ]
   spn_id            = data.azurerm_key_vault_secret.spnappid.value
   spn_secret        = data.azurerm_key_vault_secret.spnsecret.value

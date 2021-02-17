@@ -13,6 +13,8 @@ module "storage_account_gen" {
   aks_subnet_id         = azurerm_subnet.aks.id
   ip_rules              = [
     data.azurerm_key_vault_secret.bjssvpn.value,
+    data.azurerm_key_vault_secret.mastekvpn1.value,
+    data.azurerm_key_vault_secret.mastekvpn2.value,
     data.azurerm_key_vault_secret.nhsdvdi1.value, 
     data.azurerm_key_vault_secret.nhsdvdi2.value,
   ]
@@ -35,6 +37,8 @@ module "storage_account_pri" {
   aks_subnet_id         = azurerm_subnet.aks.id
   ip_rules              = [
     data.azurerm_key_vault_secret.bjssvpn.value,
+    data.azurerm_key_vault_secret.mastekvpn1.value,
+    data.azurerm_key_vault_secret.mastekvpn2.value,
     data.azurerm_key_vault_secret.nhsdvdi1.value, 
     data.azurerm_key_vault_secret.nhsdvdi2.value,
   ]
@@ -57,6 +61,8 @@ module "storage_account_pub" {
   aks_subnet_id         = azurerm_subnet.aks.id
   ip_rules              = [
     data.azurerm_key_vault_secret.bjssvpn.value,
+    data.azurerm_key_vault_secret.mastekvpn1.value,
+    data.azurerm_key_vault_secret.mastekvpn2.value,    
     data.azurerm_key_vault_secret.nhsdvdi1.value, 
     data.azurerm_key_vault_secret.nhsdvdi2.value,
   ]

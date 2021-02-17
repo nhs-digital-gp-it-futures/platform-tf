@@ -51,7 +51,7 @@ jobs:
         inlineScript: |
             # Disable Terraform firewall
             echo "Disabling Terraform Firewall"
-            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow >/dev/null
+            az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Allow | grep defaultAction
 
             # Check and Disable storage account firewall
             release=$(release)
@@ -60,7 +60,7 @@ jobs:
 
             if [ -n "$storageAccount" ]; then  
               echo "Disabling Storage Firewall"
-              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow >/dev/null
+              az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Allow  | grep defaultAction
             fi
 
             echo "wait 60 seconds to apply SA Firewall Disables"
@@ -180,7 +180,7 @@ jobs:
         azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny >/dev/null
+        inlineScript: az storage account update --resource-group gpitfutures-rg-sa --name gpitfuturessatf --default-action Deny | grep defaultAction
 
 - job: checkIfFirstRun 
 
@@ -214,7 +214,8 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "" > /dev/null
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "" | grep authorizedIpRanges
+          ping -c 60 127.0.0.1
 
   - bash: |
       echo "Checking if this is first run..."
@@ -612,7 +613,9 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
           ipRange=$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevbjssvpn" --query value -o tsv)
-          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange" > /dev/null
+          ipRange+=",$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevmastekvpn1" --query value -o tsv)"
+          ipRange+=",$(az keyvault secret show --vault-name gpitfutures-dev-core-kv --name "gpitdevmastekvpn2" --query value -o tsv)"
+          az aks update -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks --api-server-authorized-ip-ranges "$ipRange" | grep authorizedIpRanges -A 3
 
   - task: AzureCLI@2
     name: enableEnhancedStorageFirewall
@@ -627,7 +630,7 @@ jobs:
           storageAccount=$(az storage account show --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct 2>/dev/null)
 
           if [ -n "$storageAccount" ]; then  
-            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny > /dev/null
+            az storage account update --resource-group gpitfutures-$release-rg-sa --name gpitfutures$releaseNoPunct --default-action Deny | grep defaultAction
           fi
 
 # Required for future task - enabling key vault             
