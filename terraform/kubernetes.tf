@@ -6,7 +6,7 @@ module "kubernetes" {
   project           = var.project
   rg_name           = azurerm_resource_group.aks.name
   ag_name_fragment  = "${var.project}-${var.environment}"
-  aks_version       = "1.18.10"
+  aks_version       = "1.19.7"
   aks_sku_tier      = local.shortenv != "preprod" && local.shortenv != "production" ? "Free" : "Paid"
   aks_nodepool      = "${local.coreEnv}nodepool"
   aks_vmsize        = "Standard_F4s_v2"
