@@ -256,7 +256,7 @@ jobs:
 
   - bash: |
       helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-      helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+      helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
     name: installK8sDashboard
     displayName: Install K8s Dashboard 
 
