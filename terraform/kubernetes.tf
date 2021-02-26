@@ -25,4 +25,5 @@ module "kubernetes" {
   spn_secret        = data.azurerm_key_vault_secret.spnsecret.value
   kv_id             = local.kv_id
   kv_key            = "${var.pjtcode}${local.shortenv}aks"
+  kube_dashboard    = "false"
 }

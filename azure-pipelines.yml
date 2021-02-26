@@ -254,6 +254,12 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: 'az aks get-credentials -n gpitfutures-$(release)-aks -g gpitfutures-$(release)-rg-aks'
 
+  - bash: |
+      helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+      helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+    name: installK8sDashboard
+    displayName: Install K8s Dashboard 
+
   - task: AzureCLI@2
     name: kubectlCreateIngressNamespace
     displayName: Create Ingress Namespace
