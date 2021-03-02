@@ -1,6 +1,7 @@
 # Table of Contents
 - [Deploy Terraform](#Deploy-Terraform)
   * [Prerequisites - TF](#Prerequisites---TF)
+  * [Run Terraform](#Run-Terraform)
   
 # Deploy Terraform
 
