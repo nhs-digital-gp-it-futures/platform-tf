@@ -21,5 +21,3 @@ resource "azurerm_resource_group" "appgw" {
     environment = var.environment
   }
 }
-
-

@@ -25,15 +25,3 @@ variable "addrprefix" {
 variable "ssl_certname" {
   type = string
 }
-
-# variable "rancher_url" {
-#   type = string
-# }
-
-# variable "keyvault" {
-#   type = string
-# }
-
-# variable "keyvaultrg" {
-#   type = string
-# }
