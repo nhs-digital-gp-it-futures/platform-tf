@@ -10,7 +10,4 @@ resource "azurerm_dns_cname_record" "rancher_cname" {
     ttl                 = 60
     record              = module.appgw_public.appgw_pip_fqdn
 
-    # depends_on = [
-    #     module.appgw_public
-    # ]
 }

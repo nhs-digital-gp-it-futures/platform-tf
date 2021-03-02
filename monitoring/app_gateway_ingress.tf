@@ -10,7 +10,7 @@ module "appgw_public" {
   ag_subnet_id            = azurerm_subnet.gateway.id
   core_url                = azurerm_dns_cname_record.rancher_cname.fqdn
   ssl_cert_name           = var.ssl_certname
-  ssl_cert_secret_id      = trimsuffix(data.azurerm_key_vault_secret.ssl_cert.id, data.azurerm_key_vault_secret.ssl_cert.version) # data.azurerm_key_vault_secret.ssl_cert.id
+  ssl_cert_secret_id      = trimsuffix(data.azurerm_key_vault_secret.ssl_cert.id, data.azurerm_key_vault_secret.ssl_cert.version)
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "${local.pjtcode}rancher"
   pip_name                = "${var.project}-${var.environment}-pip"

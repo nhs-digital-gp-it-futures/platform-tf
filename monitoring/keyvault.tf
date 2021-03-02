@@ -8,16 +8,19 @@ resource "azurerm_key_vault" "keyvault" {
   enabled_for_template_deployment = "true"
   purge_protection_enabled        = "false"
 
-  # network_acls {
-  #   default_action             = "Deny"
-  #   bypass                     = "AzureServices"
-  #   virtual_network_subnet_ids = [azurerm_subnet.aks.id]
-  #   ip_rules                   = [
-  #     data.azurerm_key_vault_secret.bjssvpn.value,
-  #     data.azurerm_key_vault_secret.mastekvpn1.value,
-  #     data.azurerm_key_vault_secret.mastekvpn2.value,
-  #     ]
-  # }
+  network_acls {
+    default_action             = "Deny"
+    bypass                     = "AzureServices"
+    virtual_network_subnet_ids = [
+      azurerm_subnet.aks.id,
+      azurerm_subnet.gateway.id,
+      ]
+    ip_rules                   = [
+      data.azurerm_key_vault_secret.bjssvpn.value,
+      data.azurerm_key_vault_secret.mastekvpn1.value,
+      data.azurerm_key_vault_secret.mastekvpn2.value,
+      ]
+  }
 
   tags = {
     environment = var.environment
