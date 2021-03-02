@@ -6,7 +6,7 @@ trigger:
       - feature/*
   paths:
     include:
-    - /*
+      - /*
     exclude:
       - monitoring
       - monitoring/*
@@ -14,12 +14,12 @@ trigger:
 pr:
   branches:
     exclude:
-    - master
-    - feature/*
-    - '*'
+      - master
+      - feature/*
+      - '*'
   paths:
     include:
-    - /*
+      - /*
     exclude:
       - monitoring
       - monitoring/*
