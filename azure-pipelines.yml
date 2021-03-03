@@ -4,13 +4,25 @@ trigger:
     include:
       - master
       - feature/*
+  paths:
+    include:
+      - /*
+    exclude:
+      - monitoring
+      - monitoring/*
 
 pr:
   branches:
     exclude:
-    - master
-    - feature/*
-    - '*'
+      - master
+      - feature/*
+      - '*'
+  paths:
+    include:
+      - /*
+    exclude:
+      - monitoring
+      - monitoring/*
 
 resources:
   repositories:
