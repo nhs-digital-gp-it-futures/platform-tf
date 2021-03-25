@@ -7,3 +7,5 @@
 /temp_modules
 
 */\.vs/
+
+/monitoring/scripts/ingress/*
