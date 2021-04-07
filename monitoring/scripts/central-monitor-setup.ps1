@@ -1,5 +1,3 @@
-http_listener
-
 # Listener
 az network application-gateway http-listener create -g gpitfutures-monitor-rg-appgw --gateway-name gpitfutures-monitor-appgw --frontend-port gpitfutures-monitor-appgw-feporthttps -n rancher --frontend-ip gpitfutures-monitor-appgw-feip --host-name "rancher.dynamic.buyingcatalogue.digital.nhs.uk" --ssl-cert dyn-buying-catalogue-digital-nhs-uk
 
@@ -23,19 +21,15 @@ helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --cr
 
 kubectl create namespace ingress-appgw
 
-cd <path-to-repo>\platform-tf\monitoring\
+set-location "<path-to-repo>\platform-tf\monitoring\"
 
 kubectl create -f "../ingress/deployment-rbac.yaml"
-
-#az identity list -g gpitfutures-monitor-rg-aks -o json > ./ingress/monitor-msi.txt
 
 $aadClientId=$(az identity list --query "[?name=='gpitfutures-monitor-aad-id'].clientId" -o tsv)
 $aadIdPath=$(az identity list --query "[?name=='gpitfutures-monitor-aad-id'].id" -o tsv)
 $aksSpId=$(az aks list -g gpitfutures-monitor-rg-aks --query "[?name=='gpitfutures-monitor-aks'].servicePrincipalProfile.clientId" -o tsv)
 $aksFqdn=$(az aks list -g gpitfutures-monitor-rg-aks --query "[?name=='gpitfutures-monitor-aks'].fqdn" -o tsv)
-$appgwId=$(az network application-gateway list --query "[?name=='gpitfutures-monitor-appgw'].id" -o tsv)
 $appgwRgName=$(az network application-gateway list --query "[?name=='gpitfutures-monitor-appgw'].resourceGroup" -o tsv)
-$appgwRgId=$(az group list --query "[?name=='gpitfutures-monitor-rg-appgw'].id" -o tsv)
 $subId=$(az account list --query "[?name=='GP IT Futures Buying Catalogue'].id" -o tsv --all)
 
 get-content ../ingress/aadpodidentity-template.txt | ForEach-Object {$_.replace("`${name}","gpitfutures-monitor-aad-id")} | ForEach-Object {$_.replace("`${idPath}","$aadIdPath")} | ForEach-Object {$_.replace("`${clientID}","$aadClientId")} > ./scripts/ingress/monitor-aadpodidentity.yaml
@@ -64,8 +58,7 @@ helm repo update
 kubectl create namespace cattle-system
 helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher.dynamic.buyingcatalogue.digital.nhs.uk --set tls=external
 
-start-sleep 120 # to allow rancher pods to deploy
+start-sleep 240 # to allow rancher pods to deploy
 
-#ipArr=()
-#        ipArr+=$(kubectl get pods -l app=rancher -n cattle-system -o wide | while read line ; do while read a b c d e ip g h i; do echo $ip ; done ; done)
-#        az network application-gateway address-pool update -g gpitfutures-monitor-rg-appgw --gateway-name gpitfutures-monitor-appgw -n rancher --servers $ipArr  
+$ipArr=(kubectl get pods -l app=rancher -n cattle-system -o json | ConvertFrom-Json).items.status.podIp
+az network application-gateway address-pool update -g gpitfutures-monitor-rg-appgw --gateway-name gpitfutures-monitor-appgw -n rancher --servers $ipArr  
