@@ -1,5 +1,5 @@
 module "appgw_public" {
-  source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress_rancher"
+  source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress"
 
   environment             = var.environment
   region                  = var.region
