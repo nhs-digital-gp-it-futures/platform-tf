@@ -45,6 +45,23 @@ module "sql_server_sec" {
   mastekvpn             = data.azurerm_key_vault_secret.mastekvpn1.value
 }
 
+# module "sql_databases_dev" {
+#   #source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_sql_databases_simple"
+#   source = "../../platform-tf-modules/bc_sql_databases_simple"
+
+#   count                 = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
+  
+#   environment           = var.environment
+#   region                = var.region
+#   project               = var.project
+#   rg_name               = azurerm_resource_group.sql-pri.name
+#   sqlsvr_name           = "${var.project}-${var.environment}-sql-pri"
+#   db_name               = "bc-${var.environment}"
+#   sql_collation         = "SQL_Latin1_General_CP1_CI_AS"
+#   sql_edition           = "Basic"
+#   sql_size              = "Basic"
+# } 
+
 module "sql_databases" {
   source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_sql_databases"
 

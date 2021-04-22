@@ -1,5 +1,6 @@
 module "appgw_public" {
   source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress_rancher"
+  #source = "../../platform-tf-modules/bc_app_gateway_ingress_rancher"
 
   count                   = local.shortenv != "production" ? 1 : 0 
   
@@ -16,6 +17,7 @@ module "appgw_public" {
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "buyingcatalogue${local.shortenv}"
   pip_name                = "${var.project}-${var.environment}-pip"
+  #webapp_name             = module.webapp[0].webapp_name
 
   depends_on = [
     azurerm_key_vault_access_policy.keyvault_aad_access,
@@ -25,6 +27,7 @@ module "appgw_public" {
 
 module "appgw_private" {
   source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress"
+  #source = "../../platform-tf-modules/bc_app_gateway_ingress"
   
   count                   = local.shortenv == "preprod" ? 1 : 0 
   
@@ -50,6 +53,7 @@ module "appgw_private" {
 
 module "appgw_public_prod" {
   source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress"
+  #source = "../../platform-tf-modules/bc_app_gateway_ingress_rancher"
   
   count                   = local.shortenv == "production" ? 1 : 0 
   
@@ -66,6 +70,7 @@ module "appgw_public_prod" {
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "buyingcatalogue${local.shortenv}"
   pip_name                = "${var.project}-${var.environment}-pip"
+  #webapp_name             = module.webapp[0].webapp_name
 
   depends_on = [
     azurerm_key_vault_access_policy.keyvault_aad_access,
@@ -75,7 +80,8 @@ module "appgw_public_prod" {
 
 module "appgw_private_prod" {
   source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress_rancher"
-  
+  #source = "../../platform-tf-modules/bc_app_gateway_ingress_rancher"
+
   count                   = local.shortenv == "production" ? 1 : 0 
   
   environment             = var.environment
@@ -91,6 +97,7 @@ module "appgw_private_prod" {
   managed_id_principal_id = azurerm_user_assigned_identity.managed_id.principal_id
   dns_name                = "buyingcatalogue${local.shortenv}pri"
   pip_name                = "${var.project}-${var.environment}-pip-pri"
+  #webapp_name             = module.webapp[0].webapp_name
 
   depends_on = [
     azurerm_key_vault_access_policy.keyvault_aad_access,
