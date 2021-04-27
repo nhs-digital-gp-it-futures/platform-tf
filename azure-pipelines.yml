@@ -368,7 +368,6 @@ jobs:
       helm repo update
       helm install ingress-azure -f ./ingress/$(release)-helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure -n ingress-appgw --version 1.2.0-rc3
       kubectl apply -f https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/ae695ef9bd05c8b708cedf6ff545595d0b7022dc/crds/AzureIngressProhibitedTarget.yaml
-
     displayName: 'Agic - Install'
 
   - bash: |
@@ -387,6 +386,14 @@ jobs:
       cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/rancher-$release-azureingressprohibitedtarget.yaml
       kubectl apply -f ./ingress/rancher-$release-azureingressprohibitedtarget.yaml -n ingress-appgw
     displayName: 'Agic - Prohibited Targets - Rancher' 
+
+  - bash: |
+      release=$(release)
+      agicCrdURL="webapp-$release.dynamic.buyingcatalogue.digital.nhs.uk"
+      agicCrdName=$(echo $agicCrdURL | tr "." -)
+      cat ./ingress/azureingressprohibitedtarget.txt | sed -e "s*\${PTname}*$agicCrdName*" | sed -e "s*\${URL}*$agicCrdURL*" > ./ingress/webapp-$release-azureingressprohibitedtarget.yaml
+      kubectl apply -f ./ingress/webapp-$release-azureingressprohibitedtarget.yaml -n ingress-appgw
+    displayName: 'Agic - Prohibited Targets - Webapp' 
 
   - bash: |
       # From https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/

@@ -11,4 +11,6 @@ locals {
   envURL = replace(data.azurerm_key_vault_secret.coreurl.value, "${local.rancherEnv}.","")
   # SQL Alternate Region
   sql_region2   = "ukwest"
+  gw_webappLiveURL = "unknown"
+  gw_webappURL = var.environment != "preprod" && var.environment != "production" ? join(".", ["webapp-${var.environment}", trim(data.azurerm_key_vault_secret.coreurl.value, "${var.environment}.")]) : local.gw_webappLiveURL
 }
