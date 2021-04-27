@@ -46,8 +46,7 @@ module "sql_server_sec" {
 }
 
 module "sql_databases_dev" {
-  #source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_sql_databases_simple"
-  source = "../../platform-tf-modules/bc_sql_databases_simple"
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_sql_databases_simple"
 
   count                 = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
   

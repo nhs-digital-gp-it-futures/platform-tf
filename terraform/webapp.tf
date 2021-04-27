@@ -4,9 +4,8 @@ data "azurerm_container_registry" "acr" {
 }
 
 module "webapp" {
-  #source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_webapp"
-  source = "../../platform-tf-modules/bc_webapp"
-
+  source                = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_webapp"
+  
   count                 = local.shortenv != "preprod" && local.shortenv != "production" ? 1 : 0 
   
   environment           = var.environment

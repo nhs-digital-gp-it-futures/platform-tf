@@ -51,7 +51,7 @@ module "appgw_private" {
 }
 
 module "appgw_public_prod" {
-  source = "../../platform-tf-modules/bc_app_gateway_ingress_rancher_webapp"
+  source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress_rancher_webapp"
   
   count                   = local.shortenv == "production" ? 1 : 0 
   
@@ -78,7 +78,7 @@ module "appgw_public_prod" {
 }
 
 module "appgw_private_prod" {
-  source = "../../platform-tf-modules/bc_app_gateway_ingress_rancher_webapp"
+  source                  = "github.com/nhs-digital-gp-it-futures/platform-tf-modules/bc_app_gateway_ingress_rancher_webapp"
 
   count                   = local.shortenv == "production" ? 1 : 0 
   
