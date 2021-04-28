@@ -59,6 +59,10 @@ module "sql_databases_dev" {
   sql_collation         = "SQL_Latin1_General_CP1_CI_AS"
   sql_edition           = "Basic"
   sql_size              = "Basic"
+  
+  depends_on = [
+    module.sql_server_pri, # I.e. depends on SQL Server being fully setup
+  ]
 } 
 
 module "sql_databases" {
@@ -78,4 +82,9 @@ module "sql_databases" {
   sql_collation         = "SQL_Latin1_General_CP1_CI_AS"
   sql_edition           = "Standard"
   sql_size              = "S0"
+
+  depends_on = [
+    module.sql_server_pri, 
+    module.sql_server_sec # I.e. depends on SQL Server being fully setup
+  ]
 } 

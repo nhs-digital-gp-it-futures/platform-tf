@@ -22,10 +22,21 @@ module "webapp" {
   always_on             = local.shortenv != "production" ? "false" : "true"
   db_name               = "bc-${var.environment}"
   auth_pwd              = data.azurerm_key_vault_secret.sqladminpassword.value
+
+  depends_on = [
+    module.sql_server_pri,
+  ]
 }
 
 resource "azurerm_app_service_custom_hostname_binding" "webapp" {
   hostname            = local.gw_webappURL
   app_service_name    = "${var.project}-${var.environment}-webapp"
   resource_group_name = azurerm_resource_group.aks.name
+
+  depends_on = [
+    module.webapp,
+    azurerm_dns_a_record.webapp_a,
+    azurerm_dns_txt_record.webapp_txt,
+    azurerm_dns_cname_record.webapp,
+  ]
 }

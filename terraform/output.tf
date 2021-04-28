@@ -10,3 +10,7 @@ output "site_URL" {
 output "rancher_URL" {
   value = local.rancherURL
 }
+
+output "webapp_URL" {
+  value = local.gw_webappURL
+}
