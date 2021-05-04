@@ -57,8 +57,8 @@ module "sql_databases_dev" {
   sqlsvr_name           = "${var.project}-${var.environment}-sql-pri"
   db_name               = "bc-${var.environment}"
   sql_collation         = "SQL_Latin1_General_CP1_CI_AS"
-  sql_edition           = "Basic"
-  sql_size              = "Basic"
+  sql_edition           = local.shortenv != "development" ? "Basic" : "Standard"
+  sql_size              = local.shortenv != "development" ? "Basic" : "S0"
   
   depends_on = [
     module.sql_server_pri, # I.e. depends on SQL Server being fully setup
